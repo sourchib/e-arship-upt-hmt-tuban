@@ -99,8 +99,6 @@ Untuk deployment ke server produksi, pastikan langkah-langkah optimasi berikut d
 | Role | Deskripsi |
 | :--- | :--- |
 | **Admin** | Akses penuh seluruh sistem, manajemen pengguna, dan penghapusan data. |
-| **Operator** | Input data harian (surat, ternak, hijauan) dan manajemen dokumen. |
-| **Pimpinan** | Akses view data, approve surat keluar, dan monitoring statistik. |
 
 ---
 
