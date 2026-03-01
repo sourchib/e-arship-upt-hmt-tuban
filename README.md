@@ -105,7 +105,21 @@ Untuk deployment ke server produksi, pastikan langkah-langkah optimasi berikut d
 ## �️ Preview Tampilan
 
 > Landing page resmi E-Arsip UPT PT dan HMT Tuban. Mencakup hero section, fitur utama, statistik, dan form kontak.
-
+<img width="983" height="6515" alt="landing page" src="https://github.com/user-attachments/assets/6a97b978-9009-42a0-b6f6-ef1883a7ff95" />
+> Dashboard
+<img width="1084" height="709" alt="Dashboard-E-Arsip-Desktop-–-Figma-Make-03-01-2026_10_02_PM" src="https://github.com/user-attachments/assets/c7cb1fbb-2872-476a-99d6-be02d1e81dbb" />
+> Surat Masuk
+<img width="1080" height="631" alt="surat masuk" src="https://github.com/user-attachments/assets/6fb0b4b0-1937-4947-90c9-8be4bdfaad8a" />
+> Surat Keluar
+<img width="1079" height="631" alt="surat keluar" src="https://github.com/user-attachments/assets/c4825d1c-91b7-472d-96d5-486dcd81cd1e" />
+> Arship pembibitan
+<img width="1082" height="728" alt="arship pembibitan" src="https://github.com/user-attachments/assets/de2e47c8-3887-4116-bf06-e523746bd838" />
+> Arship Hijau
+<img width="1085" height="638" alt="arship hijau" src="https://github.com/user-attachments/assets/26fbbdc5-8766-4b27-9054-e2218367d590" />
+> Manajemen Dokumen
+<img width="1085" height="780" alt="manajemen dokumen" src="https://github.com/user-attachments/assets/5ff9fae3-ef66-45f3-9104-5343080af34d" />
+> Manajemen Pengguna
+<img width="1082" height="927" alt="manajemen pengguna" src="https://github.com/user-attachments/assets/efc3a35b-d71c-4a8d-a2df-1c83efdac428" />
 ---
 
 ## 🗄️ Mockup Data (Dummy Data)
