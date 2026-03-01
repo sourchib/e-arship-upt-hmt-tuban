@@ -12,11 +12,24 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // \App\Models\User::factory(10)->create();
+        // Create 10 users
+        $users = \App\Models\User::factory(10)->create();
 
-        // \App\Models\User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
+        // Create a default admin user
+        \App\Models\User::factory()->create([
+            'nama' => 'Administrator',
+            'email' => 'admin@earsip.id',
+            'password' => \Illuminate\Support\Facades\Hash::make('admin123'),
+            'role' => 'Admin',
+            'status' => 'Aktif',
+        ]);
+
+        // Create dummy data for other tables
+        \App\Models\SuratMasuk::factory(20)->create();
+        \App\Models\SuratKeluar::factory(20)->create();
+        \App\Models\ArsipPembibitan::factory(15)->create();
+        \App\Models\ArsipHijauan::factory(15)->create();
+        \App\Models\Dokumen::factory(25)->create();
+        \App\Models\LogAktivitas::factory(50)->create();
     }
 }
