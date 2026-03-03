@@ -207,4 +207,4 @@ Data yang di-generate mencakup semua tabel, sebagai berikut:
 Untuk pertanyaan lebih lanjut terkait penggunaan atau pemeliharaan sistem, silakan hubungi tim IT Internal UPT PT dan HMT Tuban.
 
 ---
-© 2026 E-Arsip UPT PT dan HMT Tuban. All rights reserved.
+© 2026 E-Arsip Muchammad Muchib Zainul Fikry. All rights reserved.
