@@ -59,24 +59,23 @@
         </div>
 
         <div class="modal-body-custom">
-            <form action="{{ route('dokumen.store') }}" method="POST" enctype="multipart/form-data">
+            <form id="uploadForm" action="{{ route('dokumen.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
 
                 <div class="form-group">
                     <label class="form-label">Nama Dokumen <span style="color:#dc2626">*</span></label>
-                    <input type="text" class="form-control @error('nama') is-invalid @enderror"
-                           name="nama" value="{{ old('nama') }}"
+                    <input type="text" class="form-control"
+                           name="nama" id="input_nama"
                            placeholder="Contoh: Laporan Tahunan 2025" required>
-                    @error('nama')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Kategori <span style="color:#dc2626">*</span></label>
-                    <select class="form-control @error('kategori') is-invalid @enderror" name="kategori" required>
+                    <select class="form-control" name="kategori" id="input_kategori" required>
                         <option value="" disabled selected>Pilih Kategori</option>
                         @foreach($categories as $cat)
                             @if($cat != 'Semua')
-                            <option value="{{ $cat }}" {{ old('kategori') == $cat ? 'selected' : '' }}>{{ $cat }}</option>
+                            <option value="{{ $cat }}">{{ $cat }}</option>
                             @endif
                         @endforeach
                     </select>
@@ -98,11 +97,11 @@
 
                 <div class="form-group">
                     <label class="form-label">Deskripsi (Opsional)</label>
-                    <textarea class="form-control" name="deskripsi" rows="3" placeholder="Tambahkan keterangan dokumen jika perlu"></textarea>
+                    <textarea class="form-control" name="deskripsi" id="input_deskripsi" rows="3" placeholder="Tambahkan keterangan dokumen jika perlu"></textarea>
                 </div>
 
                 <div class="modal-footer-btns">
-                    <button type="submit" class="btn-save-modal">Upload Sekarang</button>
+                    <button type="submit" class="btn-save-modal" id="btnSubmitUpload">Upload Sekarang</button>
                     <button type="button" class="btn-cancel-modal" id="cancelUploadModal">Batal</button>
                 </div>
             </form>
@@ -148,6 +147,9 @@
     let currentKategori  = '{{ request()->kategori ?? "Semua" }}';
     let typingTimer;
 
+    const uploadForm     = document.getElementById('uploadForm');
+    const btnSubmit      = document.getElementById('btnSubmitUpload');
+
     const performUpdate = () => {
         const url = new URL(window.location.href);
         url.searchParams.set('kategori', currentKategori);
@@ -162,6 +164,41 @@
                 window.history.pushState({}, '', url);
             });
     };
+
+    if(uploadForm) {
+        uploadForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            btnSubmit.disabled = true;
+            btnSubmit.textContent = 'Sedang Mengupload...';
+
+            fetch(this.action, {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
+                    Swal.fire('Berhasil!', data.message, 'success');
+                    toggleModal();
+                    uploadForm.reset();
+                    fileInfo.classList.remove('show');
+                    performUpdate();
+                } else {
+                    Swal.fire('Gagal!', data.message || 'Terjadi kesalahan saat upload.', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire('Error!', 'Terjadi kesalahan sistem.', 'error');
+            })
+            .finally(() => {
+                btnSubmit.disabled = false;
+                btnSubmit.textContent = 'Upload Sekarang';
+            });
+        });
+    }
 
     document.querySelectorAll('.filter-tab').forEach(tab => {
         tab.addEventListener('click', function() {
@@ -181,11 +218,40 @@
 
     function bindDeleteConfirm() {
         document.querySelectorAll('.btn-delete-confirm').forEach(btn => {
-            btn.addEventListener('click', function() {
-                Swal.fire({ title: 'Hapus Dokumen?', text: 'Dokumen ini akan dihapus permanen dari server!', icon: 'warning',
-                    showCancelButton: true, confirmButtonColor: '#dc2626', cancelButtonColor: '#64748b',
-                    confirmButtonText: 'Ya, hapus!', cancelButtonText: 'Batal', reverseButtons: true
-                }).then(result => { if (result.isConfirmed) document.getElementById(this.dataset.form).submit(); });
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const formId = this.dataset.form;
+                const form = document.getElementById(formId);
+                
+                Swal.fire({ 
+                    title: 'Hapus Dokumen?', 
+                    text: 'Dokumen ini akan dihapus permanen dari server!', 
+                    icon: 'warning',
+                    showCancelButton: true, 
+                    confirmButtonColor: '#dc2626', 
+                    cancelButtonColor: '#64748b',
+                    confirmButtonText: 'Ya, hapus!', 
+                    cancelButtonText: 'Batal', 
+                    reverseButtons: true
+                }).then(result => { 
+                    if (result.isConfirmed) {
+                        const formData = new FormData(form);
+                        fetch(form.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                        })
+                        .then(r => r.json())
+                        .then(data => {
+                            if(data.success) {
+                                Swal.fire('Terhapus!', data.message, 'success');
+                                performUpdate();
+                            } else {
+                                Swal.fire('Gagal!', 'Gagal menghapus dokumen.', 'error');
+                            }
+                        });
+                    } 
+                });
             });
         });
     }

@@ -117,6 +117,9 @@ class UserManagementController extends Controller
 
     public function destroy(User $user)
     {
+        // Delete related logs first to avoid foreign key constraint error
+        $user->logAktivitas()->delete();
+        
         $user->delete();
         return back()->with('success', 'Pengguna berhasil dihapus.');
     }
