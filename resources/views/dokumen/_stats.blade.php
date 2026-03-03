@@ -1,46 +1,39 @@
-<div class="row g-3 mb-4">
-    <div class="col-6 col-md-3">
-        <div class="p-3 bg-white rounded-2xl shadow-sm border border-slate-100 h-100 flex items-center gap-3">
-            <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-500">
-                <i data-lucide="file-text" class="w-6 h-6"></i>
-            </div>
-            <div>
-                <h4 class="fw-bold mb-0 text-slate-800">{{ $totalDokumen }}</h4>
-                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-0">Total Dokumen</p>
-            </div>
+{{-- Dokumen Stats --}}
+<div class="mini-stats-grid">
+    <div class="mini-stat-card">
+        <div class="mini-stat-icon blue-icon">
+            <i data-lucide="file-text" style="width:20px;height:20px;"></i>
+        </div>
+        <div class="mini-stat-body">
+            <div class="mini-stat-value">{{ number_format($totalDokumen) }}</div>
+            <div class="mini-stat-label">Total Dokumen</div>
         </div>
     </div>
-    <div class="col-6 col-md-3">
-        <div class="p-3 bg-white rounded-2xl shadow-sm border border-slate-100 h-100 flex items-center gap-3">
-            <div class="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center text-red-500">
-                <i data-lucide="file-type-2" class="w-6 h-6"></i>
-            </div>
-            <div>
-                <h4 class="fw-bold mb-0 text-slate-800">{{ $pdfCount }}</h4>
-                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-0">File PDF</p>
-            </div>
+    <div class="mini-stat-card">
+        <div class="mini-stat-icon" style="background:#fef2f2;color:#dc2626;">
+            <i data-lucide="file-type-2" style="width:20px;height:20px;"></i>
+        </div>
+        <div class="mini-stat-body">
+            <div class="mini-stat-value">{{ number_format($pdfCount) }}</div>
+            <div class="mini-stat-label">File PDF</div>
         </div>
     </div>
-    <div class="col-6 col-md-3">
-        <div class="p-3 bg-white rounded-2xl shadow-sm border border-slate-100 h-100 flex items-center gap-3">
-            <div class="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center text-green-500">
-                <i data-lucide="file-spreadsheet" class="w-6 h-6"></i>
-            </div>
-            <div>
-                <h4 class="fw-bold mb-0 text-slate-800">{{ $excelCount }}</h4>
-                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-0">File Excel</p>
-            </div>
+    <div class="mini-stat-card">
+        <div class="mini-stat-icon green-icon">
+            <i data-lucide="file-spreadsheet" style="width:20px;height:20px;"></i>
+        </div>
+        <div class="mini-stat-body">
+            <div class="mini-stat-value">{{ number_format($excelCount) }}</div>
+            <div class="mini-stat-label">File Excel</div>
         </div>
     </div>
-    <div class="col-6 col-md-3">
-        <div class="p-3 bg-white rounded-2xl shadow-sm border border-slate-100 h-100 flex items-center gap-3">
-            <div class="w-12 h-12 rounded-xl bg-orange-50 flex items-center justify-center text-orange-500">
-                <i data-lucide="layers" class="w-6 h-6"></i>
-            </div>
-            <div>
-                <h4 class="fw-bold mb-0 text-slate-800">{{ $categoryCount }}</h4>
-                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-0">Kategori</p>
-            </div>
+    <div class="mini-stat-card">
+        <div class="mini-stat-icon orange-icon">
+            <i data-lucide="layers" style="width:20px;height:20px;"></i>
+        </div>
+        <div class="mini-stat-body">
+            <div class="mini-stat-value">{{ number_format($categoryCount) }}</div>
+            <div class="mini-stat-label">Kategori</div>
         </div>
     </div>
 </div>

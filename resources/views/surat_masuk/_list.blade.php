@@ -1,63 +1,66 @@
-<!-- Desktop Table View -->
-<div class="hidden md:block bg-white rounded-2xl shadow-sm overflow-hidden border border-slate-100">
-    <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0 border-0">
-            <thead class="bg-slate-50/50">
+{{-- Desktop Table --}}
+<div class="data-card desktop-table">
+    <div class="data-card-header">
+        <span class="data-card-title">Daftar Surat Masuk</span>
+        <span style="font-size:12px;color:#94a3b8;">Total: {{ $suratMasuk->total() }} surat</span>
+    </div>
+    <div style="overflow-x:auto;">
+        <table>
+            <thead>
                 <tr>
-                    <th class="ps-4 py-4 text-slate-700 font-semibold text-sm border-0">No</th>
-                    <th class="py-4 text-slate-700 font-semibold text-sm border-0">Nomor Surat</th>
-                    <th class="py-4 text-slate-700 font-semibold text-sm border-0">Perihal</th>
-                    <th class="py-4 text-slate-700 font-semibold text-sm border-0">Pengirim</th>
-                    <th class="py-4 text-slate-700 font-semibold text-sm border-0">Tanggal</th>
-                    <th class="py-4 text-slate-700 font-semibold text-sm border-0">Status</th>
-                    <th class="pe-4 py-4 text-center text-slate-700 font-semibold text-sm border-0">Aksi</th>
+                    <th style="width:48px;">No</th>
+                    <th>Nomor Surat</th>
+                    <th>Perihal</th>
+                    <th>Pengirim</th>
+                    <th>Tanggal</th>
+                    <th>Status</th>
+                    <th style="text-align:center;">Aksi</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100">
+            <tbody>
                 @forelse($suratMasuk as $index => $surat)
                 <tr>
-                    <td class="ps-4 text-slate-600 text-sm">{{ $suratMasuk->firstItem() + $index }}</td>
+                    <td style="color:#94a3b8;font-size:12px;">{{ $suratMasuk->firstItem() + $index }}</td>
                     <td>
-                        <div class="text-slate-700 font-medium text-sm">{{ $surat->nomor_surat }}</div>
+                        <span style="font-weight:600;font-size:13.5px;">{{ $surat->nomor_surat }}</span>
                     </td>
                     <td>
-                        <div class="text-slate-700 text-sm max-w-xs leading-relaxed">{{ $surat->perihal }}</div>
+                        <span style="color:#475569;font-size:13.5px;max-width:260px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ $surat->perihal }}</span>
                     </td>
                     <td>
-                        <div class="text-slate-500 text-sm">{{ $surat->pengirim }}</div>
+                        <span style="color:#64748b;font-size:13px;">{{ $surat->pengirim }}</span>
                     </td>
                     <td>
-                        <div class="flex items-center gap-2 text-slate-500 text-sm">
-                            <i data-lucide="calendar" class="w-4 h-4 text-slate-400"></i>
+                        <span style="color:#64748b;font-size:13px;display:flex;align-items:center;gap:6px;">
+                            <i data-lucide="calendar" style="width:14px;height:14px;color:#94a3b8;"></i>
                             {{ $surat->tanggal_surat->format('d/m/Y') }}
-                        </div>
-                    </td>
-                    <td>
-                       @php
-                            $statusClass = 'bg-amber-100 text-amber-700';
-                            if($surat->status == 'Diproses') $statusClass = 'bg-blue-100 text-blue-700';
-                            if($surat->status == 'Terarsip') $statusClass = 'bg-slate-100 text-slate-600';
-                        @endphp
-                        <span class="px-3 py-1 rounded-full text-xs font-semibold {{ $statusClass }}">
-                            {{ $surat->status }}
                         </span>
                     </td>
-                    <td class="pe-4">
-                        <div class="flex items-center justify-center gap-1">
-                            <a href="{{ route('surat-masuk.show', $surat->id) }}" class="p-2 text-indigo-500 hover:bg-indigo-50 rounded-lg transition-colors" title="Detail">
-                                <i data-lucide="eye" class="w-5 h-5"></i>
+                    <td>
+                        @php
+                            $sc = 'bg-pending';
+                            if($surat->status == 'Diproses') $sc = 'bg-diproses';
+                            if($surat->status == 'Terarsip') $sc = 'bg-terarsip';
+                        @endphp
+                        <span class="status-badge {{ $sc }}">{{ $surat->status }}</span>
+                    </td>
+                    <td>
+                        <div class="action-btns">
+                            <a href="{{ route('surat-masuk.show', $surat->id) }}" class="action-btn action-btn-view" title="Detail">
+                                <i data-lucide="eye"></i>
                             </a>
-                            <a href="{{ $surat->file_path ? asset('storage/' . $surat->file_path) : '#' }}" class="p-2 text-emerald-500 hover:bg-emerald-50 rounded-lg transition-colors" title="Download" target="_blank">
-                                <i data-lucide="download" class="w-5 h-5"></i>
+                            <a href="{{ $surat->file_path ? asset('storage/'.$surat->file_path) : '#' }}"
+                               class="action-btn action-btn-dl" title="Download" target="_blank">
+                                <i data-lucide="download"></i>
                             </a>
-                            <a href="{{ route('surat-masuk.edit', $surat->id) }}" class="p-2 text-orange-500 hover:bg-orange-50 rounded-lg transition-colors" title="Edit">
-                                <i data-lucide="edit-3" class="w-5 h-5"></i>
+                            <a href="{{ route('surat-masuk.edit', $surat->id) }}" class="action-btn action-btn-edit" title="Edit">
+                                <i data-lucide="edit-3"></i>
                             </a>
-                            <form id="delete-form-{{ $surat->id }}" action="{{ route('surat-masuk.destroy', $surat->id) }}" method="POST" class="inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="button" class="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-colors btn-delete-confirm" data-form="delete-form-{{ $surat->id }}" title="Hapus">
-                                    <i data-lucide="trash-2" class="w-5 h-5"></i>
+                            <form id="delete-form-{{ $surat->id }}" action="{{ route('surat-masuk.destroy', $surat->id) }}" method="POST" style="display:inline;">
+                                @csrf @method('DELETE')
+                                <button type="button" class="action-btn action-btn-delete btn-delete-confirm"
+                                        data-form="delete-form-{{ $surat->id }}" title="Hapus">
+                                    <i data-lucide="trash-2"></i>
                                 </button>
                             </form>
                         </div>
@@ -65,79 +68,62 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="7" class="text-center py-12 text-slate-400 text-sm italic">Belum ada surat masuk.</td>
+                    <td colspan="7">
+                        <div class="empty-state">
+                            <i data-lucide="inbox" style="display:block;margin:0 auto 14px;"></i>
+                            <p>Belum ada surat masuk.</p>
+                        </div>
+                    </td>
                 </tr>
                 @endforelse
             </tbody>
         </table>
     </div>
+    {{ $suratMasuk->links('vendor.pagination.custom') }}
 </div>
 
-<!-- Mobile Card View -->
-<div class="md:hidden space-y-4">
+{{-- Mobile Cards --}}
+<div class="mobile-card-list">
     @forelse($suratMasuk as $index => $surat)
-    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
-        <div class="flex justify-between items-start mb-3">
-            <span class="text-xs font-semibold text-slate-400">#{{ $suratMasuk->firstItem() + $index }}</span>
-            @php
-                $statusClass = 'bg-amber-100 text-amber-700';
-                if($surat->status == 'Diproses') $statusClass = 'bg-blue-100 text-blue-700';
-                if($surat->status == 'Terarsip') $statusClass = 'bg-slate-100 text-slate-600';
-            @endphp
-            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider {{ $statusClass }}">
-                {{ $surat->status }}
-            </span>
+    <div class="mobile-card">
+        <div class="mobile-card-header">
+            <span style="font-size:11px;color:#94a3b8;font-weight:600;">#{{ $suratMasuk->firstItem() + $index }}</span>
+            @php $sc = 'bg-pending'; if($surat->status=='Diproses') $sc='bg-diproses'; if($surat->status=='Terarsip') $sc='bg-terarsip'; @endphp
+            <span class="status-badge {{ $sc }}">{{ $surat->status }}</span>
         </div>
-        <div class="mb-3">
-            <div class="text-[10px] text-slate-400 font-bold uppercase tracking-tight mb-1">Nomor Surat</div>
-            <div class="text-sm font-semibold text-slate-800">{{ $surat->nomor_surat }}</div>
+        <div class="mobile-card-field">
+            <div class="mobile-card-label">Nomor Surat</div>
+            <div class="mobile-card-value">{{ $surat->nomor_surat }}</div>
         </div>
-        <div class="mb-3">
-            <div class="text-[10px] text-slate-400 font-bold uppercase tracking-tight mb-1">Perihal</div>
-            <div class="text-sm text-slate-700 leading-relaxed font-medium">{{ $surat->perihal }}</div>
+        <div class="mobile-card-field">
+            <div class="mobile-card-label">Perihal</div>
+            <div class="mobile-card-value">{{ $surat->perihal }}</div>
         </div>
-        <div class="grid grid-cols-2 gap-4 mb-4">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
             <div>
-                <div class="text-[10px] text-slate-400 font-bold uppercase tracking-tight mb-1">Pengirim</div>
-                <div class="text-xs text-slate-600">{{ $surat->pengirim }}</div>
+                <div class="mobile-card-label">Pengirim</div>
+                <div class="mobile-card-value" style="font-size:12px;">{{ $surat->pengirim }}</div>
             </div>
             <div>
-                <div class="text-[10px] text-slate-400 font-bold uppercase tracking-tight mb-1">Tanggal</div>
-                <div class="flex items-center gap-1.5 text-xs text-slate-600">
-                    <i data-lucide="calendar" class="w-3 h-3 text-slate-400"></i>
-                    {{ $surat->tanggal_surat->format('d/m/Y') }}
-                </div>
+                <div class="mobile-card-label">Tanggal</div>
+                <div class="mobile-card-value" style="font-size:12px;">{{ $surat->tanggal_surat->format('d/m/Y') }}</div>
             </div>
         </div>
-        <div class="pt-3 border-t border-slate-50 flex items-center justify-between">
-            <div class="flex gap-1">
-                <a href="{{ route('surat-masuk.show', $surat->id) }}" class="p-2 text-indigo-500 bg-indigo-50 rounded-lg">
-                    <i data-lucide="eye" class="w-4 h-4"></i>
-                </a>
-                <a href="{{ $surat->file_path ? asset('storage/' . $surat->file_path) : '#' }}" class="p-2 text-emerald-500 bg-emerald-50 rounded-lg" target="_blank">
-                    <i data-lucide="download" class="w-4 h-4"></i>
-                </a>
-                <a href="{{ route('surat-masuk.edit', $surat->id) }}" class="p-2 text-orange-500 bg-orange-50 rounded-lg">
-                    <i data-lucide="edit-3" class="w-4 h-4"></i>
-                </a>
+        <div class="mobile-card-footer">
+            <div class="action-btns">
+                <a href="{{ route('surat-masuk.show', $surat->id) }}" class="action-btn action-btn-view"><i data-lucide="eye"></i></a>
+                <a href="{{ $surat->file_path ? asset('storage/'.$surat->file_path) : '#' }}" class="action-btn action-btn-dl" target="_blank"><i data-lucide="download"></i></a>
+                <a href="{{ route('surat-masuk.edit', $surat->id) }}" class="action-btn action-btn-edit"><i data-lucide="edit-3"></i></a>
             </div>
-            <button type="button" class="p-2 text-rose-500 bg-rose-50 rounded-lg btn-delete-confirm" data-form="delete-form-{{ $surat->id }}">
-                <i data-lucide="trash-2" class="w-4 h-4"></i>
+            <button type="button" class="action-btn action-btn-delete btn-delete-confirm" data-form="delete-form-{{ $surat->id }}">
+                <i data-lucide="trash-2"></i>
             </button>
         </div>
     </div>
     @empty
-    <div class="bg-white p-12 rounded-2xl text-center text-slate-400 text-sm italic border border-dashed border-slate-200">
-        Belum ada surat masuk.
+    <div class="mobile-card" style="text-align:center;padding:40px;">
+        <p style="color:#94a3b8;font-size:13px;">Belum ada surat masuk.</p>
     </div>
     @endforelse
+    {{ $suratMasuk->links('vendor.pagination.custom') }}
 </div>
-
-<!-- Pagination Container -->
-@if($suratMasuk->hasPages())
-<div class="mt-6 flex justify-center">
-    <div class="bg-white px-4 py-2 rounded-xl shadow-sm border border-slate-100">
-        {{ $suratMasuk->links() }}
-    </div>
-</div>
-@endif

@@ -1,20 +1,30 @@
-<div class="row g-3 mb-4">
-    <div class="col-4">
-        <div class="p-4 rounded-3xl text-white shadow-sm h-100" style="background: linear-gradient(135deg, #00C853 0%, #69f0ae 100%);">
-            <p class="mb-1 text-xs text-md-sm opacity-80 fw-medium">Total Lahan</p>
-            <h2 class="fw-bold mb-0 text-lg text-md-2xl">{{ $totalLahan }} Lahan</h2>
+{{-- Hijauan Stats --}}
+<div class="mini-stats-grid" style="grid-template-columns:repeat(3,1fr);">
+    <div class="mini-stat-card">
+        <div class="mini-stat-icon green-icon">
+            <i data-lucide="map" style="width:20px;height:20px;"></i>
+        </div>
+        <div class="mini-stat-body">
+            <div class="mini-stat-value">{{ number_format($totalLahan) }}</div>
+            <div class="mini-stat-label">Total Lahan</div>
         </div>
     </div>
-    <div class="col-4">
-        <div class="p-4 rounded-3xl text-white shadow-sm h-100" style="background: linear-gradient(135deg, #00E676 0%, #b2ff59 100%);">
-            <p class="mb-1 text-xs text-md-sm opacity-80 fw-medium">Total Produksi</p>
-            <h2 class="fw-bold mb-0 text-lg text-md-2xl">{{ number_format($totalProduksi, 0, ',', '.') }} Kg</h2>
+    <div class="mini-stat-card">
+        <div class="mini-stat-icon teal-icon">
+            <i data-lucide="package" style="width:20px;height:20px;"></i>
+        </div>
+        <div class="mini-stat-body">
+            <div class="mini-stat-value">{{ number_format($totalProduksi, 0, ',', '.') }} Kg</div>
+            <div class="mini-stat-label">Total Produksi</div>
         </div>
     </div>
-    <div class="col-4">
-        <div class="p-4 rounded-3xl text-white shadow-sm h-100" style="background: linear-gradient(135deg, #6200ea 0%, #7c4dff 100%);">
-            <p class="mb-1 text-xs text-md-sm opacity-80 fw-medium">Luas Total</p>
-            <h2 class="fw-bold mb-0 text-lg text-md-2xl">{{ number_format($luasTotal, 1, ',', '.') }} Ha</h2>
+    <div class="mini-stat-card">
+        <div class="mini-stat-icon blue-icon">
+            <i data-lucide="maximize-2" style="width:20px;height:20px;"></i>
+        </div>
+        <div class="mini-stat-body">
+            <div class="mini-stat-value">{{ number_format($luasTotal, 1, ',', '.') }} Ha</div>
+            <div class="mini-stat-label">Luas Total</div>
         </div>
     </div>
 </div>

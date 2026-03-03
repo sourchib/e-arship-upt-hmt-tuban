@@ -1,25 +1,39 @@
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-    <!-- Total Pengguna -->
-    <div class="bg-gradient-to-br from-indigo-600 to-violet-700 p-6 rounded-2xl shadow-sm border border-indigo-500/20 text-white">
-        <div class="text-sm font-medium opacity-80 mb-1">Total Pengguna</div>
-        <div class="text-3xl font-bold">{{ $stats['total'] }}</div>
+{{-- Users Stats --}}
+<div class="mini-stats-grid">
+    <div class="mini-stat-card">
+        <div class="mini-stat-icon" style="background:#ede9fe;color:#7c3aed;">
+            <i data-lucide="users" style="width:20px;height:20px;"></i>
+        </div>
+        <div class="mini-stat-body">
+            <div class="mini-stat-value">{{ $stats['total'] }}</div>
+            <div class="mini-stat-label">Total Pengguna</div>
+        </div>
     </div>
-
-    <!-- Pengguna Aktif -->
-    <div class="bg-gradient-to-br from-emerald-500 to-teal-600 p-6 rounded-2xl shadow-sm border border-emerald-400/20 text-white">
-        <div class="text-sm font-medium opacity-80 mb-1">Pengguna Aktif</div>
-        <div class="text-3xl font-bold">{{ $stats['aktif'] }}</div>
+    <div class="mini-stat-card">
+        <div class="mini-stat-icon green-icon">
+            <i data-lucide="user-check" style="width:20px;height:20px;"></i>
+        </div>
+        <div class="mini-stat-body">
+            <div class="mini-stat-value">{{ $stats['aktif'] }}</div>
+            <div class="mini-stat-label">Pengguna Aktif</div>
+        </div>
     </div>
-
-    <!-- Menunggu Persetujuan -->
-    <div class="bg-gradient-to-br from-amber-500 to-orange-600 p-6 rounded-2xl shadow-sm border border-amber-400/20 text-white">
-        <div class="text-sm font-medium opacity-80 mb-1">Menunggu Persetujuan</div>
-        <div class="text-3xl font-bold">{{ $stats['pending'] }}</div>
+    <div class="mini-stat-card">
+        <div class="mini-stat-icon orange-icon">
+            <i data-lucide="clock" style="width:20px;height:20px;"></i>
+        </div>
+        <div class="mini-stat-body">
+            <div class="mini-stat-value">{{ $stats['pending'] }}</div>
+            <div class="mini-stat-label">Menunggu Persetujuan</div>
+        </div>
     </div>
-
-    <!-- Admin -->
-    <div class="bg-gradient-to-br from-rose-500 to-red-600 p-6 rounded-2xl shadow-sm border border-rose-400/20 text-white">
-        <div class="text-sm font-medium opacity-80 mb-1">Admin</div>
-        <div class="text-3xl font-bold">{{ $stats['admin'] }}</div>
+    <div class="mini-stat-card">
+        <div class="mini-stat-icon" style="background:#fef2f2;color:#dc2626;">
+            <i data-lucide="shield" style="width:20px;height:20px;"></i>
+        </div>
+        <div class="mini-stat-body">
+            <div class="mini-stat-value">{{ $stats['admin'] }}</div>
+            <div class="mini-stat-label">Admin</div>
+        </div>
     </div>
 </div>

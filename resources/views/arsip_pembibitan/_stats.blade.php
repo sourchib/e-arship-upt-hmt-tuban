@@ -1,20 +1,30 @@
-<div class="row g-3 mb-4">
-    <div class="col-4">
-        <div class="p-4 rounded-3xl text-white shadow-sm h-100" style="background: linear-gradient(135deg, #6200ea 0%, #7c4dff 100%);">
-            <p class="mb-1 text-xs text-md-sm opacity-80 fw-medium">Total Ternak</p>
-            <h2 class="fw-bold mb-0 text-lg text-md-2xl">{{ $totalTernak }} Ekor</h2>
+{{-- Pembibitan Stats --}}
+<div class="mini-stats-grid" style="grid-template-columns:repeat(3,1fr);">
+    <div class="mini-stat-card">
+        <div class="mini-stat-icon" style="background:#ede9fe;color:#7c3aed;">
+            <i data-lucide="bar-chart-2" style="width:20px;height:20px;"></i>
+        </div>
+        <div class="mini-stat-body">
+            <div class="mini-stat-value">{{ number_format($totalTernak) }}</div>
+            <div class="mini-stat-label">Total Ekor Ternak</div>
         </div>
     </div>
-    <div class="col-4">
-        <div class="p-4 rounded-3xl text-white shadow-sm h-100" style="background: linear-gradient(135deg, #00c853 0%, #69f0ae 100%);">
-            <p class="mb-1 text-xs text-md-sm opacity-80 fw-medium">Terdistribusi</p>
-            <h2 class="fw-bold mb-0 text-lg text-md-2xl">{{ $terdistribusi }} Ekor</h2>
+    <div class="mini-stat-card">
+        <div class="mini-stat-icon" style="background:#f0fdf4;color:#16a34a;">
+            <i data-lucide="check-circle" style="width:20px;height:20px;"></i>
+        </div>
+        <div class="mini-stat-body">
+            <div class="mini-stat-value">{{ number_format($terdistribusi) }}</div>
+            <div class="mini-stat-label">Terdistribusi</div>
         </div>
     </div>
-    <div class="col-4">
-        <div class="p-4 rounded-3xl text-white shadow-sm h-100" style="background: linear-gradient(135deg, #ff6d00 0%, #ffab40 100%);">
-            <p class="mb-1 text-xs text-md-sm opacity-80 fw-medium">Dalam Proses</p>
-            <h2 class="fw-bold mb-0 text-lg text-md-2xl">{{ $dalamProses }} Ekor</h2>
+    <div class="mini-stat-card">
+        <div class="mini-stat-icon" style="background:#fff7ed;color:#f97316;">
+            <i data-lucide="loader" style="width:20px;height:20px;"></i>
+        </div>
+        <div class="mini-stat-body">
+            <div class="mini-stat-value">{{ number_format($dalamProses) }}</div>
+            <div class="mini-stat-label">Dalam Proses</div>
         </div>
     </div>
 </div>

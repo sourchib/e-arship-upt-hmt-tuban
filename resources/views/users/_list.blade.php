@@ -1,82 +1,82 @@
-<div class="bg-white rounded-2xl shadow-sm overflow-hidden border border-slate-100">
-    <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
-            <thead class="bg-slate-50/50 border-b border-slate-100">
+{{-- Desktop Table --}}
+<div class="data-card desktop-table">
+    <div class="data-card-header">
+        <span class="data-card-title">Daftar Pengguna</span>
+        <span style="font-size:12px;color:#94a3b8;">Total: {{ $users->total() }} pengguna</span>
+    </div>
+    <div style="overflow-x:auto;">
+        <table>
+            <thead>
                 <tr>
-                    <th class="ps-6 py-4 text-slate-700 font-semibold text-sm">No</th>
-                    <th class="py-4 text-slate-700 font-semibold text-sm">Nama</th>
-                    <th class="py-4 text-slate-700 font-semibold text-sm">Email</th>
-                    <th class="py-4 text-slate-700 font-semibold text-sm">Role</th>
-                    <th class="py-4 text-slate-700 font-semibold text-sm">Instansi</th>
-                    <th class="py-4 text-slate-700 font-semibold text-sm text-center">Status</th>
-                    <th class="pe-6 py-4 text-center text-slate-700 font-semibold text-sm">Aksi</th>
+                    <th style="width:48px;">No</th>
+                    <th>Pengguna</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Instansi</th>
+                    <th>Status</th>
+                    <th style="text-align:center;">Aksi</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100">
+            <tbody>
                 @forelse($users as $index => $user)
-                <tr class="hover:bg-slate-50/50 transition-colors">
-                    <td class="ps-6 py-4 text-slate-600 text-sm">{{ $users->firstItem() + $index }}</td>
-                    <td class="py-4">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center text-white font-bold text-sm">
+                <tr>
+                    <td style="color:#94a3b8;font-size:12px;">{{ $users->firstItem() + $index }}</td>
+                    <td>
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <div style="width:36px;height:36px;border-radius:50%;background:#10b981;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;">
                                 {{ strtoupper(substr($user->nama, 0, 1)) }}
                             </div>
                             <div>
-                                <div class="text-slate-800 font-semibold text-sm">{{ $user->nama }}</div>
-                                <div class="text-slate-400 text-[10px] font-medium mt-0.5">Terdaftar: {{ $user->tanggal_daftar ? $user->tanggal_daftar->format('j/n/Y') : '-' }}</div>
+                                <div style="font-weight:600;font-size:13.5px;color:#0f172a;">{{ $user->nama }}</div>
+                                <div style="font-size:11px;color:#94a3b8;">Terdaftar: {{ $user->tanggal_daftar ? $user->tanggal_daftar->format('j/n/Y') : '-' }}</div>
                             </div>
                         </div>
                     </td>
-                    <td class="py-4">
-                        <div class="flex items-center gap-2 text-slate-500 text-sm">
-                            <i data-lucide="mail" class="w-4 h-4 text-slate-300"></i>
+                    <td>
+                        <span style="color:#64748b;font-size:13px;display:flex;align-items:center;gap:6px;">
+                            <i data-lucide="mail" style="width:14px;height:14px;color:#94a3b8;"></i>
                             {{ $user->email }}
-                        </div>
-                    </td>
-                    <td class="py-4">
-                        @php
-                            $roleClass = 'bg-blue-100 text-blue-600';
-                            if($user->role == 'Admin') $roleClass = 'bg-rose-100 text-rose-600';
-                            if($user->role == 'Pimpinan') $roleClass = 'bg-purple-100 text-purple-600';
-                        @endphp
-                        <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider {{ $roleClass }}">
-                            {{ $user->role }}
                         </span>
                     </td>
-                    <td class="py-4 text-slate-600 text-sm">{{ $user->instansi ?? '-' }}</td>
-                    <td class="py-4 text-center">
+                    <td>
                         @php
-                            $statusClass = 'bg-amber-100 text-amber-600';
-                            if($user->status == 'Aktif') $statusClass = 'bg-emerald-100 text-emerald-600';
-                            if($user->status == 'Nonaktif') $statusClass = 'bg-slate-100 text-slate-600';
+                            $roleClass = 'bg-pending';
+                            if($user->role == 'Admin') $roleClass = 'bg-diproses';
+                            if($user->role == 'Pimpinan') $roleClass = 'bg-terkirim';
                         @endphp
-                        <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider {{ $statusClass }}">
-                            {{ $user->status }}
-                        </span>
+                        <span class="status-badge {{ $roleClass }}">{{ $user->role }}</span>
                     </td>
-                    <td class="pe-6 py-4">
-                        <div class="flex items-center justify-center gap-2">
+                    <td><span style="color:#64748b;font-size:13px;">{{ $user->instansi ?? '-' }}</span></td>
+                    <td>
+                        @php
+                            $statusClass = 'bg-pending';
+                            if($user->status == 'Aktif') $statusClass = 'bg-terkirim';
+                            if($user->status == 'Nonaktif') $statusClass = 'bg-terarsip';
+                        @endphp
+                        <span class="status-badge {{ $statusClass }}">{{ $user->status }}</span>
+                    </td>
+                    <td>
+                        <div class="action-btns">
                             @if($user->status == 'Pending')
-                                <form action="{{ route('users.approve', $user->id) }}" method="POST" class="inline">
+                                <form action="{{ route('users.approve', $user->id) }}" method="POST" style="display:inline;">
                                     @csrf
-                                    <button type="submit" class="text-emerald-500 hover:text-emerald-600 font-bold text-xs">Setujui</button>
+                                    <button type="submit" style="background:transparent;border:none;color:#10b981;font-weight:700;font-size:12px;cursor:pointer;">Setujui</button>
                                 </form>
-                                <form action="{{ route('users.reject', $user->id) }}" method="POST" class="inline">
+                                <form action="{{ route('users.reject', $user->id) }}" method="POST" style="display:inline;margin-left:8px;">
                                     @csrf
-                                    <button type="submit" class="text-rose-500 hover:text-rose-600 font-bold text-xs ms-2">Tolak</button>
+                                    <button type="submit" style="background:transparent;border:none;color:#ef4444;font-weight:700;font-size:12px;cursor:pointer;">Tolak</button>
                                 </form>
                             @else
-                                <a href="{{ route('users.show', $user->id) }}" class="p-2 text-indigo-500 hover:bg-indigo-50 rounded-lg transition-colors">
-                                    <i data-lucide="eye" class="w-4.5 h-4.5"></i>
+                                <a href="{{ route('users.show', $user->id) }}" class="action-btn action-btn-view" title="Detail">
+                                    <i data-lucide="eye"></i>
                                 </a>
-                                <a href="javascript:void(0)" onclick="editUser({{ json_encode($user) }})" class="p-2 text-orange-500 hover:bg-orange-50 rounded-lg transition-colors">
-                                    <i data-lucide="edit-3" class="w-4.5 h-4.5"></i>
+                                <a href="javascript:void(0)" onclick="editUser({{ json_encode($user) }})" class="action-btn action-btn-edit" title="Edit">
+                                    <i data-lucide="edit-3"></i>
                                 </a>
-                                <form id="delete-form-{{ $user->id }}" action="{{ route('users.destroy', $user->id) }}" method="POST" class="inline">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="button" class="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-colors btn-delete-confirm" data-form="delete-form-{{ $user->id }}">
-                                        <i data-lucide="trash-2" class="w-4.5 h-4.5"></i>
+                                <form id="delete-form-{{ $user->id }}" action="{{ route('users.destroy', $user->id) }}" method="POST" style="display:inline;">
+                                    @csrf @method('DELETE')
+                                    <button type="button" class="action-btn action-btn-delete btn-delete-confirm" data-form="delete-form-{{ $user->id }}" title="Hapus">
+                                        <i data-lucide="trash-2"></i>
                                     </button>
                                 </form>
                             @endif
@@ -85,7 +85,12 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="7" class="text-center py-12 text-slate-400 text-sm italic">Data tidak ditemukan.</td>
+                    <td colspan="7">
+                        <div class="empty-state">
+                            <i data-lucide="users" style="display:block;margin:0 auto 14px;"></i>
+                            <p>Data tidak ditemukan.</p>
+                        </div>
+                    </td>
                 </tr>
                 @endforelse
             </tbody>
@@ -93,8 +98,84 @@
     </div>
 </div>
 
-@if($users->hasPages())
-<div class="mt-6">
-    {{ $users->links() }}
+{{-- Mobile Cards --}}
+<div class="mobile-card-list">
+    @forelse($users as $index => $user)
+    <div class="mobile-card">
+        <div class="mobile-card-header">
+            <span style="font-size:11px;color:#94a3b8;font-weight:600;">#{{ $users->firstItem() + $index }}</span>
+            @php
+                $statusClass = 'bg-pending';
+                if($user->status == 'Aktif') $statusClass = 'bg-terkirim';
+                if($user->status == 'Nonaktif') $statusClass = 'bg-terarsip';
+            @endphp
+            <span class="status-badge {{ $statusClass }}">{{ $user->status }}</span>
+        </div>
+        
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+            <div style="width:36px;height:36px;border-radius:50%;background:#10b981;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;">
+                {{ strtoupper(substr($user->nama, 0, 1)) }}
+            </div>
+            <div>
+                <div style="font-weight:700;font-size:13.5px;color:#0f172a;">{{ $user->nama }}</div>
+                <div style="font-size:11px;color:#94a3b8;">Terdaftar: {{ $user->tanggal_daftar ? $user->tanggal_daftar->format('j/n/Y') : '-' }}</div>
+            </div>
+        </div>
+
+        <div class="mobile-card-field">
+            <div class="mobile-card-label">Email</div>
+            <div class="mobile-card-value" style="display:flex;align-items:center;gap:6px;">
+                <i data-lucide="mail" style="width:14px;height:14px;color:#94a3b8;"></i>
+                {{ $user->email }}
+            </div>
+        </div>
+        
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+            <div>
+                <div class="mobile-card-label">Role</div>
+                <div class="mobile-card-value" style="font-size:12px;">
+                    @php
+                        $roleClass = 'bg-pending';
+                        if($user->role == 'Admin') $roleClass = 'bg-diproses';
+                        if($user->role == 'Pimpinan') $roleClass = 'bg-terkirim';
+                    @endphp
+                    <span class="status-badge {{ $roleClass }}" style="display:inline-block;margin-top:4px;">{{ $user->role }}</span>
+                </div>
+            </div>
+            <div>
+                <div class="mobile-card-label">Instansi</div>
+                <div class="mobile-card-value" style="font-size:12px;">{{ $user->instansi ?? '-' }}</div>
+            </div>
+        </div>
+
+        <div class="mobile-card-footer mt-2">
+            <div class="action-btns">
+            @if($user->status == 'Pending')
+                <form action="{{ route('users.approve', $user->id) }}" method="POST" style="display:inline;">
+                    @csrf
+                    <button type="submit" style="background:transparent;border:none;color:#10b981;font-weight:700;font-size:12px;cursor:pointer;">Setujui</button>
+                </form>
+                <form action="{{ route('users.reject', $user->id) }}" method="POST" style="display:inline;margin-left:8px;">
+                    @csrf
+                    <button type="submit" style="background:transparent;border:none;color:#ef4444;font-weight:700;font-size:12px;cursor:pointer;">Tolak</button>
+                </form>
+            @else
+                <a href="{{ route('users.show', $user->id) }}" class="action-btn action-btn-view"><i data-lucide="eye"></i></a>
+                <a href="javascript:void(0)" onclick="editUser({{ json_encode($user) }})" class="action-btn action-btn-edit"><i data-lucide="edit-3"></i></a>
+            @endif
+            </div>
+            @if($user->status != 'Pending')
+            <button type="button" class="action-btn action-btn-delete btn-delete-confirm" data-form="delete-form-{{ $user->id }}">
+                <i data-lucide="trash-2"></i>
+            </button>
+            @endif
+        </div>
+    </div>
+    @empty
+    <div class="mobile-card" style="text-align:center;padding:40px;">
+        <p style="color:#94a3b8;font-size:13px;">Belum ada pengguna.</p>
+    </div>
+    @endforelse
 </div>
-@endif
+
+{{ $users->links('vendor.pagination.custom') }}
