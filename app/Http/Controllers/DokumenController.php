@@ -87,6 +87,13 @@ class DokumenController extends Controller
                 'user_id' => Auth::id(),
             ]);
 
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Dokumen berhasil diupload.'
+                ]);
+            }
+
             return redirect()->route('dokumen.index')->with('success', 'Dokumen berhasil diupload.');
         }
 
@@ -95,7 +102,7 @@ class DokumenController extends Controller
 
     public function download(Dokumen $dokumen)
     {
-        if (Storage::disk('public')->exists($dokumen->file_path)) {
+        if ($dokumen->file_path && Storage::disk('public')->exists($dokumen->file_path)) {
             $dokumen->increment('download_counter');
             
             LogAktivitas::create([
@@ -115,7 +122,7 @@ class DokumenController extends Controller
 
     public function destroy(Dokumen $dokumen)
     {
-        if (Storage::disk('public')->exists($dokumen->file_path)) {
+        if ($dokumen->file_path && Storage::disk('public')->exists($dokumen->file_path)) {
             Storage::disk('public')->delete($dokumen->file_path);
         }
 
@@ -130,6 +137,13 @@ class DokumenController extends Controller
             'user_agent' => request()->userAgent(),
             'user_id' => Auth::id(),
         ]);
+
+        if (request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Dokumen berhasil dihapus.'
+            ]);
+        }
 
         return redirect()->route('dokumen.index')->with('success', 'Dokumen berhasil dihapus.');
     }
