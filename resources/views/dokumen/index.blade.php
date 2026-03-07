@@ -11,10 +11,12 @@
         <p>Kelola semua dokumen arsip digital</p>
     </div>
     <div class="page-header-actions">
+        @if(Auth::check() && Auth::user()->role === 'Admin')
         <button type="button" class="btn btn-primary" id="openUploadModal">
             <i data-lucide="upload-cloud" style="width:16px;height:16px;"></i>
             Upload Dokumen
         </button>
+        @endif
     </div>
 </div>
 

@@ -54,6 +54,7 @@
                                     title="Detail">
                                 <i data-lucide="eye"></i>
                             </button>
+                            @if(Auth::check() && Auth::user()->role === 'Admin')
                             <button type="button" class="action-btn action-btn-edit btn-edit-arsip"
                                     data-kode="{{ $item->kode }}"
                                     data-jenis="{{ $item->jenis_ternak }}"
@@ -72,6 +73,7 @@
                                     <i data-lucide="trash-2"></i>
                                 </button>
                             </form>
+                            @endif
                         </div>
                     </td>
                 </tr>
@@ -140,6 +142,7 @@
                         title="Detail">
                     <i data-lucide="eye"></i>
                 </button>
+                @if(Auth::check() && Auth::user()->role === 'Admin')
                 <button type="button" class="action-btn action-btn-edit btn-edit-arsip"
                         data-kode="{{ $item->kode }}"
                         data-jenis="{{ $item->jenis_ternak }}"
@@ -152,8 +155,11 @@
                         title="Edit">
                     <i data-lucide="edit-3"></i>
                 </button>
+                @endif
             </div>
+            @if(Auth::check() && Auth::user()->role === 'Admin')
             <button type="button" class="action-btn action-btn-delete btn-delete-confirm" data-form="delete-form-{{ $item->id }}"><i data-lucide="trash-2"></i></button>
+            @endif
         </div>
     </div>
     @empty

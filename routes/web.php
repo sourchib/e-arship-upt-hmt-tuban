@@ -17,22 +17,28 @@ use App\Http\Controllers\AuthController;
 
 use App\Http\Controllers\DashboardController;
 
+// Public Routes (Accessible by Staff/Guest)
 Route::get('/', function () {
-    if (Auth::check()) {
-        return redirect()->route('dashboard');
-    }
-    return view('landing');
+    return redirect()->route('dashboard');
 });
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+// Index-only public routes for resources
+Route::get('surat-masuk', [\App\Http\Controllers\SuratMasukController::class, 'index'])->name('surat-masuk.index');
+Route::get('surat-keluar', [\App\Http\Controllers\SuratKeluarController::class, 'index'])->name('surat-keluar.index');
+Route::get('arsip-pembibitan', [\App\Http\Controllers\ArsipPembibitanController::class, 'index'])->name('arsip-pembibitan.index');
+Route::get('arsip-hijauan', [\App\Http\Controllers\ArsipHijauanController::class, 'index'])->name('arsip-hijauan.index');
+Route::get('dokumen', [\App\Http\Controllers\DokumenController::class, 'index'])->name('dokumen.index');
+Route::get('dokumen/{dokumen}/download', [\App\Http\Controllers\DokumenController::class, 'download'])->name('dokumen.download');
+
+// Admin-only Write Routes
 Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::resource('surat-masuk', \App\Http\Controllers\SuratMasukController::class);
+    Route::resource('surat-masuk', \App\Http\Controllers\SuratMasukController::class)->except(['index']);
     Route::post('surat-keluar/{surat_keluar}/send', [\App\Http\Controllers\SuratKeluarController::class, 'send'])->name('surat-keluar.send');
-    Route::resource('surat-keluar', \App\Http\Controllers\SuratKeluarController::class);
-    Route::resource('arsip-pembibitan', \App\Http\Controllers\ArsipPembibitanController::class);
-    Route::resource('arsip-hijauan', \App\Http\Controllers\ArsipHijauanController::class);
-    Route::get('dokumen/{dokumen}/download', [\App\Http\Controllers\DokumenController::class, 'download'])->name('dokumen.download');
-    Route::resource('dokumen', \App\Http\Controllers\DokumenController::class)->parameters([
+    Route::resource('surat-keluar', \App\Http\Controllers\SuratKeluarController::class)->except(['index']);
+    Route::resource('arsip-pembibitan', \App\Http\Controllers\ArsipPembibitanController::class)->except(['index']);
+    Route::resource('arsip-hijauan', \App\Http\Controllers\ArsipHijauanController::class)->except(['index']);
+    Route::resource('dokumen', \App\Http\Controllers\DokumenController::class)->except(['index'])->parameters([
         'dokumen' => 'dokumen'
     ]);
     

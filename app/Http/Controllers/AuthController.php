@@ -52,10 +52,19 @@ class AuthController extends Controller
         $credentials = $request->only('email', 'password');
 
         if (\Illuminate\Support\Facades\Auth::attempt($credentials)) {
+            $user = \Illuminate\Support\Facades\Auth::user();
+            
+            // Check if user is Admin
+            if ($user->role !== 'Admin') {
+                \Illuminate\Support\Facades\Auth::logout();
+                return back()->withErrors([
+                    'email' => 'Hanya Admin yang dapat melakukan login.',
+                ])->onlyInput('email');
+            }
+
             $request->session()->regenerate();
             
             // Generate mock JWT token for decoding demo
-            $user = \Illuminate\Support\Facades\Auth::user();
             $header = base64_encode(json_encode(['alg' => 'HS256', 'typ' => 'JWT']));
             $payload = base64_encode(json_encode([
                 'id' => $user->id,

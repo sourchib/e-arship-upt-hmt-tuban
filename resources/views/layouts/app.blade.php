@@ -79,12 +79,14 @@
                     <i data-lucide="file-text"></i>
                     Manajemen Dokumen
                 </a>
+                @if(Auth::check() && Auth::user()->role === 'Admin')
                 <a href="{{ route('users.index') }}"
                    class="menu-item {{ request()->routeIs('users.*') ? 'active' : '' }}"
                    id="nav-users">
                     <i data-lucide="users"></i>
                     Manajemen Pengguna
                 </a>
+                @endif
             </nav>
 
             <div class="sidebar-footer">
@@ -92,6 +94,7 @@
                     <i data-lucide="settings"></i>
                     Pengaturan
                 </a>
+                @auth
                 <form action="{{ route('logout') }}" method="POST" class="logout-form">
                     @csrf
                     <button type="submit" class="btn-logout">
@@ -99,6 +102,12 @@
                         Logout
                     </button>
                 </form>
+                @else
+                <a href="{{ route('login') }}" class="menu-item" id="nav-login">
+                    <i data-lucide="log-in"></i>
+                    Login Admin
+                </a>
+                @endauth
             </div>
         </aside>
 
@@ -124,11 +133,11 @@
                     </div>
                     <div class="user-profile">
                         <div class="user-info">
-                            <span class="user-name">{{ Auth::user()->nama ?? 'Admin' }}</span>
-                            <span class="user-role">{{ Auth::user()->role ?? 'Operator' }}</span>
+                            <span class="user-name">{{ Auth::user()->nama ?? 'Staff' }}</span>
+                            <span class="user-role">{{ Auth::user()->role ?? 'Umum' }}</span>
                         </div>
                         <div class="avatar">
-                            {{ strtoupper(substr(Auth::user()->nama ?? 'A', 0, 1)) }}
+                            {{ strtoupper(substr(Auth::user()->nama ?? 'S', 0, 1)) }}
                         </div>
                     </div>
                 </div>

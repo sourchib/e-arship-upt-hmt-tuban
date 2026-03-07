@@ -11,10 +11,12 @@
         <p>Kelola surat keluar dan pengiriman</p>
     </div>
     <div class="page-header-actions">
+        @if(Auth::check() && Auth::user()->role === 'Admin')
         <button type="button" class="btn btn-primary" id="openCreateModal">
             <i data-lucide="plus" style="width:16px;height:16px;"></i>
             Buat Surat Keluar
         </button>
+        @endif
     </div>
 </div>
 
