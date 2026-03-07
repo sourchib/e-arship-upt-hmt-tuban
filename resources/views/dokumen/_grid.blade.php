@@ -50,7 +50,7 @@
         </div>
 
         <div class="doc-footer">
-            <div style="display:flex;gap:4px;">
+            <div style="gap:4px; display:flex;">
                 <a href="{{ asset('storage/' . $doc->file_path) }}" target="_blank" class="action-btn action-btn-view" title="Lihat">
                     <i data-lucide="eye"></i>
                 </a>

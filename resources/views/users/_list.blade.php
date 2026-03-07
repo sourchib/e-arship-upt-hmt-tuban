@@ -67,12 +67,27 @@
                                     <button type="submit" style="background:transparent;border:none;color:#ef4444;font-weight:700;font-size:12px;cursor:pointer;">Tolak</button>
                                 </form>
                             @else
-                                <a href="{{ route('users.show', $user->id) }}" class="action-btn action-btn-view" title="Detail">
+                                <button type="button" class="action-btn action-btn-view btn-view-detail" 
+                                        data-nama="{{ $user->nama }}"
+                                        data-email="{{ $user->email }}"
+                                        data-role="{{ $user->role }}"
+                                        data-instansi="{{ $user->instansi ?? '-' }}"
+                                        data-status="{{ $user->status }}"
+                                        data-status-class="{{ $statusClass }}"
+                                        data-tanggal="{{ $user->tanggal_daftar ? $user->tanggal_daftar->format('d/m/Y') : '-' }}"
+                                        title="Detail">
                                     <i data-lucide="eye"></i>
-                                </a>
-                                <a href="javascript:void(0)" onclick="editUser({{ json_encode($user) }})" class="action-btn action-btn-edit" title="Edit">
+                                </button>
+                                <button type="button" class="action-btn action-btn-edit btn-edit-user"
+                                        data-id="{{ $user->id }}"
+                                        data-nama="{{ $user->nama }}"
+                                        data-email="{{ $user->email }}"
+                                        data-role="{{ $user->role }}"
+                                        data-instansi="{{ $user->instansi ?? '' }}"
+                                        data-url="{{ route('users.update', $user->id) }}"
+                                        title="Edit">
                                     <i data-lucide="edit-3"></i>
-                                </a>
+                                </button>
                                 <form id="delete-form-{{ $user->id }}" action="{{ route('users.destroy', $user->id) }}" method="POST" style="display:inline;">
                                     @csrf @method('DELETE')
                                     <button type="button" class="action-btn action-btn-delete btn-delete-confirm" data-form="delete-form-{{ $user->id }}" title="Hapus">
@@ -160,8 +175,27 @@
                     <button type="submit" style="background:transparent;border:none;color:#ef4444;font-weight:700;font-size:12px;cursor:pointer;">Tolak</button>
                 </form>
             @else
-                <a href="{{ route('users.show', $user->id) }}" class="action-btn action-btn-view"><i data-lucide="eye"></i></a>
-                <a href="javascript:void(0)" onclick="editUser({{ json_encode($user) }})" class="action-btn action-btn-edit"><i data-lucide="edit-3"></i></a>
+                <button type="button" class="action-btn action-btn-view btn-view-detail" 
+                        data-nama="{{ $user->nama }}"
+                        data-email="{{ $user->email }}"
+                        data-role="{{ $user->role }}"
+                        data-instansi="{{ $user->instansi ?? '-' }}"
+                        data-status="{{ $user->status }}"
+                        data-status-class="{{ $statusClass }}"
+                        data-tanggal="{{ $user->tanggal_daftar ? $user->tanggal_daftar->format('d/m/Y') : '-' }}"
+                        title="Detail">
+                    <i data-lucide="eye"></i>
+                </button>
+                <button type="button" class="action-btn action-btn-edit btn-edit-user"
+                        data-id="{{ $user->id }}"
+                        data-nama="{{ $user->nama }}"
+                        data-email="{{ $user->email }}"
+                        data-role="{{ $user->role }}"
+                        data-instansi="{{ $user->instansi ?? '' }}"
+                        data-url="{{ route('users.update', $user->id) }}"
+                        title="Edit">
+                    <i data-lucide="edit-3"></i>
+                </button>
             @endif
             </div>
             @if($user->status != 'Pending')
