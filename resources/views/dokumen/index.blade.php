@@ -154,14 +154,37 @@
         const url = new URL(window.location.href);
         url.searchParams.set('kategori', currentKategori);
         url.searchParams.set('search', searchInput.value);
-        fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        url.searchParams.set('_v', Math.random()); // Even stronger anti-cache
+
+        // Visual feedback
+        documentsGrid.style.opacity = '0.5';
+
+        fetch(url, { 
+            method: 'GET',
+            cache: 'no-store', // Important: don't use cache
+            headers: { 
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+                'Cache-Control': 'no-cache'
+            } 
+        })
             .then(r => r.json())
             .then(data => {
-                documentsGrid.innerHTML = data.html;
-                if(data.stats) statsContainer.innerHTML = data.stats;
-                lucide.createIcons();
-                bindDeleteConfirm();
-                window.history.pushState({}, '', url);
+                if (data.html) {
+                    documentsGrid.innerHTML = data.html;
+                    if(data.stats) statsContainer.innerHTML = data.stats;
+                    lucide.createIcons();
+                    bindDeleteConfirm();
+                    window.history.pushState({}, '', url);
+                }
+            })
+            .catch(err => {
+                console.error('Update Error:', err);
+                // Fallback: full refresh if AJAX fails often
+            })
+            .finally(() => {
+                documentsGrid.style.opacity = '1';
+                documentsGrid.style.pointerEvents = 'all';
             });
     };
 
@@ -218,12 +241,12 @@
 
     function bindDeleteConfirm() {
         document.querySelectorAll('.btn-delete-confirm').forEach(btn => {
-            btn.addEventListener('click', function(e) {
+            btn.onclick = async function(e) {
                 e.preventDefault();
                 const formId = this.dataset.form;
                 const form = document.getElementById(formId);
                 
-                Swal.fire({ 
+                const result = await Swal.fire({ 
                     title: 'Hapus Dokumen?', 
                     text: 'Dokumen ini akan dihapus permanen dari server!', 
                     icon: 'warning',
@@ -233,26 +256,49 @@
                     confirmButtonText: 'Ya, hapus!', 
                     cancelButtonText: 'Batal', 
                     reverseButtons: true
-                }).then(result => { 
-                    if (result.isConfirmed) {
+                });
+
+                if (result.isConfirmed) {
+                    const card = this.closest('.doc-card');
+                    try {
+                        // Optimistic UI: Hide immediately
+                        if(card) card.style.display = 'none';
+
+                        // Show minimal loading toast instead of blocking modal
+                        const toast = Swal.mixin({
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true
+                        });
+
                         const formData = new FormData(form);
-                        fetch(form.action, {
+                        const response = await fetch(form.action, {
                             method: 'POST',
                             body: formData,
-                            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-                        })
-                        .then(r => r.json())
-                        .then(data => {
-                            if(data.success) {
-                                Swal.fire('Terhapus!', data.message, 'success');
-                                performUpdate();
-                            } else {
-                                Swal.fire('Gagal!', 'Gagal menghapus dokumen.', 'error');
+                            headers: { 
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Accept': 'application/json'
                             }
                         });
-                    } 
-                });
-            });
+
+                        const data = await response.json();
+
+                        if(data.success) {
+                            toast.fire({ icon: 'success', title: data.message });
+                            performUpdate();
+                        } else {
+                            if(card) card.style.display = ''; // Show back if failed
+                            Swal.fire('Gagal!', data.message || 'Gagal menghapus.', 'error');
+                        }
+                    } catch (err) {
+                        console.error('Delete Error:', err);
+                        if(card) card.style.display = '';
+                        Swal.fire('Error!', 'Koneksi terputus atau terjadi kesalahan server.', 'error');
+                    }
+                }
+            };
         });
     }
     bindDeleteConfirm();
