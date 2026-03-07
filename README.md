@@ -105,9 +105,7 @@ Untuk deployment ke server produksi, pastikan langkah-langkah optimasi berikut d
 ## �️ Preview Tampilan
 
 > Landing page resmi E-Arsip UPT PT dan HMT Tuban. Mencakup hero section, fitur utama, statistik, dan form kontak.
-
----
-
+<img width="983" height="6515" alt="landing page" src="https://github.com/user-attachments/assets/6a97b978-9009-42a0-b6f6-ef1883a7ff95" />
 ## 🗄️ Mockup Data (Dummy Data)
 
 Data dummy disediakan untuk keperluan testing dan demonstrasi sistem. Jalankan perintah berikut untuk mengisi database secara otomatis:
