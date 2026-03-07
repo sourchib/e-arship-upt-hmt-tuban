@@ -10,24 +10,25 @@ Sistem Informasi Kearsipan Digital Terpadu untuk Unit Pelaksana Teknis Pembibita
 
 ## 🚀 Fitur Utama
 
-- **📊 Dashboard Interaktif**: Visualisasi data real-time, tren bulanan, dan log aktivitas terbaru.
-- **✉️ Manajemen Surat (Masuk & Keluar)**: Pencatatan, unggah lampiran PDF, disposisi, dan pelacakan status surat (Draft, Terkirim, Pending).
-- **🐄 Arsip Pembibitan**: Monitoring data ternak Sapi Peranakan Ongole (PO) beserta status distribusinya.
-- **🌿 Arsip Hijauan**: Pencatatan produksi hijauan makanan ternak berdasarkan luas lahan dan lokasi.
-- **📁 Manajemen Dokumen**: Sistem penyimpanan berkas umum yang terorganisir dengan fitur unduhan langsung.
-- **👥 Manajemen Pengguna**: Kontrol akses berbasis peran (Admin, Operator, Pimpinan) dengan sistem persetujuan (Approval) akun baru.
-- **🔍 Quick Navigation**: Fitur "Aksi Cepat" di dashboard untuk penginputan data instan.
-- **⚡ Live Search & Filter**: Pencarian data tanpa reload menggunakan teknologi AJAX.
+- **📊 Dashboard Interaktif**: Visualisasi resolusi tinggi, tren, aksi cepat (*quick actions*), dan log aktivitas terbaru.
+- **✉️ Manajemen Surat (Masuk & Keluar)**: Pencatatan, unggah lampiran, disposisi, dan pelacakan status surat (Draft, Terkirim, Pending).
+- **🐄 Arsip Pembibitan**: Monitoring data ternak Sapi Peranakan Ongole (PO) beserta perihal pendistribusian.
+- **🌿 Arsip Hijauan**: Pencatatan data lahan dan hasil panen pakan ternak.
+- **📁 Manajemen Dokumen & Kategori**: Sistem pengunggahan dan direktori dokumen dengan pengarsipan ekstensi otomatis, serta *Manajemen Kategori Dokumen* kustom yang terintegrasi (Admin Only).
+- **🔍 Pencarian Global (Global Search)**: Telusuri seluruh entri data (Surat, Arsip, Dokumen) dengan cepat melalui bilah navigasi utama melalui algoritma pencarian lintasan database.
+- **🔔 Notifikasi Dinamis (Live Dropdown)**: Panel notifikasi seketika di sudut kanan atas seluruh pengguna yang terhubung langsung dengan catatan rekam aktivitas data baru.
+- **👥 Single-Account Administration (Admin-Centric)**: Keamanan ekstra di mana hanya satu akun (yaitu Admin) yang memiliki hak wewenang akses dalam menambah, mengedit, atau menghapus seluruh catatan dan data arsip.
+- **👀 Akses Penuh Publik/Staf (View-Only)**: Pengguna umum (Staf Umum/Publik) yang tidak memiliki kata sandi tetap dapat mencari, memfilter, melihat daftar data, serta mendownload seluruh dokumen/arsip.
 
 ---
 
 ## 🛠️ Tech Stack
 
 - **Backend**: Laravel 10 (PHP 8.1+)
-- **Frontend**: Blade Templating, Tailwind CSS (Design System kustom)
+- **Frontend**: Blade Templating, Vanilla CSS / Tailwind (Design System kustom terintegrasi UI Modern)
 - **Database**: MySQL / MariaDB
 - **Icons**: Lucide Icons
-- **Components**: SweetAlert2 (Notifikasi & Konfirmasi), Custom Modal System
+- **Components**: SweetAlert2 (Notifikasi & Konfirmasi Data)
 
 ---
 
@@ -65,144 +66,41 @@ Sistem Informasi Kearsipan Digital Terpadu untuk Unit Pelaksana Teknis Pembibita
 
 ---
 
-## 🏗️ Persiapan Produksi (Production Ready)
-
-Untuk deployment ke server produksi, pastikan langkah-langkah optimasi berikut dilakukan:
-
-1. **Optimasi Cache**
-   ```bash
-   php artisan config:cache
-   php artisan route:cache
-   php artisan view:cache
-   ```
-
-2. **File Permissions**
-   Pastikan folder `storage` dan `bootstrap/cache` dapat ditulisi oleh web server:
-   ```bash
-   chmod -R 775 storage bootstrap/cache
-   chown -R www-data:www-data .
-   ```
-
-3. **Symlink Storage**
-   Untuk akses file unggahan:
-   ```bash
-   php artisan storage:link
-   ```
-
-4. **Environment Check**
-   Pastikan `APP_DEBUG=false` dan `APP_ENV=production` pada file `.env`.
-
----
-
 ## 🔒 Keamanan & Role
 
 | Role | Deskripsi |
 | :--- | :--- |
-| **Admin** | Akses penuh seluruh sistem, manajemen pengguna, dan penghapusan data. |
+| **Admin** | Akses penuh. Dapat mengelola surat, arsip ternak/hijauan, manajemen dokumen, menambah kategori, sistem *login*, menghapus data, dsb. |
+| **Staf Umum (Guest)** | Akses baca (*Read-only*). Dapat mengeksplorasi dashboard, melakukan *"Global Search"*, melihat daftar tabel data, mendownload file, tanpa perizinan merubah data di *database*. |
 
 ---
 
-## �️ Preview Tampilan
+## 🖼️ Preview Tampilan
 
-> Landing page resmi E-Arsip UPT PT dan HMT Tuban. Mencakup hero section, fitur utama, statistik, dan form kontak.
+> Landing page resmi E-Arsip UPT PT dan HMT Tuban. Mencakup hero section, fitur utama, statistik, form kontak, dan pratinjau dashboard penuh.
 <img width="983" height="6515" alt="landing page" src="https://github.com/user-attachments/assets/6a97b978-9009-42a0-b6f6-ef1883a7ff95" />
-## 🗄️ Mockup Data (Dummy Data)
 
-Data dummy disediakan untuk keperluan testing dan demonstrasi sistem. Jalankan perintah berikut untuk mengisi database secara otomatis:
+---
 
+## 🗄️ Database & Mockup Data
+
+Aplikasi ini menyertakan `Factory` dan `Seeder` untuk menyuntikkan puluhan data bayangan (*dummy data*) guna demonstrasi sistem. 
+
+Untuk merekonstruksi *database* secara otomatis dengan susunan data uji coba:
 ```bash
 php artisan migrate:fresh --seed
 ```
 
-Data yang di-generate mencakup semua tabel, sebagai berikut:
-
-### 👤 Users (11 records)
-| Field | Contoh Nilai |
-|:---|:---|
-| nama | Administrator |
-| email | admin@earsip.id |
-| password | admin123 |
-| role | Admin / Operator / Pimpinan |
-| instansi | UPT PT dan HMT Tuban |
-| status | Aktif / Pending / Nonaktif |
-| tanggal_daftar | 2024-01-15 |
-
-### ✉️ Surat Masuk (20 records)
-| Field | Contoh Nilai |
-|:---|:---|
-| nomor_surat | SM/001/2025 |
-| pengirim | Dinas Peternakan Jawa Timur |
-| perihal | Permintaan Laporan Bulanan |
-| tanggal_surat | 2025-11-10 |
-| tanggal_terima | 2025-11-12 |
-| prioritas | Tinggi / Sedang / Rendah |
-| status | Pending / Diproses / Terarsip |
-| file_path | uploads/surat_masuk/dummy.pdf |
-
-### 📤 Surat Keluar (20 records)
-| Field | Contoh Nilai |
-|:---|:---|
-| nomor_surat | SK/001/2025 |
-| tujuan | Balai Besar Veteriner Wates |
-| perihal | Pengiriman Data Produksi Ternak |
-| tanggal_surat | 2025-11-15 |
-| tanggal_kirim | 2025-11-16 |
-| prioritas | Tinggi / Sedang / Rendah |
-| status | Draft / Terkirim / Selesai |
-
-### 🐄 Arsip Pembibitan (15 records)
-| Field | Contoh Nilai |
-|:---|:---|
-| kode | AP-001 |
-| jenis_ternak | Sapi / Kambing / Domba |
-| jumlah | 25 ekor |
-| umur | 18 Bulan |
-| tujuan | Kab. Bojonegoro |
-| tanggal | 2025-08-20 |
-| status | Terdistribusi / Proses |
-
-### 🌿 Arsip Hijauan (15 records)
-| Field | Contoh Nilai |
-|:---|:---|
-| kode_lahan | LH-001 |
-| jenis_hijauan | Rumput Gajah / Odot / Indigofera |
-| luas | 2.5 ha |
-| produksi | 3750.00 kg |
-| tanggal_panen | 2025-09-05 |
-| lokasi | Blok A3 |
-| status | Tersedia / Terdistribusi |
-
-### 📁 Dokumen (25 records)
-| Field | Contoh Nilai |
-|:---|:---|
-| nama | laporan_bulanan.pdf |
-| kategori | Laporan / SK / Nota Dinas / Lainnya |
-| ukuran | 512000 bytes (512 KB) |
-| mime_type | application/pdf |
-| tanggal_upload | 2025-10-01 |
-| download_counter | 47 |
-
-### 🕓 Log Aktivitas (50 records)
-| Field | Contoh Nilai |
-|:---|:---|
-| jenis_aktivitas | Login / Logout / Create / Update / Delete / Download |
-| modul | Surat Masuk / Surat Keluar / Arsip Pembibitan |
-| deskripsi | User melakukan login ke sistem. |
-| ip_address | 192.168.1.10 |
-
-> **Akun Default:**
+> **Akun Default Administrator:**
 > - Email: `admin@earsip.id`
 > - Password: `admin123`
-> - Role: Admin (akses penuh)
+> *(Satu-satunya akun log masuk yang tersedia di sistem untuk menjamin otorisasi tersentralisasi)*
 
 ---
-
-
-
 
 ## 📞 Kontak & Support
 
-Untuk pertanyaan lebih lanjut terkait penggunaan atau pemeliharaan sistem, silakan hubungi tim IT Internal UPT PT dan HMT Tuban.
+Untuk pertanyaan lebih lanjut terkait penggunaan atau pemeliharaan sistem pangkalan data E-Arsip ini beserta kode internalnya, silakan hubungi tim IT Internal UPT PT dan HMT Tuban.
 
 ---
-© 2026 E-Arsip Muchammad Muchib Zainul Fikry. All rights reserved.
+© 2026 E-Arsip. All rights reserved.
