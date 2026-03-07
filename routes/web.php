@@ -21,7 +21,8 @@ use App\Http\Controllers\DashboardController;
 Route::get('/', function () {
     return redirect()->route('dashboard');
 });
-Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+Route::get('/dashboard', [\App\Http\Controllers\DokumenController::class, 'index'])->name('dashboard');
+Route::get('/search', [\App\Http\Controllers\SearchController::class, 'index'])->name('search');
 
 // Index-only public routes for resources
 Route::get('surat-masuk', [\App\Http\Controllers\SuratMasukController::class, 'index'])->name('surat-masuk.index');
@@ -41,6 +42,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('dokumen', \App\Http\Controllers\DokumenController::class)->except(['index'])->parameters([
         'dokumen' => 'dokumen'
     ]);
+    Route::resource('kategori-dokumen', \App\Http\Controllers\KategoriDokumenController::class)->except(['create', 'edit', 'show']);
     
     // User Management
     Route::post('users/{user}/approve', [\App\Http\Controllers\UserManagementController::class, 'approve'])->name('users.approve');
