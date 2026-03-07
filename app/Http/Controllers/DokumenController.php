@@ -42,8 +42,9 @@ class DokumenController extends Controller
         ])->count();
         $categoryCount = Dokumen::distinct('kategori')->count('kategori');
 
-        // Available categories for tabs
-        $categories = ['Semua', 'Laporan', 'Dokumen Teknis', 'Data', 'Panduan', 'Surat', 'Lainnya'];
+        // Available categories for tabs (Prepend 'Semua' dynamically from the UI, but here we just pass the list)
+        $categories = \App\Models\KategoriDokumen::orderBy('nama', 'asc')->pluck('nama')->toArray();
+        array_unshift($categories, 'Semua');
 
         if ($request->ajax()) {
             return response()->json([
@@ -108,16 +109,25 @@ class DokumenController extends Controller
         if (!empty($dokumen->file_path) && is_string($dokumen->file_path) && Storage::disk('public')->exists($dokumen->file_path)) {
             $dokumen->increment('download_counter');
             
-            LogAktivitas::create([
-                'jenis_aktivitas' => 'Update',
-                'modul' => 'Manajemen Dokumen',
-                'deskripsi' => "Mendownload dokumen: {$dokumen->nama}",
-                'ip_address' => request()->ip(),
-                'user_agent' => request()->userAgent(),
-                'user_id' => Auth::id(),
-            ]);
+            if (Auth::check()) {
+                LogAktivitas::create([
+                    'jenis_aktivitas' => 'Update',
+                    'modul' => 'Manajemen Dokumen',
+                    'deskripsi' => "Mendownload dokumen: {$dokumen->nama}",
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent(),
+                    'user_id' => Auth::id(),
+                ]);
+            }
 
-            return Storage::disk('public')->download($dokumen->file_path, $dokumen->nama);
+            $extension = pathinfo($dokumen->file_path, PATHINFO_EXTENSION);
+            $downloadName = $dokumen->nama;
+            
+            if (!empty($extension) && !str_ends_with(strtolower($downloadName), '.' . strtolower($extension))) {
+                $downloadName .= '.' . $extension;
+            }
+
+            return Storage::disk('public')->download($dokumen->file_path, $downloadName);
         }
 
         return back()->with('error', 'File tidak ditemukan atau path tidak valid.');
