@@ -30,6 +30,9 @@ class DokumenController extends Controller
 
         $documents = $query->paginate(12);
         
+        // Debugging to log if records are truly being fetched
+        \Illuminate\Support\Facades\Log::info("Fetching documents. Count in DB: " . Dokumen::count() . ". Count in query: " . $documents->total());
+
         // Calculate stats
         $totalDokumen = Dokumen::count();
         $pdfCount = Dokumen::where('mime_type', 'application/pdf')->count();
@@ -102,7 +105,7 @@ class DokumenController extends Controller
 
     public function download(Dokumen $dokumen)
     {
-        if ($dokumen->file_path && Storage::disk('public')->exists($dokumen->file_path)) {
+        if (!empty($dokumen->file_path) && is_string($dokumen->file_path) && Storage::disk('public')->exists($dokumen->file_path)) {
             $dokumen->increment('download_counter');
             
             LogAktivitas::create([
@@ -117,34 +120,66 @@ class DokumenController extends Controller
             return Storage::disk('public')->download($dokumen->file_path, $dokumen->nama);
         }
 
-        return back()->with('error', 'File tidak ditemukan.');
+        return back()->with('error', 'File tidak ditemukan atau path tidak valid.');
     }
 
-    public function destroy(Dokumen $dokumen)
+    public function destroy(Request $request, Dokumen $dokumen)
     {
-        if ($dokumen->file_path && Storage::disk('public')->exists($dokumen->file_path)) {
-            Storage::disk('public')->delete($dokumen->file_path);
-        }
+        try {
+            // Ensure document exists
+            if (!$dokumen->exists) {
+                // If route model binding failed silently or we have an empty instance
+                return response()->json(['success' => false, 'message' => 'Dokumen tidak ditemukan di database.'], 404);
+            }
 
-        $nama = $dokumen->nama;
-        $dokumen->delete();
+            $nama = $dokumen->nama;
+            $id = $dokumen->id;
+            $filePath = $dokumen->file_path;
 
-        LogAktivitas::create([
-            'jenis_aktivitas' => 'Delete',
-            'modul' => 'Manajemen Dokumen',
-            'deskripsi' => "Menghapus dokumen: {$nama}",
-            'ip_address' => request()->ip(),
-            'user_agent' => request()->userAgent(),
-            'user_id' => Auth::id(),
-        ]);
+            // Delete physical file
+            if (!empty($filePath) && is_string($filePath)) {
+                if (Storage::disk('public')->exists($filePath)) {
+                    Storage::disk('public')->delete($filePath);
+                }
+            }
 
-        if (request()->ajax()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Dokumen berhasil dihapus.'
+            // Perform delete - use DB::table if Eloquent instance delete fails
+            $deleted = $dokumen->delete();
+            
+            if (!$deleted) {
+                \Illuminate\Support\Facades\Log::warning("Eloquent delete failed for ID {$id}, attempting DB::table delete.");
+                $deletedCount = \Illuminate\Support\Facades\DB::table('dokumen')->where('id', $id)->delete();
+                if ($deletedCount === 0 && Dokumen::find($id)) {
+                    throw new \Exception("Gagal menghapus data dari database (ID: {$id}).");
+                }
+            }
+
+            LogAktivitas::create([
+                'jenis_aktivitas' => 'Delete',
+                'modul' => 'Manajemen Dokumen',
+                'deskripsi' => "Menghapus dokumen: {$nama}",
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'user_id' => Auth::id(),
             ]);
-        }
 
-        return redirect()->route('dokumen.index')->with('success', 'Dokumen berhasil dihapus.');
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Dokumen berhasil dihapus secara permanen.'
+                ]);
+            }
+
+            return redirect()->route('dokumen.index')->with('success', 'Dokumen berhasil dihapus.');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("CRITICAL DELETE ERROR: " . $e->getMessage());
+            if (request()->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error: ' . $e->getMessage()
+                ], 500);
+            }
+            return back()->with('error', 'Gagal menghapus: ' . $e->getMessage());
+        }
     }
 }

@@ -32,7 +32,9 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('arsip-pembibitan', \App\Http\Controllers\ArsipPembibitanController::class);
     Route::resource('arsip-hijauan', \App\Http\Controllers\ArsipHijauanController::class);
     Route::get('dokumen/{dokumen}/download', [\App\Http\Controllers\DokumenController::class, 'download'])->name('dokumen.download');
-    Route::resource('dokumen', \App\Http\Controllers\DokumenController::class);
+    Route::resource('dokumen', \App\Http\Controllers\DokumenController::class)->parameters([
+        'dokumen' => 'dokumen'
+    ]);
     
     // User Management
     Route::post('users/{user}/approve', [\App\Http\Controllers\UserManagementController::class, 'approve'])->name('users.approve');
