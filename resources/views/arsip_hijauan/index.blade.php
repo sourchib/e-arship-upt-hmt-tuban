@@ -11,10 +11,12 @@
         <p>Kelola data produksi hijauan makanan ternak</p>
     </div>
     <div class="page-header-actions">
+        @if(Auth::check() && Auth::user()->role === 'Admin')
         <button type="button" class="btn btn-primary" id="openCreateModal">
             <i data-lucide="plus" style="width:16px;height:16px;"></i>
             Tambah Data Hijauan
         </button>
+        @endif
     </div>
 </div>
 

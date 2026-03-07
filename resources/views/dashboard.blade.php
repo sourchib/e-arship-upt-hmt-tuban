@@ -7,7 +7,7 @@
 {{-- ====== Page Header ====== --}}
 <div class="dashboard-header">
     <h2>Dashboard</h2>
-    <p>Selamat datang kembali, <strong>{{ Auth::user()->nama ?? 'Admin' }}</strong> — Sistem E-Arsip UPT PT dan HMT Tuban</p>
+    <p>Selamat datang, <strong>{{ Auth::user()->nama ?? 'Staff' }}</strong> — Sistem E-Arsip UPT PT dan HMT Tuban</p>
 </div>
 
 {{-- ====== Welcome Banner ====== --}}
@@ -112,6 +112,7 @@
 <div class="dashboard-sections">
 
     {{-- Quick Actions --}}
+    @if(Auth::check() && Auth::user()->role === 'Admin')
     <div class="section-card">
         <div class="section-header">
             <span class="section-title">⚡ Aksi Cepat</span>
@@ -165,6 +166,7 @@
 
         </div>
     </div>
+    @endif
 
     {{-- Recent Activity --}}
     <div class="section-card">

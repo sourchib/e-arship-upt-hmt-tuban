@@ -11,10 +11,12 @@
         <p>Kelola surat masuk dan disposisi</p>
     </div>
     <div class="page-header-actions">
+        @if(Auth::check() && Auth::user()->role === 'Admin')
         <button type="button" class="btn btn-primary" id="openCreateModal">
             <i data-lucide="plus" style="width:16px;height:16px;"></i>
             Tambah Surat Masuk
         </button>
+        @endif
     </div>
 </div>
 
@@ -37,6 +39,7 @@
     @include('surat_masuk._list')
 </div>
 
+@if(Auth::check() && Auth::user()->role === 'Admin')
 {{-- ====== Modal Create ====== --}}
 <div class="modal-backdrop-custom" id="modalBackdrop"></div>
 <div class="modal-container-custom" id="createSuratModal">
@@ -117,6 +120,7 @@
         </div>
     </div>
 </div>
+@endif
 
 {{-- ====== Modal Detail ====== --}}
 <div class="modal-container-custom" id="detailSuratModal">
@@ -182,7 +186,7 @@
         </div>
     </div>
 </div>
-
+@if(Auth::check() && Auth::user()->role === 'Admin')
 {{-- ====== Modal Edit ====== --}}
 <div class="modal-container-custom" id="editSuratModal">
     <div class="modal-content-custom">
@@ -246,6 +250,7 @@
         </div>
     </div>
 </div>
+@endif
 
 <style>
     .detail-row-modern {
@@ -290,6 +295,7 @@
     const cancelCreateBtn = document.getElementById('cancelCreateModal');
 
     const toggleCreateModal = () => {
+        if (!modalCreate) return;
         modalCreate.classList.toggle('show');
         backdrop.classList.toggle('show');
         document.body.style.overflow = modalCreate.classList.contains('show') ? 'hidden' : '';
@@ -320,6 +326,7 @@
     const editForm       = document.getElementById('editSuratForm');
 
     const toggleEditModal = () => {
+        if (!modalEdit) return;
         modalEdit.classList.toggle('show');
         backdrop.classList.toggle('show');
         document.body.style.overflow = modalEdit.classList.contains('show') ? 'hidden' : '';
@@ -331,9 +338,9 @@
     // Global Backdrop Click
     if(backdrop) {
         backdrop.addEventListener('click', () => {
-            modalCreate.classList.remove('show');
-            modalDetail.classList.remove('show');
-            modalEdit.classList.remove('show');
+            if(modalCreate) modalCreate.classList.remove('show');
+            if(modalDetail) modalDetail.classList.remove('show');
+            if(modalEdit) modalEdit.classList.remove('show');
             backdrop.classList.remove('show');
             document.body.style.overflow = '';
         });
@@ -432,7 +439,7 @@
 
     window.addEventListener('DOMContentLoaded', () => {
         if (new URLSearchParams(window.location.search).get('create') === 'true') {
-            toggleModal();
+            toggleCreateModal();
             window.history.replaceState({}, '', window.location.pathname);
         }
     });

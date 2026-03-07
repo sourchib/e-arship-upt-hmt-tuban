@@ -50,33 +50,35 @@
                                     title="Detail">
                                 <i data-lucide="eye"></i>
                             </button>
-                            @if($surat->status == 'Draft')
-                            <form id="send-form-{{ $surat->id }}" action="{{ route('surat-keluar.send', $surat->id) }}" method="POST" style="display:inline;">
-                                @csrf
-                                <button type="button" class="action-btn action-btn-send btn-send-confirm" data-form="send-form-{{ $surat->id }}" title="Kirim">
-                                    <i data-lucide="send"></i>
-                                </button>
-                            </form>
-                            @endif
                             <a href="{{ $surat->file_path ? asset('storage/'.$surat->file_path) : '#' }}" class="action-btn action-btn-dl" title="Download" target="_blank">
                                 <i data-lucide="download"></i>
                             </a>
-                            <button type="button" class="action-btn action-btn-edit btn-edit-surat"
-                                    data-nomor="{{ $surat->nomor_surat }}"
-                                    data-perihal="{{ $surat->perihal }}"
-                                    data-tujuan="{{ $surat->tujuan }}"
-                                    data-tanggal="{{ $surat->tanggal_surat->format('Y-m-d') }}"
-                                    data-prioritas="{{ $surat->prioritas }}"
-                                    data-url="{{ route('surat-keluar.update', $surat->id) }}"
-                                    title="Edit">
-                                <i data-lucide="edit-3"></i>
-                            </button>
-                            <form id="delete-form-{{ $surat->id }}" action="{{ route('surat-keluar.destroy', $surat->id) }}" method="POST" style="display:inline;">
-                                @csrf @method('DELETE')
-                                <button type="button" class="action-btn action-btn-delete btn-delete-confirm" data-form="delete-form-{{ $surat->id }}" title="Hapus">
-                                    <i data-lucide="trash-2"></i>
+                            @if(Auth::check() && Auth::user()->role === 'Admin')
+                                @if($surat->status == 'Draft')
+                                <form id="send-form-{{ $surat->id }}" action="{{ route('surat-keluar.send', $surat->id) }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    <button type="button" class="action-btn action-btn-send btn-send-confirm" data-form="send-form-{{ $surat->id }}" title="Kirim">
+                                        <i data-lucide="send"></i>
+                                    </button>
+                                </form>
+                                @endif
+                                <button type="button" class="action-btn action-btn-edit btn-edit-surat"
+                                        data-nomor="{{ $surat->nomor_surat }}"
+                                        data-perihal="{{ $surat->perihal }}"
+                                        data-tujuan="{{ $surat->tujuan }}"
+                                        data-tanggal="{{ $surat->tanggal_surat->format('Y-m-d') }}"
+                                        data-prioritas="{{ $surat->prioritas }}"
+                                        data-url="{{ route('surat-keluar.update', $surat->id) }}"
+                                        title="Edit">
+                                    <i data-lucide="edit-3"></i>
                                 </button>
-                            </form>
+                                <form id="delete-form-{{ $surat->id }}" action="{{ route('surat-keluar.destroy', $surat->id) }}" method="POST" style="display:inline;">
+                                    @csrf @method('DELETE')
+                                    <button type="button" class="action-btn action-btn-delete btn-delete-confirm" data-form="delete-form-{{ $surat->id }}" title="Hapus">
+                                        <i data-lucide="trash-2"></i>
+                                    </button>
+                                </form>
+                            @endif
                         </div>
                     </td>
                 </tr>
@@ -136,25 +138,29 @@
                         title="Detail">
                     <i data-lucide="eye"></i>
                 </button>
-                @if($surat->status == 'Draft')
-                <form id="send-form-m-{{ $surat->id }}" action="{{ route('surat-keluar.send', $surat->id) }}" method="POST" style="display:inline;">
-                    @csrf
-                    <button type="button" class="action-btn action-btn-send btn-send-confirm" data-form="send-form-m-{{ $surat->id }}"><i data-lucide="send"></i></button>
-                </form>
-                @endif
                 <a href="{{ $surat->file_path ? asset('storage/'.$surat->file_path) : '#' }}" class="action-btn action-btn-dl" target="_blank"><i data-lucide="download"></i></a>
-                <button type="button" class="action-btn action-btn-edit btn-edit-surat"
-                        data-nomor="{{ $surat->nomor_surat }}"
-                        data-perihal="{{ $surat->perihal }}"
-                        data-tujuan="{{ $surat->tujuan }}"
-                        data-tanggal="{{ $surat->tanggal_surat->format('Y-m-d') }}"
-                        data-prioritas="{{ $surat->prioritas }}"
-                        data-url="{{ route('surat-keluar.update', $surat->id) }}"
-                        title="Edit">
-                    <i data-lucide="edit-3"></i>
-                </button>
+                @if(Auth::check() && Auth::user()->role === 'Admin')
+                    @if($surat->status == 'Draft')
+                    <form id="send-form-m-{{ $surat->id }}" action="{{ route('surat-keluar.send', $surat->id) }}" method="POST" style="display:inline;">
+                        @csrf
+                        <button type="button" class="action-btn action-btn-send btn-send-confirm" data-form="send-form-m-{{ $surat->id }}"><i data-lucide="send"></i></button>
+                    </form>
+                    @endif
+                    <button type="button" class="action-btn action-btn-edit btn-edit-surat"
+                            data-nomor="{{ $surat->nomor_surat }}"
+                            data-perihal="{{ $surat->perihal }}"
+                            data-tujuan="{{ $surat->tujuan }}"
+                            data-tanggal="{{ $surat->tanggal_surat->format('Y-m-d') }}"
+                            data-prioritas="{{ $surat->prioritas }}"
+                            data-url="{{ route('surat-keluar.update', $surat->id) }}"
+                            title="Edit">
+                        <i data-lucide="edit-3"></i>
+                    </button>
+                @endif
             </div>
+            @if(Auth::check() && Auth::user()->role === 'Admin')
             <button type="button" class="action-btn action-btn-delete btn-delete-confirm" data-form="delete-form-{{ $surat->id }}"><i data-lucide="trash-2"></i></button>
+            @endif
         </div>
     </div>
     @empty

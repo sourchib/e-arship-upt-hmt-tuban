@@ -61,6 +61,7 @@
                                class="action-btn action-btn-dl" title="Download" target="_blank">
                                 <i data-lucide="download"></i>
                             </a>
+                            @if(Auth::check() && Auth::user()->role === 'Admin')
                             <button type="button" class="action-btn action-btn-edit btn-edit-surat"
                                     data-id="{{ $surat->id }}"
                                     data-nomor="{{ $surat->nomor_surat }}"
@@ -79,6 +80,7 @@
                                     <i data-lucide="trash-2"></i>
                                 </button>
                             </form>
+                            @endif
                         </div>
                     </td>
                 </tr>
@@ -139,6 +141,7 @@
                     <i data-lucide="eye"></i>
                 </button>
                 <a href="{{ $surat->file_path ? asset('storage/'.$surat->file_path) : '#' }}" class="action-btn action-btn-dl" target="_blank"><i data-lucide="download"></i></a>
+                @if(Auth::check() && Auth::user()->role === 'Admin')
                 <button type="button" class="action-btn action-btn-edit btn-edit-surat"
                         data-id="{{ $surat->id }}"
                         data-nomor="{{ $surat->nomor_surat }}"
@@ -150,10 +153,13 @@
                         title="Edit">
                     <i data-lucide="edit-3"></i>
                 </button>
+                @endif
             </div>
+            @if(Auth::check() && Auth::user()->role === 'Admin')
             <button type="button" class="action-btn action-btn-delete btn-delete-confirm" data-form="delete-form-{{ $surat->id }}">
                 <i data-lucide="trash-2"></i>
             </button>
+            @endif
         </div>
     </div>
     @empty

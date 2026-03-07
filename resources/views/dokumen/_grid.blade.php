@@ -58,12 +58,14 @@
                     <i data-lucide="download"></i>
                 </a>
             </div>
+            @if(Auth::check() && Auth::user()->role === 'Admin')
             <form id="delete-form-{{ $doc->id }}" action="{{ route('dokumen.destroy', $doc->id) }}" method="POST" style="display:inline;">
                 @csrf @method('DELETE')
                 <button type="button" class="action-btn action-btn-delete btn-delete-confirm" data-form="delete-form-{{ $doc->id }}" title="Hapus">
                     <i data-lucide="trash-2"></i>
                 </button>
             </form>
+            @endif
         </div>
     </div>
     @empty
