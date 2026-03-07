@@ -38,10 +38,9 @@ class AuthController extends Controller
 
         return redirect()->route('login')->with('success', 'Registrasi berhasil! Silakan tunggu aktivasi dari Admin.');
     }
-
     public function login(Request $request)
     {
-        $credentials = $request->validate([
+        $request->validate([
             'email' => 'required|email',
             'password' => 'required',
             'captcha' => 'required|captcha'
@@ -49,6 +48,8 @@ class AuthController extends Controller
             'captcha.captcha' => 'Kode captcha yang dimasukkan salah.',
             'captcha.required' => 'Verifikasi captcha wajib diisi.'
         ]);
+
+        $credentials = $request->only('email', 'password');
 
         if (\Illuminate\Support\Facades\Auth::attempt($credentials)) {
             $request->session()->regenerate();
