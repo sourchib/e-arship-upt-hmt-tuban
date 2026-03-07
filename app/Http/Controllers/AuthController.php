@@ -44,6 +44,10 @@ class AuthController extends Controller
         $credentials = $request->validate([
             'email' => 'required|email',
             'password' => 'required',
+            'captcha' => 'required|captcha'
+        ], [
+            'captcha.captcha' => 'Kode captcha yang dimasukkan salah.',
+            'captcha.required' => 'Verifikasi captcha wajib diisi.'
         ]);
 
         if (\Illuminate\Support\Facades\Auth::attempt($credentials)) {
