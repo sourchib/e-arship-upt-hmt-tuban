@@ -15,7 +15,7 @@
     <!-- Dashboard CSS -->
     <link rel="stylesheet" href="{{ asset('assets/css/dashboard.css') }}">
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="{{ asset('assets/img/upt_logo.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('assets/img/logo.png') }}">
     @stack('css')
 </head>
 <body>
@@ -24,7 +24,7 @@
         <!-- ====== SIDEBAR ====== -->
         <aside class="sidebar" id="appSidebar">
             <div class="sidebar-brand">
-                <img src="{{ asset('assets/img/upt_logo.png') }}" alt="Logo UPT">
+                <img src="{{ asset('assets/img/logo.png') }}" alt="Logo UPT">
                 <div class="sidebar-brand-name">
                     E-Arsip
                     <small>UPT PT HMT Tuban</small>
