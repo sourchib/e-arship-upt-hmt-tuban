@@ -46,16 +46,32 @@
                     </td>
                     <td>
                         <div class="action-btns">
-                            <a href="{{ route('surat-masuk.show', $surat->id) }}" class="action-btn action-btn-view" title="Detail">
+                            <button type="button" class="action-btn action-btn-view btn-view-detail" 
+                                    data-nomor="{{ $surat->nomor_surat }}"
+                                    data-perihal="{{ $surat->perihal }}"
+                                    data-pengirim="{{ $surat->pengirim }}"
+                                    data-tanggal="{{ $surat->tanggal_surat->format('d/m/Y') }}"
+                                    data-kategori="{{ $surat->kategori }}"
+                                    data-status="{{ $surat->status }}"
+                                    data-status-class="{{ $sc }}"
+                                    title="Detail">
                                 <i data-lucide="eye"></i>
-                            </a>
+                            </button>
                             <a href="{{ $surat->file_path ? asset('storage/'.$surat->file_path) : '#' }}"
                                class="action-btn action-btn-dl" title="Download" target="_blank">
                                 <i data-lucide="download"></i>
                             </a>
-                            <a href="{{ route('surat-masuk.edit', $surat->id) }}" class="action-btn action-btn-edit" title="Edit">
+                            <button type="button" class="action-btn action-btn-edit btn-edit-surat"
+                                    data-id="{{ $surat->id }}"
+                                    data-nomor="{{ $surat->nomor_surat }}"
+                                    data-perihal="{{ $surat->perihal }}"
+                                    data-pengirim="{{ $surat->pengirim }}"
+                                    data-tanggal="{{ $surat->tanggal_surat->format('Y-m-d') }}"
+                                    data-kategori="{{ $surat->kategori }}"
+                                    data-url="{{ route('surat-masuk.update', $surat->id) }}"
+                                    title="Edit">
                                 <i data-lucide="edit-3"></i>
-                            </a>
+                            </button>
                             <form id="delete-form-{{ $surat->id }}" action="{{ route('surat-masuk.destroy', $surat->id) }}" method="POST" style="display:inline;">
                                 @csrf @method('DELETE')
                                 <button type="button" class="action-btn action-btn-delete btn-delete-confirm"
@@ -111,9 +127,29 @@
         </div>
         <div class="mobile-card-footer">
             <div class="action-btns">
-                <a href="{{ route('surat-masuk.show', $surat->id) }}" class="action-btn action-btn-view"><i data-lucide="eye"></i></a>
+                <button type="button" class="action-btn action-btn-view btn-view-detail" 
+                        data-nomor="{{ $surat->nomor_surat }}"
+                        data-perihal="{{ $surat->perihal }}"
+                        data-pengirim="{{ $surat->pengirim }}"
+                        data-tanggal="{{ $surat->tanggal_surat->format('d/m/Y') }}"
+                        data-kategori="{{ $surat->kategori }}"
+                        data-status="{{ $surat->status }}"
+                        data-status-class="{{ $sc }}"
+                        title="Detail">
+                    <i data-lucide="eye"></i>
+                </button>
                 <a href="{{ $surat->file_path ? asset('storage/'.$surat->file_path) : '#' }}" class="action-btn action-btn-dl" target="_blank"><i data-lucide="download"></i></a>
-                <a href="{{ route('surat-masuk.edit', $surat->id) }}" class="action-btn action-btn-edit"><i data-lucide="edit-3"></i></a>
+                <button type="button" class="action-btn action-btn-edit btn-edit-surat"
+                        data-id="{{ $surat->id }}"
+                        data-nomor="{{ $surat->nomor_surat }}"
+                        data-perihal="{{ $surat->perihal }}"
+                        data-pengirim="{{ $surat->pengirim }}"
+                        data-tanggal="{{ $surat->tanggal_surat->format('Y-m-d') }}"
+                        data-kategori="{{ $surat->kategori }}"
+                        data-url="{{ route('surat-masuk.update', $surat->id) }}"
+                        title="Edit">
+                    <i data-lucide="edit-3"></i>
+                </button>
             </div>
             <button type="button" class="action-btn action-btn-delete btn-delete-confirm" data-form="delete-form-{{ $surat->id }}">
                 <i data-lucide="trash-2"></i>

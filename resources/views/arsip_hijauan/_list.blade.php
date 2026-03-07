@@ -47,12 +47,30 @@
                     </td>
                     <td>
                         <div class="action-btns">
-                            <a href="{{ route('arsip-hijauan.show', $item->id) }}" class="action-btn action-btn-view" title="Detail">
+                            <button type="button" class="action-btn action-btn-view btn-view-detail" 
+                                    data-kode="{{ $item->kode_lahan }}"
+                                    data-jenis="{{ $item->jenis_hijauan }}"
+                                    data-luas="{{ $item->luas }}"
+                                    data-produksi="{{ number_format($item->produksi, 0, ',', '.') }}"
+                                    data-tanggal="{{ $item->tanggal_panen->format('d/m/Y') }}"
+                                    data-lokasi="{{ $item->lokasi }}"
+                                    data-status="{{ $item->status }}"
+                                    data-status-class="{{ $sc }}"
+                                    title="Detail">
                                 <i data-lucide="eye"></i>
-                            </a>
-                            <a href="{{ route('arsip-hijauan.edit', $item->id) }}" class="action-btn action-btn-edit" title="Edit">
+                            </button>
+                            <button type="button" class="action-btn action-btn-edit btn-edit-arsip"
+                                    data-kode="{{ $item->kode_lahan }}"
+                                    data-jenis="{{ $item->jenis_hijauan }}"
+                                    data-luas="{{ $item->luas }}"
+                                    data-produksi="{{ $item->produksi }}"
+                                    data-tanggal="{{ $item->tanggal_panen->format('Y-m-d') }}"
+                                    data-lokasi="{{ $item->lokasi }}"
+                                    data-status="{{ $item->status }}"
+                                    data-url="{{ route('arsip-hijauan.update', $item->id) }}"
+                                    title="Edit">
                                 <i data-lucide="edit-3"></i>
-                            </a>
+                            </button>
                             <form id="delete-form-{{ $item->id }}" action="{{ route('arsip-hijauan.destroy', $item->id) }}" method="POST" style="display:inline;">
                                 @csrf @method('DELETE')
                                 <button type="button" class="action-btn action-btn-delete btn-delete-confirm" data-form="delete-form-{{ $item->id }}" title="Hapus">
@@ -118,8 +136,30 @@
         </div>
         <div class="mobile-card-footer mt-2">
             <div class="action-btns">
-                <a href="{{ route('arsip-hijauan.show', $item->id) }}" class="action-btn action-btn-view"><i data-lucide="eye"></i></a>
-                <a href="{{ route('arsip-hijauan.edit', $item->id) }}" class="action-btn action-btn-edit"><i data-lucide="edit-3"></i></a>
+                <button type="button" class="action-btn action-btn-view btn-view-detail" 
+                        data-kode="{{ $item->kode_lahan }}"
+                        data-jenis="{{ $item->jenis_hijauan }}"
+                        data-luas="{{ $item->luas }}"
+                        data-produksi="{{ number_format($item->produksi, 0, ',', '.') }}"
+                        data-tanggal="{{ $item->tanggal_panen->format('d/m/Y') }}"
+                        data-lokasi="{{ $item->lokasi }}"
+                        data-status="{{ $item->status }}"
+                        data-status-class="{{ $sc }}"
+                        title="Detail">
+                    <i data-lucide="eye"></i>
+                </button>
+                <button type="button" class="action-btn action-btn-edit btn-edit-arsip"
+                        data-kode="{{ $item->kode_lahan }}"
+                        data-jenis="{{ $item->jenis_hijauan }}"
+                        data-luas="{{ $item->luas }}"
+                        data-produksi="{{ $item->produksi }}"
+                        data-tanggal="{{ $item->tanggal_panen->format('Y-m-d') }}"
+                        data-lokasi="{{ $item->lokasi }}"
+                        data-status="{{ $item->status }}"
+                        data-url="{{ route('arsip-hijauan.update', $item->id) }}"
+                        title="Edit">
+                    <i data-lucide="edit-3"></i>
+                </button>
             </div>
             <button type="button" class="action-btn action-btn-delete btn-delete-confirm" data-form="delete-form-{{ $item->id }}"><i data-lucide="trash-2"></i></button>
         </div>

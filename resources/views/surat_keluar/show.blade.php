@@ -4,134 +4,156 @@
 
 @section('content')
 <div class="container-fluid px-0">
+    <!-- Page Header -->
     <div class="mb-4">
-        <a href="{{ route('surat-keluar.index') }}" class="text-slate-500 hover:text-slate-700 transition-colors flex items-center gap-2 mb-2">
-            <i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali ke Daftar
+        <a href="{{ route('surat-keluar.index') }}" class="text-decoration-none text-muted small d-flex align-items-center gap-2 mb-2">
+            <i data-lucide="arrow-left" style="width: 14px;"></i> Kembali ke Daftar
         </a>
-        <h1 class="h3 fw-bold mb-1">Detail Surat Keluar</h1>
-    </div>
-
-    <div class="row">
-        <div class="col-lg-8">
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden mb-4">
-                <div class="p-4 bg-slate-50/50 border-bottom d-flex justify-content-between align-items-center">
-                    <h5 class="fw-bold mb-0">Informasi Surat</h5>
-                    @php
-                        $statusClass = 'bg-slate-100 text-slate-600';
-                        if($suratKeluar->status == 'Terkirim') $statusClass = 'bg-green-100 text-green-700';
-                        if($suratKeluar->status == 'Selesai') $statusClass = 'bg-blue-100 text-blue-700';
-                    @endphp
-                    <span class="px-3 py-1 rounded-full text-xs font-semibold {{ $statusClass }}">
-                        {{ $suratKeluar->status }}
-                    </span>
-                </div>
-                <div class="p-4">
-                    <div class="row mb-4">
-                        <div class="col-md-6">
-                            <label class="text-xs text-slate-400 font-bold uppercase tracking-tight mb-1">Nomor Surat</label>
-                            <div class="text-slate-800 fw-medium">{{ $suratKeluar->nomor_surat }}</div>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="text-xs text-slate-400 font-bold uppercase tracking-tight mb-1">Perihal</label>
-                            <div class="text-slate-800 fw-medium">{{ $suratKeluar->perihal }}</div>
-                        </div>
-                    </div>
-                    <div class="row mb-4">
-                        <div class="col-md-6">
-                            <label class="text-xs text-slate-400 font-bold uppercase tracking-tight mb-1">Tujuan</label>
-                            <div class="text-slate-800 fw-medium">{{ $suratKeluar->tujuan }}</div>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="text-xs text-slate-400 font-bold uppercase tracking-tight mb-1">Prioritas</label>
-                            <div>
-                                @php
-                                    $prioClass = match($suratKeluar->prioritas) {
-                                        'Tinggi' => 'text-rose-600 bg-rose-50',
-                                        'Sedang' => 'text-amber-600 bg-amber-50',
-                                        'Rendah' => 'text-emerald-600 bg-emerald-50',
-                                        default => 'text-slate-600 bg-slate-50'
-                                    };
-                                @endphp
-                                <span class="px-2 py-0.5 rounded text-xs font-medium {{ $prioClass }}">
-                                    {{ $suratKeluar->prioritas }}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row mb-4">
-                        <div class="col-md-6">
-                            <label class="text-xs text-slate-400 font-bold uppercase tracking-tight mb-1">Tanggal Surat</label>
-                            <div class="text-slate-800 fw-medium">
-                                <i data-lucide="calendar" class="w-4 h-4 inline-block mr-1 text-slate-400"></i>
-                                {{ $suratKeluar->tanggal_surat->format('d F Y') }}
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="text-xs text-slate-400 font-bold uppercase tracking-tight mb-1">Tanggal Kirim</label>
-                            <div class="text-slate-800 fw-medium">
-                                <i data-lucide="send" class="w-4 h-4 inline-block mr-1 text-slate-400"></i>
-                                {{ $suratKeluar->tanggal_kirim ? $suratKeluar->tanggal_kirim->format('d F Y') : '-' }}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mb-0">
-                        <label class="text-xs text-slate-400 font-bold uppercase tracking-tight mb-1">Keterangan</label>
-                        <div class="text-slate-600">{{ $suratKeluar->keterangan ?: 'Tidak ada keterangan.' }}</div>
-                    </div>
-                </div>
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h3 fw-bold mb-1">Detail Surat Keluar</h1>
+                <p class="text-muted small mb-0">{{ $suratKeluar->nomor_surat }}</p>
             </div>
-
-            <!-- File Preview (Simplified for placeholder) -->
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                <div class="p-4 bg-slate-50/50 border-bottom d-flex justify-content-between align-items-center">
-                    <h5 class="fw-bold mb-0">Lampiran File</h5>
-                    <a href="{{ asset('storage/' . $suratKeluar->file_path) }}" target="_blank" class="btn btn-sm btn-outline-emerald d-flex align-items-center gap-2" style="border-radius: 8px;">
-                        <i data-lucide="download" class="w-4 h-4"></i> Download PDF
-                    </a>
-                </div>
-                <div class="p-0" style="height: 500px;">
-                    <iframe src="{{ asset('storage/' . $suratKeluar->file_path) }}" class="w-full h-full border-0"></iframe>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-4">
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 mb-4">
-                <h6 class="fw-bold mb-3 text-slate-700">Metadata</h6>
-                <div class="space-y-4">
-                    <div>
-                        <label class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-1">Dibuat Oleh</label>
-                        <div class="flex items-center gap-2">
-                            <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold text-xs">
-                                {{ substr($suratKeluar->creator->nama ?? 'A', 0, 1) }}
-                            </div>
-                            <div class="text-sm font-medium text-slate-700">{{ $suratKeluar->creator->nama ?? 'Admin' }}</div>
-                        </div>
-                    </div>
-                    <div>
-                        <label class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-1">Waktu Input</label>
-                        <div class="text-sm text-slate-600">{{ $suratKeluar->created_at->format('d/m/Y H:i') }}</div>
-                    </div>
-                    <div>
-                        <label class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-1">Terakhir Diperbarui</label>
-                        <div class="text-sm text-slate-600">{{ $suratKeluar->updated_at->format('d/m/Y H:i') }}</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 gap-2">
-                <a href="{{ route('surat-keluar.edit', $suratKeluar->id) }}" class="btn btn-warning text-white w-full rounded-xl py-3 fw-bold shadow-sm d-flex align-items-center justify-center gap-2">
-                    <i data-lucide="edit-3" class="w-5 h-5"></i> Edit Surat
+            <div class="d-flex gap-2">
+                <a href="{{ route('surat-keluar.edit', $suratKeluar->id) }}" class="btn btn-warning d-flex align-items-center gap-2" style="border-radius: 8px; color: white;">
+                    <i data-lucide="edit-3" style="width: 18px;"></i> Edit
                 </a>
-                @if($suratKeluar->status == 'Draft')
-                <form action="{{ route('surat-keluar.send', $suratKeluar->id) }}" method="POST">
-                    @csrf
-                    <button type="submit" class="btn btn-success w-full rounded-xl py-3 fw-bold shadow-sm d-flex align-items-center justify-center gap-2">
-                        <i data-lucide="send" class="w-5 h-5"></i> Kirim Sekarang
-                    </button>
-                </form>
+                @if($suratKeluar->file_path)
+                <a href="{{ asset('storage/' . $suratKeluar->file_path) }}" class="btn btn-success d-flex align-items-center gap-2" style="border-radius: 8px;" target="_blank">
+                    <i data-lucide="download" style="width: 18px;"></i> Download PDF
+                </a>
                 @endif
             </div>
+        </div>
+    </div>
+
+    <!-- Content Container -->
+    <div class="row g-4">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm mb-4" style="border-radius: 16px;">
+                <div class="card-header bg-white border-bottom p-4">
+                    <h5 class="mb-0 fw-bold">Informasi Surat</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row g-4">
+                        <div class="col-12">
+                            <label class="text-muted small mb-1">Perihal</label>
+                            <p class="fw-semibold mb-0">{{ $suratKeluar->perihal }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small mb-1">Tujuan</label>
+                            <p class="fw-medium mb-0">{{ $suratKeluar->tujuan }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small mb-1">Nomor Surat</label>
+                            <p class="fw-medium mb-0">{{ $suratKeluar->nomor_surat }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="text-muted small mb-1">Tanggal Surat</label>
+                            <p class="mb-0">{{ $suratKeluar->tanggal_surat->format('d F Y') }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="text-muted small mb-1">Tanggal Kirim</label>
+                            <p class="mb-0">{{ $suratKeluar->tanggal_kirim ? $suratKeluar->tanggal_kirim->format('d F Y') : '-' }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="text-muted small mb-1">Prioritas</label>
+                            <p class="mb-0">
+                                @php
+                                    $prioClass = match($suratKeluar->prioritas) {
+                                        'Tinggi' => 'bg-danger',
+                                        'Sedang' => 'bg-warning text-dark',
+                                        'Rendah' => 'bg-info',
+                                        default => 'bg-secondary'
+                                    };
+                                @endphp
+                                <span class="badge {{ $prioClass }}">
+                                    {{ $suratKeluar->prioritas }}
+                                </span>
+                            </p>
+                        </div>
+                        <div class="col-12">
+                            <label class="text-muted small mb-1">Keterangan</label>
+                            <p class="mb-0 text-muted">{{ $suratKeluar->keterangan ?? 'Tidak ada keterangan.' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @if($suratKeluar->file_path)
+            <div class="card border-0 shadow-sm" style="border-radius: 16px;">
+                <div class="card-header bg-white border-bottom p-4">
+                    <h5 class="mb-0 fw-bold">Pratinjau Dokumen</h5>
+                </div>
+                <div class="card-body p-4">
+                    @php
+                        $extension = pathinfo($suratKeluar->file_path, PATHINFO_EXTENSION);
+                    @endphp
+                    @if(in_array(strtolower($extension), ['jpg', 'jpeg', 'png']))
+                        <img src="{{ asset('storage/' . $suratKeluar->file_path) }}" class="img-fluid rounded" alt="Scan Surat">
+                    @elseif(strtolower($extension) == 'pdf')
+                        <iframe src="{{ asset('storage/' . $suratKeluar->file_path) }}" width="100%" height="600px" style="border: none; border-radius: 8px;"></iframe>
+                    @else
+                        <div class="alert alert-info">File tidak dapat dipratinjau. Silakan unduh file untuk melihat kontennya.</div>
+                    @endif
+                </div>
+            </div>
+            @endif
+        </div>
+
+        <div class="col-md-4">
+            <!-- Sidebar Card: Status & Meta -->
+            <div class="card border-0 shadow-sm mb-4" style="border-radius: 16px;">
+                <div class="card-header bg-white border-bottom p-4">
+                    <h5 class="mb-0 fw-bold">Status & Metadata</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="mb-4">
+                        <label class="text-muted small mb-1">Status Saat Ini</label>
+                        <div>
+                            @php
+                                $statusClass = 'bg-pending';
+                                if($suratKeluar->status == 'Terkirim') $statusClass = 'bg-terkirim';
+                                if($suratKeluar->status == 'Selesai') $statusClass = 'bg-terarsip';
+                            @endphp
+                            <span class="status-badge {{ $statusClass }}">{{ $suratKeluar->status }}</span>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="text-muted small mb-1">Dibuat Oleh</label>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="avatar-sm bg-light text-primary d-flex align-items-center justify-content-center rounded-circle fw-bold" style="width: 32px; height: 32px; font-size: 12px;">
+                                {{ strtoupper(substr($suratKeluar->creator->nama ?? 'A', 0, 1)) }}
+                            </div>
+                            <p class="mb-0 fw-medium">{{ $suratKeluar->creator->nama ?? 'System' }}</p>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="text-muted small mb-1">Waktu Input</label>
+                        <p class="mb-0 text-muted small">{{ $suratKeluar->created_at->format('d/m/Y H:i') }}</p>
+                    </div>
+                    <div>
+                        <label class="text-muted small mb-1">Terakhir Diperbarui</label>
+                        <p class="mb-0 text-muted small">{{ $suratKeluar->updated_at->diffForHumans() }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions Card -->
+            @if($suratKeluar->status == 'Draft')
+            <div class="card border-0 shadow-sm" style="border-radius: 16px; background: #f8fafc;">
+                <div class="card-body p-4">
+                    <h6 class="fw-bold mb-3">Tindakan Cepat</h6>
+                    <form action="{{ route('surat-keluar.send', $suratKeluar->id) }}" method="POST">
+                        @csrf
+                        <button type="submit" class="btn btn-primary w-100 py-2 fw-bold d-flex align-items-center justify-content-center gap-2" style="border-radius: 12px;">
+                            <i data-lucide="send" style="width: 18px;"></i> Kirim Surat Sekarang
+                        </button>
+                    </form>
+                    <p class="text-muted x-small mt-2 mb-0 text-center">Mengubah status surat menjadi "Terkirim" dan mencatat tanggal kirim.</p>
+                </div>
+            </div>
+            @endif
         </div>
     </div>
 </div>

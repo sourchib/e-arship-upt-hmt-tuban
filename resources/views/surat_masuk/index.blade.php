@@ -118,28 +118,259 @@
     </div>
 </div>
 
+{{-- ====== Modal Detail ====== --}}
+<div class="modal-container-custom" id="detailSuratModal">
+    <div class="modal-content-custom" style="max-width: 550px;">
+        <div class="modal-header-custom">
+            <div>
+                <h4>Detail Surat Masuk</h4>
+                <p>Informasi lengkap surat masuk</p>
+            </div>
+            <button type="button" class="btn-close-custom" id="closeDetailModal">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+
+        <div class="modal-body-custom">
+            <div class="detail-row-modern">
+                <div class="detail-item">
+                    <div class="detail-label-modern">
+                        <i data-lucide="file-text" style="color: #8b5cf6;"></i>
+                        Nomor Surat
+                    </div>
+                    <div class="detail-value-modern" id="detailNomor" style="font-weight: 600;"></div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label-modern">
+                        <i data-lucide="calendar" style="color: #22c55e;"></i>
+                        Tanggal
+                    </div>
+                    <div class="detail-value-modern" id="detailTanggal"></div>
+                </div>
+            </div>
+
+            <div class="detail-item full-width mt-3">
+                <div class="detail-label-modern">
+                    <i data-lucide="mail" style="color: #ec4899;"></i>
+                    Perihal
+                </div>
+                <div class="detail-value-modern" id="detailPerihal" style="font-weight: 600;"></div>
+            </div>
+
+            <div class="detail-item full-width mt-3">
+                <div class="detail-label-modern">
+                    <i data-lucide="user" style="color: #f97316;"></i>
+                    Pengirim
+                </div>
+                <div class="detail-value-modern" id="detailPengirim"></div>
+            </div>
+
+            <div class="detail-row-modern mt-3 border-top pt-3">
+                <div class="detail-item">
+                    <div class="detail-label-modern">Kategori</div>
+                    <div class="detail-value-modern" id="detailKategori"></div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label-modern">Status</div>
+                    <div id="detailStatus"></div>
+                </div>
+            </div>
+
+                <div class="modal-footer-btns" style="justify-content: flex-end;">
+                <button type="button" class="btn-cancel-modal" id="cancelDetailModal" style="flex: none; min-width: 100px; padding: 10px 24px;">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- ====== Modal Edit ====== --}}
+<div class="modal-container-custom" id="editSuratModal">
+    <div class="modal-content-custom">
+        <div class="modal-header-custom">
+            <div>
+                <h4>Edit Surat Masuk</h4>
+                <p>Perbarui informasi surat masuk</p>
+            </div>
+            <button type="button" class="btn-close-custom" id="closeEditModal">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+
+        <div class="modal-body-custom">
+            <form id="editSuratForm" method="POST" enctype="multipart/form-data">
+                @csrf
+                @method('PUT')
+
+                <div class="form-group">
+                    <label class="form-label">Nomor Surat <span style="color:#dc2626">*</span></label>
+                    <input type="text" class="form-control" name="nomor_surat" id="editNomorSurat" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Perihal <span style="color:#dc2626">*</span></label>
+                    <input type="text" class="form-control" name="perihal" id="editPerihalInput" required>
+                </div>
+
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label class="form-label">Pengirim <span style="color:#dc2626">*</span></label>
+                        <input type="text" class="form-control" name="pengirim" id="editPengirimInput" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Tanggal Surat <span style="color:#dc2626">*</span></label>
+                        <input type="date" class="form-control" name="tanggal_surat" id="editTanggalSurat" required>
+                    </div>
+                </div>
+
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label class="form-label">Kategori <span style="color:#dc2626">*</span></label>
+                        <select class="form-control" name="kategori" id="editKategoriSelect">
+                            <option value="Permohonan">Permohonan</option>
+                            <option value="Undangan">Undangan</option>
+                            <option value="Laporan">Laporan</option>
+                            <option value="Lainnya">Lainnya</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Ganti File (PDF) <small class="text-muted">(Opsional)</small></label>
+                        <input type="file" class="form-control" name="file">
+                    </div>
+                </div>
+
+                <div class="modal-footer-btns">
+                    <button type="submit" class="btn-save-modal">Simpan Perubahan</button>
+                    <button type="button" class="btn-cancel-modal" id="cancelEditBtn">Batal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .detail-row-modern {
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 16px;
+    }
+    .detail-label-modern {
+        font-size: 13px;
+        font-weight: 800;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 4px;
+    }
+    .detail-label-modern i {
+        width: 16px;
+        height: 16px;
+    }
+    .detail-value-modern {
+        font-size: 14px;
+        color: var(--text-secondary);
+        padding-left: 24px;
+    }
+    .mt-3 { margin-top: 1rem; }
+    .border-top { border-top: 1px solid #f1f5f9; }
+    .pt-3 { padding-top: 1rem; }
+</style>
+
 @endsection
 
 @push('scripts')
 <script>
-    const openModalBtn   = document.getElementById('openCreateModal');
-    const closeModalBtn  = document.getElementById('closeCreateModal');
-    const cancelModalBtn = document.getElementById('cancelCreateModal');
-    const modal          = document.getElementById('createSuratModal');
+    // Elements
     const backdrop       = document.getElementById('modalBackdrop');
+    
+    // Create Modal
+    const modalCreate    = document.getElementById('createSuratModal');
+    const openCreateBtn  = document.getElementById('openCreateModal');
+    const closeCreateBtn = document.getElementById('closeCreateModal');
+    const cancelCreateBtn = document.getElementById('cancelCreateModal');
 
-    const toggleModal = () => {
-        modal.classList.toggle('show');
+    const toggleCreateModal = () => {
+        modalCreate.classList.toggle('show');
         backdrop.classList.toggle('show');
-        document.body.style.overflow = modal.classList.contains('show') ? 'hidden' : '';
+        document.body.style.overflow = modalCreate.classList.contains('show') ? 'hidden' : '';
     };
 
-    if(openModalBtn)   openModalBtn.addEventListener('click', toggleModal);
-    if(closeModalBtn)  closeModalBtn.addEventListener('click', toggleModal);
-    if(cancelModalBtn) cancelModalBtn.addEventListener('click', toggleModal);
-    if(backdrop)       backdrop.addEventListener('click', toggleModal);
+    if(openCreateBtn)   openCreateBtn.addEventListener('click', toggleCreateModal);
+    if(closeCreateBtn)  closeCreateBtn.addEventListener('click', toggleCreateModal);
+    if(cancelCreateBtn) cancelCreateBtn.addEventListener('click', toggleCreateModal);
 
-    @if($errors->any()) toggleModal(); @endif
+    // Detail Modal
+    const modalDetail    = document.getElementById('detailSuratModal');
+    const closeDetailBtn = document.getElementById('closeDetailModal');
+    const cancelDetailBtn = document.getElementById('cancelDetailModal');
+
+    const toggleDetailModal = () => {
+        modalDetail.classList.toggle('show');
+        backdrop.classList.toggle('show');
+        document.body.style.overflow = modalDetail.classList.contains('show') ? 'hidden' : '';
+    };
+
+    if(closeDetailBtn) closeDetailBtn.addEventListener('click', toggleDetailModal);
+    if(cancelDetailBtn) cancelDetailBtn.addEventListener('click', toggleDetailModal);
+
+    // Edit Modal
+    const modalEdit      = document.getElementById('editSuratModal');
+    const closeEditBtn   = document.getElementById('closeEditModal');
+    const cancelEditBtn  = document.getElementById('cancelEditBtn');
+    const editForm       = document.getElementById('editSuratForm');
+
+    const toggleEditModal = () => {
+        modalEdit.classList.toggle('show');
+        backdrop.classList.toggle('show');
+        document.body.style.overflow = modalEdit.classList.contains('show') ? 'hidden' : '';
+    };
+
+    if(closeEditBtn)  closeEditBtn.addEventListener('click', toggleEditModal);
+    if(cancelEditBtn) cancelEditBtn.addEventListener('click', toggleEditModal);
+
+    // Global Backdrop Click
+    if(backdrop) {
+        backdrop.addEventListener('click', () => {
+            modalCreate.classList.remove('show');
+            modalDetail.classList.remove('show');
+            modalEdit.classList.remove('show');
+            backdrop.classList.remove('show');
+            document.body.style.overflow = '';
+        });
+    }
+
+    const bindActionButtons = () => {
+        // Detail Buttons
+        document.querySelectorAll('.btn-view-detail').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.getElementById('detailNomor').innerText    = this.dataset.nomor;
+                document.getElementById('detailPerihal').innerText  = this.dataset.perihal;
+                document.getElementById('detailPengirim').innerText = this.dataset.pengirim;
+                document.getElementById('detailTanggal').innerText  = this.dataset.tanggal;
+                document.getElementById('detailKategori').innerText = this.dataset.kategori;
+                const statusEl = document.getElementById('detailStatus');
+                statusEl.innerHTML = `<span class="status-badge ${this.dataset.statusClass}">${this.dataset.status}</span>`;
+                toggleDetailModal();
+            });
+        });
+
+        // Edit Buttons
+        document.querySelectorAll('.btn-edit-surat').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.getElementById('editNomorSurat').value     = this.dataset.nomor;
+                document.getElementById('editPerihalInput').value   = this.dataset.perihal;
+                document.getElementById('editPengirimInput').value  = this.dataset.pengirim;
+                document.getElementById('editTanggalSurat').value   = this.dataset.tanggal;
+                document.getElementById('editKategoriSelect').value = this.dataset.kategori;
+                editForm.action = this.dataset.url;
+                toggleEditModal();
+            });
+        });
+    };
+
+    bindActionButtons();
+
+    @if($errors->any()) toggleCreateModal(); @endif
 
     // AJAX Search
     const searchInput    = document.getElementById('searchInput');
@@ -156,6 +387,7 @@
                 listContainer.innerHTML = data.html;
                 lucide.createIcons();
                 bindDeleteConfirm();
+                bindActionButtons(); // Re-bind dynamic buttons
                 window.history.pushState({}, '', url);
             });
     };

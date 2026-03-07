@@ -39,9 +39,17 @@
                     </td>
                     <td>
                         <div class="action-btns">
-                            <a href="{{ route('surat-keluar.show', $surat->id) }}" class="action-btn action-btn-view" title="Detail">
+                            <button type="button" class="action-btn action-btn-view btn-view-detail" 
+                                    data-nomor="{{ $surat->nomor_surat }}"
+                                    data-perihal="{{ $surat->perihal }}"
+                                    data-tujuan="{{ $surat->tujuan }}"
+                                    data-tanggal="{{ $surat->tanggal_surat->format('d/m/Y') }}"
+                                    data-prioritas="{{ $surat->prioritas }}"
+                                    data-status="{{ $surat->status }}"
+                                    data-status-class="{{ $sc }}"
+                                    title="Detail">
                                 <i data-lucide="eye"></i>
-                            </a>
+                            </button>
                             @if($surat->status == 'Draft')
                             <form id="send-form-{{ $surat->id }}" action="{{ route('surat-keluar.send', $surat->id) }}" method="POST" style="display:inline;">
                                 @csrf
@@ -53,9 +61,16 @@
                             <a href="{{ $surat->file_path ? asset('storage/'.$surat->file_path) : '#' }}" class="action-btn action-btn-dl" title="Download" target="_blank">
                                 <i data-lucide="download"></i>
                             </a>
-                            <a href="{{ route('surat-keluar.edit', $surat->id) }}" class="action-btn action-btn-edit" title="Edit">
+                            <button type="button" class="action-btn action-btn-edit btn-edit-surat"
+                                    data-nomor="{{ $surat->nomor_surat }}"
+                                    data-perihal="{{ $surat->perihal }}"
+                                    data-tujuan="{{ $surat->tujuan }}"
+                                    data-tanggal="{{ $surat->tanggal_surat->format('Y-m-d') }}"
+                                    data-prioritas="{{ $surat->prioritas }}"
+                                    data-url="{{ route('surat-keluar.update', $surat->id) }}"
+                                    title="Edit">
                                 <i data-lucide="edit-3"></i>
-                            </a>
+                            </button>
                             <form id="delete-form-{{ $surat->id }}" action="{{ route('surat-keluar.destroy', $surat->id) }}" method="POST" style="display:inline;">
                                 @csrf @method('DELETE')
                                 <button type="button" class="action-btn action-btn-delete btn-delete-confirm" data-form="delete-form-{{ $surat->id }}" title="Hapus">
@@ -110,7 +125,17 @@
         </div>
         <div class="mobile-card-footer">
             <div class="action-btns">
-                <a href="{{ route('surat-keluar.show', $surat->id) }}" class="action-btn action-btn-view"><i data-lucide="eye"></i></a>
+                <button type="button" class="action-btn action-btn-view btn-view-detail" 
+                        data-nomor="{{ $surat->nomor_surat }}"
+                        data-perihal="{{ $surat->perihal }}"
+                        data-tujuan="{{ $surat->tujuan }}"
+                        data-tanggal="{{ $surat->tanggal_surat->format('d/m/Y') }}"
+                        data-prioritas="{{ $surat->prioritas }}"
+                        data-status="{{ $surat->status }}"
+                        data-status-class="{{ $sc }}"
+                        title="Detail">
+                    <i data-lucide="eye"></i>
+                </button>
                 @if($surat->status == 'Draft')
                 <form id="send-form-m-{{ $surat->id }}" action="{{ route('surat-keluar.send', $surat->id) }}" method="POST" style="display:inline;">
                     @csrf
@@ -118,7 +143,16 @@
                 </form>
                 @endif
                 <a href="{{ $surat->file_path ? asset('storage/'.$surat->file_path) : '#' }}" class="action-btn action-btn-dl" target="_blank"><i data-lucide="download"></i></a>
-                <a href="{{ route('surat-keluar.edit', $surat->id) }}" class="action-btn action-btn-edit"><i data-lucide="edit-3"></i></a>
+                <button type="button" class="action-btn action-btn-edit btn-edit-surat"
+                        data-nomor="{{ $surat->nomor_surat }}"
+                        data-perihal="{{ $surat->perihal }}"
+                        data-tujuan="{{ $surat->tujuan }}"
+                        data-tanggal="{{ $surat->tanggal_surat->format('Y-m-d') }}"
+                        data-prioritas="{{ $surat->prioritas }}"
+                        data-url="{{ route('surat-keluar.update', $surat->id) }}"
+                        title="Edit">
+                    <i data-lucide="edit-3"></i>
+                </button>
             </div>
             <button type="button" class="action-btn action-btn-delete btn-delete-confirm" data-form="delete-form-{{ $surat->id }}"><i data-lucide="trash-2"></i></button>
         </div>
