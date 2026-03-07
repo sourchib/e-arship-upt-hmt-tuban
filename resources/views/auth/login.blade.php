@@ -51,6 +51,22 @@
                     </div>
                 </div>
 
+                <div class="form-group">
+                    <label for="captcha">Verifikasi Keamanan</label>
+                    <div class="captcha-box" style="display: flex; gap: 10px; align-items: center; margin-bottom: 8px;">
+                        <div class="captcha-img-wrapper" id="captcha-img" style="flex: 1; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; background: #fff; height: 50px; display: flex; align-items: center; justify-content: center;">
+                            {!! captcha_img('flat') !!}
+                        </div>
+                        <button type="button" class="btn-refresh" id="refresh-captcha" style="width: 45px; height: 50px; border-radius: 8px; border: 1px solid #e2e8f0; background: #f8fafc; color: #64748b; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+                            <i data-lucide="refresh-cw" style="width: 18px; height: 18px;"></i>
+                        </button>
+                    </div>
+                    <input type="text" id="captcha" name="captcha" class="form-control" placeholder="Ketik kode di atas" required>
+                    @error('captcha')
+                        <small class="text-danger" style="color: #ef4444; font-size: 11px; margin-top: 4px; display: block;">{{ $message }}</small>
+                    @enderror
+                </div>
+
                 <div class="form-options">
                     <div class="checkbox-group">
                         <input type="checkbox" id="remember" name="remember">
@@ -95,7 +111,51 @@
                 lucide.createIcons();
             });
         }
+
+        // Captcha Refresh
+        const refreshBtn = document.querySelector('#refresh-captcha');
+        const captchaBox = document.querySelector('#captcha-img');
+
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', function() {
+                const icon = this.querySelector('i');
+                icon.classList.add('loading-spin');
+                this.style.opacity = '0.5';
+                this.style.pointerEvents = 'none';
+
+                fetch('/captcha/api/flat')
+                    .then(response => response.json())
+                    .then(data => {
+                        captchaBox.innerHTML = `<img src="${data.img}" alt="captcha" style="max-height: 100%; width: auto;">`;
+                    })
+                    .catch(err => console.error('Error refreshing captcha:', err))
+                    .finally(() => {
+                        icon.classList.remove('loading-spin');
+                        this.style.opacity = '1';
+                        this.style.pointerEvents = 'all';
+                    });
+            });
+        }
     </script>
+    <style>
+        .captcha-img-wrapper img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .loading-spin {
+            animation: spin 1s linear infinite;
+        }
+        .btn-refresh:hover {
+            background: #f1f5f9 !important;
+            color: #0f172a !important;
+            border-color: #cbd5e1 !important;
+        }
+    </style>
 
     @if (session('token'))
     <script>
