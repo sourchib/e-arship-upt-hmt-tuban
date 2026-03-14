@@ -81,21 +81,21 @@
                     <i data-lucide="book-open"></i>
                     Arsip Pembibitan
                 </a>
-                <a href="{{ route('arsip-hijauan.index') }}"
+                <!-- <a href="{{ route('arsip-hijauan.index') }}"
                    class="menu-item {{ request()->routeIs('arsip-hijauan.*') ? 'active' : '' }}"
                    id="nav-arsip-hijauan">
                     <i data-lucide="leaf"></i>
                     Arsip Hijauan
-                </a>
+                </a> -->
 
                 <span class="menu-section-label" style="margin-top:8px;">Administrasi</span>
 
-                <a href="{{ route('dokumen.index') }}"
+                <!-- <a href="{{ route('dokumen.index') }}"
                    class="menu-item {{ request()->routeIs('dokumen.*') ? 'active' : '' }}"
                    id="nav-dokumen">
                     <i data-lucide="file-text"></i>
                     Manajemen Dokumen
-                </a>
+                </a> -->
                 @if(Auth::check() && Auth::user()->role === 'Admin')
                 <a href="{{ route('kategori-dokumen.index') }}"
                    class="menu-item {{ request()->routeIs('kategori-dokumen.*') ? 'active' : '' }}"
