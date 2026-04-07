@@ -38,14 +38,32 @@
             {{ $doc->nama }}
         </h5>
 
-        <div class="doc-meta">
-            <div style="display:flex;align-items:center;gap:6px;">
-                <i data-lucide="clock" style="width:14px;height:14px;"></i>
-                <span>Diupload: {{ $doc->tanggal_upload->format('d/m/Y') }}</span>
+        <div class="doc-meta" style="background: #f8fafc; padding: 12px; border-radius: 10px; margin: 12px 0;">
+            <div style="margin-bottom: 8px; border-bottom: 1px solid #edf2f7; padding-bottom: 6px;">
+                <div style="font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">Kode Arsip:</div>
+                <div style="font-size: 13px; font-weight: 700; color: #1e293b;">{{ $doc->kode ?? '-' }}</div>
             </div>
-            <div style="display:flex;align-items:center;gap:6px;">
-                <i data-lucide="user" style="width:14px;height:14px;"></i>
-                <span>Oleh: {{ $doc->uploader->nama ?? 'Admin' }}</span>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <div>
+                    <div style="font-size: 9px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">Tanggal:</div>
+                    <div style="font-size: 12px; font-weight: 600; color: #475569;">{{ $doc->tanggal ? $doc->tanggal->format('d/m/Y') : $doc->tanggal_upload->format('d/m/Y') }}</div>
+                </div>
+                <div>
+                    <div style="font-size: 9px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">Masa Retensi:</div>
+                    <div style="font-size: 12px; font-weight: 600; color: #475569;">{{ $doc->masa_retensi ?? '-' }}</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 8px;">
+                <div style="font-size: 9px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">Rak / Lokasi:</div>
+                <div style="font-size: 12px; font-weight: 600; color: #475569; display: flex; align-items: center; gap: 4px;">
+                    <i data-lucide="archive" style="width: 12px; height: 12px; color: #16a34a;"></i>
+                    {{ $doc->lokasi ?? '-' }}
+                </div>
+            </div>
+            <div style="margin-top: 8px; font-size: 10px; color: #94a3b8; display: flex; align-items: center; gap: 4px;">
+                <i data-lucide="user" style="width: 12px; height: 12px;"></i> Diupload: {{ $doc->uploader->nama ?? 'Admin' }}
             </div>
         </div>
 
@@ -59,12 +77,17 @@
                 </a>
             </div>
             @if(Auth::check() && Auth::user()->role === 'Admin')
-            <form id="delete-form-{{ $doc->id }}" action="{{ route('dokumen.destroy', $doc->id) }}" method="POST" style="display:inline;">
-                @csrf @method('DELETE')
-                <button type="button" class="action-btn action-btn-delete btn-delete-confirm" data-form="delete-form-{{ $doc->id }}" title="Hapus">
-                    <i data-lucide="trash-2"></i>
+            <div style="gap:4px; display:flex;">
+                <button type="button" class="action-btn action-btn-edit btn-edit-dokumen" data-id="{{ $doc->id }}" title="Edit">
+                    <i data-lucide="edit-3"></i>
                 </button>
-            </form>
+                <form id="delete-form-{{ $doc->id }}" action="{{ route('dokumen.destroy', $doc->id) }}" method="POST" style="display:inline;">
+                    @csrf @method('DELETE')
+                    <button type="button" class="action-btn action-btn-delete btn-delete-confirm" data-form="delete-form-{{ $doc->id }}" title="Hapus">
+                        <i data-lucide="trash-2"></i>
+                    </button>
+                </form>
+            </div>
             @endif
         </div>
     </div>

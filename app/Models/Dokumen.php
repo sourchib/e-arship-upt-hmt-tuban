@@ -13,16 +13,22 @@ class Dokumen extends Model
 
     protected $casts = [
         'tanggal_upload' => 'date',
+        'tanggal' => 'date',
     ];
 
     protected $fillable = [
         'nama',
         'kategori',
+        'tanggal',
+        'kode',
+        'lokasi',
         'file_path',
         'ukuran',
         'mime_type',
         'tanggal_upload',
         'deskripsi',
+        'masa_retensi',
+        'status',
         'download_counter',
         'uploaded_by',
     ];

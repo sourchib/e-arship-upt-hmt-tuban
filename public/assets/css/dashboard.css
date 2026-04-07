@@ -2016,3 +2016,28 @@ select.form-control {
         grid-template-columns: 1fr;
     }
 }
+
+.main-content.no-sidebar {
+    margin-left: 0 !important;
+}
+
+@media (max-width: 1200px) {
+    .main-content {
+        margin-left: 0;
+    }
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .dashboard-sections {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 576px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    .actions-grid {
+        grid-template-columns: 1fr;
+    }
+}

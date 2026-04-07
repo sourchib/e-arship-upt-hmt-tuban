@@ -5,18 +5,47 @@
 @section('content')
 
 {{-- ====== Page Header ====== --}}
-<div class="page-header">
-    <div class="page-header-left">
-        <h1>Manajemen Dokumen</h1>
-        <p>Kelola semua dokumen arsip digital</p>
+<div class="page-header" style="flex-direction: column; align-items: flex-start; gap: 16px;">
+    <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+        <div class="page-header-left">
+            <h1>Manajemen Dokumen</h1>
+            <p>Kelola semua dokumen arsip digital secara terpusat</p>
+        </div>
+        <div class="page-header-actions" style="display: flex; gap: 12px;">
+            @if(Auth::check() && Auth::user()->role === 'Admin')
+            <button type="button" class="btn btn-secondary" id="btnAddKategori">
+                <i data-lucide="folder-plus" style="width:16px;height:16px;"></i>
+                Tambah Kategori
+            </button>
+            <button type="button" class="btn btn-primary" id="openUploadModal">
+                <i data-lucide="folder-open" style="width:16px;height:16px;"></i>
+                Buka Arsip
+            </button>
+            @endif
+        </div>
     </div>
-    <div class="page-header-actions">
-        @if(Auth::check() && Auth::user()->role === 'Admin')
-        <button type="button" class="btn btn-primary" id="openUploadModal">
-            <i data-lucide="upload-cloud" style="width:16px;height:16px;"></i>
-            Upload Dokumen
-        </button>
-        @endif
+
+    {{-- Metadata Detail Bar --}}
+    <div class="dashboard-detail-bar" style="width: 100%; margin-bottom: 0;">
+        <div class="detail-item">
+            <span class="detail-label">Status Arsip:</span>
+            <span class="detail-value" style="color: #16a34a;">Aktif</span>
+        </div>
+        <div class="detail-col-divider" style="width: 1px; height: 24px; background: #e2e8f0; margin-inline: 4px;"></div>
+        <div class="detail-item">
+            <span class="detail-label">Tanggal:</span>
+            <span class="detail-value">{{ date('d M Y') }}</span>
+        </div>
+        <div class="detail-col-divider" style="width: 1px; height: 24px; background: #e2e8f0; margin-inline: 4px;"></div>
+        <div class="detail-item">
+            <span class="detail-label">Kode Unit:</span>
+            <span class="detail-value">UPT-HMT</span>
+        </div>
+        <div class="detail-col-divider" style="width: 1px; height: 24px; background: #e2e8f0; margin-inline: 4px;"></div>
+        <div class="detail-item">
+            <span class="detail-label">Lokasi:</span>
+            <span class="detail-value">Tuban, Jawa Timur</span>
+        </div>
     </div>
 </div>
 
@@ -52,7 +81,7 @@
     <div class="modal-content-custom">
         <div class="modal-header-custom">
             <div>
-                <h4>Upload Dokumen Baru</h4>
+                <h4>Buka/Upload Arsip Baru</h4>
                 <p>Tambahkan file ke arsip digital</p>
             </div>
             <button type="button" class="btn-close-custom" id="closeUploadModal">
@@ -64,23 +93,66 @@
             <form id="uploadForm" action="{{ route('dokumen.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
 
-                <div class="form-group">
-                    <label class="form-label">Nama Dokumen <span style="color:#dc2626">*</span></label>
-                    <input type="text" class="form-control"
-                           name="nama" id="input_nama"
-                           placeholder="Contoh: Laporan Tahunan 2025" required>
+                <div class="form-row-custom" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                    <div class="form-group">
+                        <label class="form-label">Nama Dokumen <span style="color:#dc2626">*</span></label>
+                        <input type="text" class="form-control"
+                               name="nama" id="input_nama"
+                               placeholder="Contoh: Laporan Tahunan 2025" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Kode Arsip / Nomor Surat</label>
+                        <input type="text" class="form-control"
+                               name="kode" id="input_kode"
+                               placeholder="Contoh: 045/UPT-HMT/2025">
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label class="form-label">Kategori <span style="color:#dc2626">*</span></label>
-                    <select class="form-control" name="kategori" id="input_kategori" required>
-                        <option value="" disabled selected>Pilih Kategori</option>
-                        @foreach($categories as $cat)
-                            @if($cat != 'Semua')
-                            <option value="{{ $cat }}">{{ $cat }}</option>
-                            @endif
-                        @endforeach
-                    </select>
+                <div class="form-row-custom" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                    <div class="form-group">
+                        <label class="form-label">Kategori <span style="color:#dc2626">*</span></label>
+                        <select class="form-control" name="kategori" id="input_kategori" required>
+                            <option value="" disabled selected>Pilih Kategori</option>
+                            @foreach($categories as $cat)
+                                @if($cat != 'Semua')
+                                <option value="{{ $cat }}">{{ $cat }}</option>
+                                @endif
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Tanggal Dokumen <span style="color:#dc2626">*</span></label>
+                        <input type="date" class="form-control"
+                               name="tanggal" id="input_tanggal"
+                               value="{{ date('Y-m-d') }}" required>
+                    </div>
+                </div>
+
+                <div class="form-row-custom" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                    <div class="form-group">
+                        <label class="form-label">Rak / Lokasi Penyimpanan <span style="color:#dc2626">*</span></label>
+                        <input type="text" class="form-control"
+                               name="lokasi" id="input_lokasi"
+                               placeholder="Contoh: Rak A1, Map Biru" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Masa Retensi</label>
+                        <input type="text" class="form-control"
+                               name="masa_retensi" id="input_masa_retensi"
+                               placeholder="Contoh: 5 Tahun, Permanen">
+                    </div>
+
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label class="form-label">Status Arsip <span style="color:#dc2626">*</span></label>
+                        <select class="form-control" name="status" id="input_status" required>
+                            <option value="Aktif">Aktif</option>
+                            <option value="Inaktif">Inaktif</option>
+                        </select>
+                    </div>
+                </div>
                 </div>
 
                 <div class="form-group">
@@ -124,6 +196,26 @@
     const fileInfo       = document.getElementById('fileInfo');
     const fileName       = document.getElementById('fileName');
 
+    const checkAdmin = (callback) => {
+        @if(Auth::check() && Auth::user()->role === 'Admin')
+            callback();
+        @elseif(!Auth::check())
+            window.location.href = "{{ route('login') }}";
+        @else
+            Swal.fire({
+                title: 'Akses Khusus Admin',
+                text: 'Maaf, hanya Admin yang memiliki otoritas untuk fitur ini.',
+                icon: 'lock',
+                showCancelButton: true,
+                confirmButtonText: 'Login sebagai Admin',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#16a34a'
+            }).then((result) => {
+                if (result.isConfirmed) window.location.href = "{{ route('login') }}";
+            });
+        @endif
+    };
+
     const toggleModal = () => {
         modal.classList.toggle('show');
         backdrop.classList.toggle('show');
@@ -131,6 +223,54 @@
     };
 
     if(openModalBtn)   openModalBtn.addEventListener('click', toggleModal);
+
+    const btnAddKategori = document.getElementById('btnAddKategori');
+    if(btnAddKategori) {
+        btnAddKategori.addEventListener('click', () => {
+            checkAdmin(async () => {
+                const { value: namaKategori } = await Swal.fire({
+                    title: 'Tambah Kategori Baru',
+                    input: 'text',
+                    inputLabel: 'Nama Kategori',
+                    inputPlaceholder: 'Contoh: Arsip Keuangan',
+                    showCancelButton: true,
+                    confirmButtonText: 'Simpan',
+                    cancelButtonText: 'Batal',
+                    confirmButtonColor: '#16a34a',
+                    inputValidator: (value) => {
+                        if (!value) return 'Nama kategori tidak boleh kosong!';
+                    }
+                });
+
+                if (namaKategori) {
+                    fetch("{{ route('dokumen.kategori.store') }}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({ nama: namaKategori })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire('Berhasil!', data.message, 'success');
+                            // Refresh the page or update UI components
+                            performUpdate();
+                        } else {
+                            Swal.fire('Gagal!', data.message || 'Terjadi kesalahan.', 'error');
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Error:', err);
+                        Swal.fire('Error!', 'Tidak dapat menghubungi server.', 'error');
+                    });
+                }
+            });
+        });
+    }
+
     if(closeModalBtn)  closeModalBtn.addEventListener('click', toggleModal);
     if(cancelModalBtn) cancelModalBtn.addEventListener('click', toggleModal);
     if(backdrop)       backdrop.addEventListener('click', toggleModal);
@@ -175,6 +315,40 @@
                 if (data.html) {
                     documentsGrid.innerHTML = data.html;
                     if(data.stats) statsContainer.innerHTML = data.stats;
+                    if (data.categories) {
+                        const filterTabs = document.getElementById('filterTabs');
+                        const inputKategori = document.getElementById('input_kategori');
+                        
+                        // Update Filter Tabs
+                        let filterHtml = '';
+                        data.categories.forEach(cat => {
+                            filterHtml += `<button class="filter-tab ${ (cat == currentKategori) ? 'active' : '' }" data-kategori="${cat}">${cat}</button>`;
+                        });
+                        filterTabs.innerHTML = filterHtml;
+                        
+                        // Re-bind listeners for filter tabs
+                        document.querySelectorAll('.filter-tab').forEach(tab => {
+                            tab.onclick = function() {
+                                document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                                this.classList.add('active');
+                                currentKategori = this.dataset.kategori;
+                                performUpdate();
+                            }
+                        });
+
+                        // Update Upload Select Option
+                        if (inputKategori) {
+                            const currentVal = inputKategori.value;
+                            let selectHtml = '<option value="" disabled selected>Pilih Kategori</option>';
+                            data.categories.forEach(cat => {
+                                if (cat !== 'Semua') {
+                                    selectHtml += `<option value="${cat}" ${cat == currentVal ? 'selected' : ''}>${cat}</option>`;
+                                }
+                            });
+                            inputKategori.innerHTML = selectHtml;
+                        }
+                    }
+
                     lucide.createIcons();
                     bindDeleteConfirm();
                     window.history.pushState({}, '', url);
@@ -194,13 +368,23 @@
         uploadForm.addEventListener('submit', function(e) {
             e.preventDefault();
             const formData = new FormData(this);
+            const isEdit = this.dataset.mode === 'edit';
+            const method = isEdit ? 'POST' : 'POST'; // Both POST, but update uses _method: PUT
+            
+            if (isEdit) {
+                formData.append('_method', 'PUT');
+            }
+
             btnSubmit.disabled = true;
-            btnSubmit.textContent = 'Sedang Mengupload...';
+            btnSubmit.textContent = isEdit ? 'Menyimpan...' : 'Sedang Mengupload...';
 
             fetch(this.action, {
                 method: 'POST',
                 body: formData,
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                headers: { 
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
             })
             .then(response => response.json())
             .then(data => {
@@ -211,7 +395,7 @@
                     fileInfo.classList.remove('show');
                     performUpdate();
                 } else {
-                    Swal.fire('Gagal!', data.message || 'Terjadi kesalahan saat upload.', 'error');
+                    Swal.fire('Gagal!', data.message || 'Terjadi kesalahan.', 'error');
                 }
             })
             .catch(error => {
@@ -220,9 +404,76 @@
             })
             .finally(() => {
                 btnSubmit.disabled = false;
-                btnSubmit.textContent = 'Upload Sekarang';
+                btnSubmit.textContent = isEdit ? 'Simpan Perubahan' : 'Upload Sekarang';
+            });
+
+        });
+    }
+
+    const editDoc = (id) => {
+        checkAdmin(() => {
+            fetch(`{{ url('dokumen') }}/${id}/edit`, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(r => r.json())
+            .then(doc => {
+                // Change Modal to Edit Mode
+                document.querySelector('#uploadModal h4').textContent = 'Edit Dokumen';
+                document.querySelector('#uploadModal p').textContent = 'Perbarui informasi dokumen';
+                uploadForm.action = `{{ url('dokumen') }}/${id}`;
+                uploadForm.dataset.mode = 'edit';
+                btnSubmit.textContent = 'Simpan Perubahan';
+                
+                // Hide file input requirement
+                fileInput.required = false;
+                document.querySelector('.drop-zone small').textContent = 'Biarkan kosong jika tidak ingin mengganti file';
+
+                // Fill Data
+                document.getElementById('input_nama').value = doc.nama;
+                document.getElementById('input_kode').value = doc.kode;
+                document.getElementById('input_kategori').value = doc.kategori;
+                document.getElementById('input_tanggal').value = doc.tanggal ? doc.tanggal.split('T')[0] : '';
+                document.getElementById('input_lokasi').value = doc.lokasi;
+                document.getElementById('input_masa_retensi').value = doc.masa_retensi;
+                document.getElementById('input_status').value = doc.status || 'Aktif';
+                document.getElementById('input_deskripsi').value = doc.deskripsi;
+
+                toggleModal();
             });
         });
+    };
+
+    // Listen for Edit Button (Delegation for AJAX loaded content)
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('.btn-edit-dokumen');
+        if (btn) {
+            editDoc(btn.dataset.id);
+        }
+    });
+
+    // Reset Modal on Open for Upload
+    if(openModalBtn) {
+        openModalBtn.addEventListener('click', () => {
+            checkAdmin(() => {
+                document.querySelector('#uploadModal h4').textContent = 'Buka/Upload Arsip Baru';
+                document.querySelector('#uploadModal p').textContent = 'Tambahkan file ke arsip digital';
+                uploadForm.action = "{{ route('dokumen.store') }}";
+                uploadForm.dataset.mode = 'upload';
+                btnSubmit.textContent = 'Upload Sekarang';
+                fileInput.required = true;
+                uploadForm.reset();
+                fileInfo.classList.remove('show');
+                toggleModal();
+            });
+        });
+    }
+
+    // Auto-open edit/create if from dashboard
+    const urlParams = new URLSearchParams(window.location.search);
+    if(urlParams.has('edit')) {
+        editDoc(urlParams.get('edit'));
+    } else if(urlParams.get('create') === 'true') {
+        if(openModalBtn) openModalBtn.click();
     }
 
     document.querySelectorAll('.filter-tab').forEach(tab => {

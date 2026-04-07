@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="{{ asset('assets/css/dashboard.css') }}">
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="{{ asset('assets/img/logo.png') }}">
+
     <style>
         .no-sidebar .main-content {
             margin-left: 0 !important;
@@ -30,6 +31,60 @@
             .no-sidebar .header {
                 padding-left: 18px;
             }
+        }
+
+        /* Top Navigation Buttons */
+        .header-nav {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-left: 20px;
+        }
+        .nav-btn-header {
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            border-radius: 10px;
+            color: #64748b;
+            font-size: 13.5px;
+            font-weight: 600;
+            transition: all 0.2s;
+            border: 1.5px solid transparent;
+        }
+        .nav-btn-header i {
+            width: 16px;
+            height: 16px;
+        }
+        .nav-btn-header:hover {
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+        .nav-btn-header.active {
+            background: #f0fdf4;
+            color: #16a34a;
+            border-color: #dcfce7;
+        }
+
+        /* Header UI Refinements */
+        .header {
+            background: rgba(255, 255, 255, 0.8) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #f1f5f9;
+            z-index: 1000;
+            padding: 10px 24px !important;
+        }
+
+        .header-search-desktop {
+            flex: 1;
+            max-width: 400px;
+            margin: 0 20px;
+        }
+
+        @media (max-width: 768px) {
+            .header-nav span { display: none; }
+            .header-search-desktop { display: none; }
         }
     </style>
     @stack('css')
@@ -81,21 +136,9 @@
                     <i data-lucide="book-open"></i>
                     Arsip Pembibitan
                 </a>
-                <!-- <a href="{{ route('arsip-hijauan.index') }}"
-                   class="menu-item {{ request()->routeIs('arsip-hijauan.*') ? 'active' : '' }}"
-                   id="nav-arsip-hijauan">
-                    <i data-lucide="leaf"></i>
-                    Arsip Hijauan
-                </a> -->
 
                 <span class="menu-section-label" style="margin-top:8px;">Administrasi</span>
 
-                <!-- <a href="{{ route('dokumen.index') }}"
-                   class="menu-item {{ request()->routeIs('dokumen.*') ? 'active' : '' }}"
-                   id="nav-dokumen">
-                    <i data-lucide="file-text"></i>
-                    Manajemen Dokumen
-                </a> -->
                 @if(Auth::check() && Auth::user()->role === 'Admin')
                 <a href="{{ route('kategori-dokumen.index') }}"
                    class="menu-item {{ request()->routeIs('kategori-dokumen.*') ? 'active' : '' }}"
@@ -113,10 +156,6 @@
             </nav>
 
             <div class="sidebar-footer">
-                <a href="#" class="menu-item" id="nav-settings">
-                    <i data-lucide="settings"></i>
-                    Pengaturan
-                </a>
                 @auth
                 <form action="{{ route('logout') }}" method="POST" class="logout-form">
                     @csrf
@@ -125,100 +164,87 @@
                         Logout
                     </button>
                 </form>
-                @else
-                <a href="{{ route('login') }}" class="menu-item" id="nav-login">
-                    <i data-lucide="log-in"></i>
-                    Login Admin
-                </a>
                 @endauth
             </div>
         </aside>
         @endif
 
         <!-- ====== MAIN CONTENT ====== -->
-        <main class="main-content" id="mainContent">
+        <main class="main-content {{ (Auth::check() && Auth::user()->role === 'Admin') ? '' : 'no-sidebar' }}" id="mainContent">
 
             <!-- Sticky Header -->
             <header class="header">
-                <div class="d-flex align-items-center gap-3">
-                    <button class="menu-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
-                        <i data-lucide="menu"></i>
-                    </button>
-                    <form action="{{ route('search') }}" method="GET" class="search-bar">
-                        <i data-lucide="search" class="search-icon"></i>
-                        <input type="text" name="q" id="globalSearch" placeholder="Cari dokumen, surat, arsip..." value="{{ request('q') }}">
-                    </form>
-                </div>
-
-                <div class="user-nav">
-                    <div class="nav-icon" id="notifBtn" title="Notifikasi" style="position:relative;">
-                        <i data-lucide="bell"></i>
-                        <span class="badge-notif"></span>
+                <div class="d-flex align-items-center justify-content-between w-100">
+                    <div class="d-flex align-items-center">
+                        @if(Auth::check() && Auth::user()->role === 'Admin')
+                        <button class="menu-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+                            <i data-lucide="menu"></i>
+                        </button>
+                        @endif
                         
-                        <!-- Notification Dropdown -->
-                        <div class="notif-dropdown" id="notifDropdown" style="display:none; position:absolute; top:120%; right:0; width:300px; background:#fff; border-radius:12px; box-shadow:0 10px 25px rgba(0,0,0,0.1); border:1px solid #e2e8f0; z-index:100; text-align:left; cursor:default;">
-                            @php
-                                $recentNotifs = \App\Models\LogAktivitas::where('jenis_aktivitas', 'Create')->latest()->take(5)->get();
-                                $notifCount = $recentNotifs->count();
-                            @endphp
-                            <div style="padding:14px 16px; border-bottom:1px solid #f1f5f9; display:flex; justify-content:space-between; align-items:center;">
-                                <h4 style="margin:0; font-size:14px; font-weight:700; color:#0f172a;">Notifikasi Terbaru</h4>
-                                @if($notifCount > 0)
-                                <span style="font-size:11px; color:#16a34a; background:#dcfce7; padding:2px 8px; border-radius:10px; font-weight:600;">{{ $notifCount }} Baru</span>
-                                @endif
-                            </div>
-                            <div style="max-height:300px; overflow-y:auto; padding:8px 0;">
-                                @forelse($recentNotifs as $notif)
-                                <div style="display:flex; gap:12px; padding:12px 16px; transition:background 0.2s; cursor:pointer;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
-                                    <div style="width:32px; height:32px; background:#e0f2fe; color:#0284c7; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-                                        @if($notif->modul == 'Surat Masuk' || $notif->modul == 'Surat Keluar')
-                                            <i data-lucide="mail" style="width:16px; height:16px;"></i>
-                                        @elseif($notif->modul == 'Kategori Dokumen')
-                                            <i data-lucide="folder-tree" style="width:16px; height:16px;"></i>
-                                        @elseif($notif->modul == 'Manajemen Dokumen')
-                                            <i data-lucide="file-text" style="width:16px; height:16px;"></i>
-                                        @else
-                                            <i data-lucide="bell" style="width:16px; height:16px;"></i>
-                                        @endif
-                                    </div>
-                                    <div>
-                                        <p style="margin:0; font-size:13px; font-weight:600; color:#0f172a;">Data Baru: {{ $notif->modul }}</p>
-                                        <p style="margin:2px 0 0; font-size:12px; color:#64748b; line-height:1.4;">{{ $notif->deskripsi }}</p>
-                                        <span style="font-size:10px; color:#94a3b8; display:block; margin-top:4px;">{{ $notif->created_at->diffForHumans() }}</span>
-                                    </div>
-                                </div>
-                                @empty
-                                <div style="padding: 20px; text-align: center; color: #94a3b8; font-size: 13px;">
-                                    Belum ada pemberitahuan data baru.
-                                </div>
-                                @endforelse
-                            </div>
-                            <div style="padding:10px; text-align:center; border-top:1px solid #f1f5f9;">
-                                <a href="#" style="font-size:12px; color:#16a34a; font-weight:600; text-decoration:none;">Tandai semua sudah dibaca</a>
-                            </div>
+                        <div class="top-brand d-flex align-items-center gap-2">
+                            <img src="{{ asset('assets/img/logo.png') }}" alt="Logo" style="height: 32px;">
+                            <span class="brand-text" style="font-weight: 800; color: #1e293b; font-size: 16px;">E-Arsip</span>
+                        </div>
+
+                        <div class="header-nav">
+                            <a href="{{ route('dashboard') }}" class="nav-btn-header {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                                <i data-lucide="layout-grid"></i>
+                                <span>Dashboard</span>
+                            </a>
+                            @if(Auth::check() && Auth::user()->role === 'Admin')
+                            <a href="{{ route('users.index') }}" class="nav-btn-header {{ request()->routeIs('users.*') ? 'active' : '' }}">
+                                <i data-lucide="users"></i>
+                                <span>Pengguna</span>
+                            </a>
+                            @endif
                         </div>
                     </div>
-                    @auth
-                        <div class="user-profile">
-                            <div class="user-info">
-                                <span class="user-name">{{ Auth::user()->nama ?? 'Staff' }}</span>
-                                <span class="user-role">{{ Auth::user()->role ?? 'Umum' }}</span>
-                            </div>
-                            <div class="avatar">
-                                {{ strtoupper(substr(Auth::user()->nama ?? 'S', 0, 1)) }}
+
+                    <form action="{{ route('dashboard') }}" method="GET" class="header-search-desktop search-bar">
+                        <i data-lucide="search" class="search-icon"></i>
+                        <input type="text" name="search" id="globalSearchInput" placeholder="Cari..." value="{{ request('search') }}" autocomplete="off">
+                        <div id="globalSearchSuggestions" class="search-suggestions-header"></div>
+                    </form>
+
+                    <div class="user-nav d-flex align-items-center gap-3">
+                        <div class="date-display d-none d-md-flex align-items-center gap-1" style="font-size: 13px; font-weight: 600; color: #64748b;">
+                            <i data-lucide="calendar" style="width: 14px; height: 14px; color: #16a34a;"></i>
+                            {{ date('d M Y') }}
+                        </div>
+
+                        <div class="nav-icon" id="notifBtn" title="Notifikasi" style="position:relative; cursor: pointer;">
+                            <i data-lucide="bell"></i>
+                            <span class="badge-notif"></span>
+                            
+                            <!-- Notification Dropdown -->
+                            <div class="notif-dropdown" id="notifDropdown" style="display:none; position:absolute; top:120%; right:0; width:300px; background:#fff; border-radius:12px; box-shadow:0 10px 25px rgba(0,0,0,0.1); border:1px solid #e2e8f0; z-index:1100;">
+                                <div style="padding:14px 16px; border-bottom:1px solid #f1f5f9;">
+                                    <h4 style="margin:0; font-size:14px; font-weight:700; color:#0f172a;">Aktivitas Terbaru</h4>
+                                </div>
+                                <div id="notifContent" style="max-height:300px; overflow-y:auto;">
+                                    {{-- Will be populated by JS or simple loop --}}
+                                </div>
                             </div>
                         </div>
-                    @else
-                        <a href="{{ route('login') }}" class="btn btn-primary" style="padding: 8px 16px; font-size: 13px;">
-                            <i data-lucide="log-in" style="width:16px;height:16px;"></i>
-                            Login Admin
-                        </a>
-                    @endauth
+
+                        @auth
+                        <div class="user-profile d-flex align-items-center gap-2">
+                            <div class="user-info d-none d-sm-flex flex-column text-end">
+                                <span class="user-name" style="font-weight: 700; color: #1e293b; font-size: 13px;">{{ Auth::user()->nama }}</span>
+                                <span class="user-role" style="font-size: 11px; color: #94a3b8;">{{ Auth::user()->role }}</span>
+                            </div>
+                            <div class="avatar" style="width: 36px; height: 36px; background: #16a34a; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700;">
+                                {{ strtoupper(substr(Auth::user()->nama, 0, 1)) }}
+                            </div>
+                        </div>
+                        @endauth
+                    </div>
                 </div>
             </header>
 
             <!-- Page Content -->
-            <div class="page-content">
+            <div class="page-content" style="padding: 24px;">
                 @yield('content')
             </div>
 
@@ -230,69 +256,45 @@
 
     <!-- Scripts -->
     <script>
-        // Init Lucide icons
         lucide.createIcons();
 
-        // ---- Sidebar toggle ----
-        const sidebar    = document.getElementById('appSidebar');
-        const overlay    = document.getElementById('sidebarOverlay');
-        const toggleBtn  = document.getElementById('sidebarToggle');
+        // Sidebar Toggle
+        const sidebar = document.getElementById('appSidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        const toggleBtn = document.getElementById('sidebarToggle');
 
-        function openSidebar() {
-            sidebar.classList.add('show');
-            overlay.classList.add('show');
-            document.body.style.overflow = 'hidden';
+        if (toggleBtn) {
+            toggleBtn.onclick = () => {
+                sidebar.classList.add('show');
+                overlay.classList.add('show');
+            };
         }
-        function closeSidebar() {
-            sidebar.classList.remove('show');
-            overlay.classList.remove('show');
-            document.body.style.overflow = '';
+        if (overlay) {
+            overlay.onclick = () => {
+                sidebar.classList.remove('show');
+                overlay.classList.remove('show');
+            };
         }
 
-        if (toggleBtn)  toggleBtn.addEventListener('click', openSidebar);
-        if (overlay)    overlay.addEventListener('click', closeSidebar);
-
-        // Close on resize back to desktop
-        window.addEventListener('resize', () => {
-            if (window.innerWidth > 768) closeSidebar();
-        });
-
-        // ---- Notification Dropdown Toggle ----
+        // Notification Toggle
         const notifBtn = document.getElementById('notifBtn');
         const notifDropdown = document.getElementById('notifDropdown');
-        if (notifBtn && notifDropdown) {
-            notifBtn.addEventListener('click', (e) => {
+        if (notifBtn) {
+            notifBtn.onclick = (e) => {
                 e.stopPropagation();
                 notifDropdown.style.display = notifDropdown.style.display === 'none' ? 'block' : 'none';
-            });
-            
-            // Close when clicking outside
-            document.addEventListener('click', (e) => {
-                if (!notifBtn.contains(e.target)) {
-                    notifDropdown.style.display = 'none';
-                }
-            });
+            };
+            document.onclick = (e) => {
+                if (!notifBtn.contains(e.target)) notifDropdown.style.display = 'none';
+            };
         }
 
-        // ---- SweetAlert2 flash messages ----
+        // SweetAlert2
         @if(session('success'))
-            Swal.fire({
-                icon: 'success',
-                title: 'Berhasil!',
-                text: "{{ session('success') }}",
-                confirmButtonColor: '#16a34a',
-                timer: 3500,
-                timerProgressBar: true,
-            });
+            Swal.fire({ icon: 'success', title: 'Berhasil!', text: "{{ session('success') }}", timer: 3000, showConfirmButton: false });
         @endif
-
         @if(session('error'))
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: "{{ session('error') }}",
-                confirmButtonColor: '#dc2626',
-            });
+            Swal.fire({ icon: 'error', title: 'Gagal!', text: "{{ session('error') }}" });
         @endif
     </script>
     @stack('scripts')
