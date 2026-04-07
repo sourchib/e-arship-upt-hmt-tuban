@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Dokumen;
 use App\Models\LogAktivitas;
+use App\Models\KategoriDokumen;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -19,18 +20,20 @@ class DokumenController extends Controller
             $query->where('kategori', $request->kategori);
         }
 
-        // Search by name or category
+        // Search by name, category, or other details
         if ($request->has('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
                 $q->where('nama', 'like', "%{$search}%")
-                  ->orWhere('kategori', 'like', "%{$search}%");
+                  ->orWhere('kategori', 'like', "%{$search}%")
+                  ->orWhere('kode', 'like', "%{$search}%")
+                  ->orWhere('lokasi', 'like', "%{$search}%")
+                  ->orWhere('deskripsi', 'like', "%{$search}%");
             });
         }
 
         $documents = $query->paginate(12);
         
-        // Debugging to log if records are truly being fetched
         \Illuminate\Support\Facades\Log::info("Fetching documents. Count in DB: " . Dokumen::count() . ". Count in query: " . $documents->total());
 
         // Calculate stats
@@ -41,21 +44,51 @@ class DokumenController extends Controller
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         ])->count();
         $categoryCount = Dokumen::distinct('kategori')->count('kategori');
+        
+        $aktifCount = Dokumen::where('status', 'Aktif')->count();
+        $inaktifCount = Dokumen::where('status', 'Inaktif')->count();
 
-        // Available categories for tabs (Prepend 'Semua' dynamically from the UI, but here we just pass the list)
-        $categories = \App\Models\KategoriDokumen::orderBy('nama', 'asc')->pluck('nama')->toArray();
-        array_unshift($categories, 'Semua');
+        // Dynamic categories for tabs
+        $dbCategories = KategoriDokumen::orderBy('nama', 'asc')->pluck('nama')->toArray();
+        $categories = array_merge(['Semua'], $dbCategories);
 
         if ($request->ajax()) {
             return response()->json([
                 'html' => view('dokumen._grid', compact('documents'))->render(),
-                'stats' => view('dokumen._stats', compact('totalDokumen', 'pdfCount', 'excelCount', 'categoryCount'))->render(),
+                'stats' => view('dokumen._stats', compact('totalDokumen', 'pdfCount', 'excelCount', 'categoryCount', 'aktifCount', 'inaktifCount'))->render(),
                 'kategori' => $request->kategori ?? 'Semua',
-                'search' => $request->search ?? ''
+                'search' => $request->search ?? '',
+                'categories' => $categories
             ]);
         }
 
-        return view('dokumen.index', compact('documents', 'totalDokumen', 'pdfCount', 'excelCount', 'categoryCount', 'categories'));
+        return view('dokumen.index', compact('documents', 'totalDokumen', 'pdfCount', 'excelCount', 'categoryCount', 'categories', 'aktifCount', 'inaktifCount'));
+    }
+
+    public function storeKategori(Request $request)
+    {
+        $request->validate([
+            'nama' => 'required|string|max:100|unique:kategori_dokumen,nama',
+        ]);
+
+        $kategori = KategoriDokumen::create([
+            'nama' => $request->nama,
+        ]);
+
+        LogAktivitas::create([
+            'jenis_aktivitas' => 'Create',
+            'modul' => 'Manajemen Dokumen',
+            'deskripsi' => "Menambahkan kategori dokumen baru: {$kategori->nama}",
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'user_id' => Auth::id(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Kategori berhasil ditambahkan.',
+            'nama' => $kategori->nama
+        ]);
     }
 
     public function store(Request $request)
@@ -63,6 +96,11 @@ class DokumenController extends Controller
         $request->validate([
             'nama' => 'required|string|max:255',
             'kategori' => 'required|string',
+            'tanggal' => 'nullable|date',
+            'kode' => 'nullable|string|max:255',
+            'lokasi' => 'required|string|max:255',
+            'masa_retensi' => 'nullable|string|max:100',
+            'status' => 'required|in:Aktif,Inaktif',
             'file' => 'required|file|max:10240', // Max 10MB
             'deskripsi' => 'nullable|string',
         ]);
@@ -74,6 +112,11 @@ class DokumenController extends Controller
             $dokumen = Dokumen::create([
                 'nama' => $request->nama,
                 'kategori' => $request->kategori,
+                'tanggal' => $request->tanggal,
+                'kode' => $request->kode,
+                'lokasi' => $request->lokasi,
+                'masa_retensi' => $request->masa_retensi,
+                'status' => $request->status,
                 'file_path' => $path,
                 'ukuran' => $file->getSize(),
                 'mime_type' => $file->getMimeType(),
@@ -102,6 +145,50 @@ class DokumenController extends Controller
         }
 
         return back()->with('error', 'Gagal mengupload file.');
+    }
+
+    public function edit(Dokumen $dokumen)
+    {
+        return response()->json($dokumen);
+    }
+
+    public function update(Request $request, Dokumen $dokumen)
+    {
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'kategori' => 'required|string',
+            'tanggal' => 'nullable|date',
+            'kode' => 'nullable|string|max:255',
+            'lokasi' => 'required|string|max:255',
+            'masa_retensi' => 'nullable|string|max:100',
+            'status' => 'required|in:Aktif,Inaktif',
+            'deskripsi' => 'nullable|string',
+        ]);
+
+        $dokumen->update([
+            'nama' => $request->nama,
+            'kategori' => $request->kategori,
+            'tanggal' => $request->tanggal,
+            'kode' => $request->kode,
+            'lokasi' => $request->lokasi,
+            'masa_retensi' => $request->masa_retensi,
+            'status' => $request->status,
+            'deskripsi' => $request->deskripsi,
+        ]);
+
+        LogAktivitas::create([
+            'jenis_aktivitas' => 'Update',
+            'modul' => 'Manajemen Dokumen',
+            'deskripsi' => "Memperbarui dokumen: {$dokumen->nama}",
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'user_id' => Auth::id(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Dokumen berhasil diperbarui.'
+        ]);
     }
 
     public function download(Dokumen $dokumen)

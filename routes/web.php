@@ -14,14 +14,15 @@ use Illuminate\Support\Facades\Route;
 */
 
 use App\Http\Controllers\AuthController;
-
 use App\Http\Controllers\DashboardController;
 
 // Public Routes (Accessible by Staff/Guest)
 Route::get('/', function () {
     return redirect()->route('dashboard');
 });
-Route::get('/dashboard', [\App\Http\Controllers\DokumenController::class, 'index'])->name('dashboard');
+
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+Route::get('/dashboard/suggestions', [DashboardController::class, 'suggestions'])->name('dashboard.suggestions');
 Route::get('/search', [\App\Http\Controllers\SearchController::class, 'index'])->name('search');
 
 // Index-only public routes for resources
@@ -42,9 +43,12 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('dokumen', \App\Http\Controllers\DokumenController::class)->except(['index'])->parameters([
         'dokumen' => 'dokumen'
     ]);
+    
     Route::resource('kategori-dokumen', \App\Http\Controllers\KategoriDokumenController::class)->except(['create', 'edit', 'show']);
+    Route::post('dokumen/kategori', [\App\Http\Controllers\DokumenController::class, 'storeKategori'])->name('dokumen.kategori.store');
     
     // User Management
+    Route::post('users/{user}/approve', [\App\Http\Controllers\UserManagementController::class, 'approve'])->name('users.approve');
     Route::post('users/{user}/approve', [\App\Http\Controllers\UserManagementController::class, 'approve'])->name('users.approve');
     Route::post('users/{user}/reject', [\App\Http\Controllers\UserManagementController::class, 'reject'])->name('users.reject');
     Route::resource('users', \App\Http\Controllers\UserManagementController::class);
