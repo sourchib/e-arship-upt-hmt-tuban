@@ -90,97 +90,16 @@
     @stack('css')
 </head>
 <body>
-    <div class="wrapper {{ (Auth::check() && Auth::user()->role === 'Admin') ? '' : 'no-sidebar' }}">
+    <div class="wrapper no-sidebar">
 
-        @if(Auth::check() && Auth::user()->role === 'Admin')
-        <!-- ====== SIDEBAR ====== -->
-        <aside class="sidebar" id="appSidebar">
-            <div class="sidebar-brand">
-                <img src="{{ asset('assets/img/logo.png') }}" alt="Logo UPT">
-                <div class="sidebar-brand-name">
-                    E-Arsip
-                    <small>UPT PT HMT Tuban</small>
-                </div>
-            </div>
-
-            <nav class="sidebar-menu">
-                <span class="menu-section-label">Menu Utama</span>
-
-                <a href="{{ route('dashboard') }}"
-                   class="menu-item {{ request()->routeIs('dashboard') ? 'active' : '' }}"
-                   id="nav-dashboard">
-                    <i data-lucide="layout-grid"></i>
-                    Dashboard
-                </a>
-
-                <span class="menu-section-label" style="margin-top:8px;">Persuratan</span>
-
-                <a href="{{ route('surat-masuk.index') }}"
-                   class="menu-item {{ request()->routeIs('surat-masuk.*') ? 'active' : '' }}"
-                   id="nav-surat-masuk">
-                    <i data-lucide="mail"></i>
-                    Surat Masuk
-                </a>
-                <a href="{{ route('surat-keluar.index') }}"
-                   class="menu-item {{ request()->routeIs('surat-keluar.*') ? 'active' : '' }}"
-                   id="nav-surat-keluar">
-                    <i data-lucide="send"></i>
-                    Surat Keluar
-                </a>
-
-                <span class="menu-section-label" style="margin-top:8px;">Arsip</span>
-
-                <a href="{{ route('arsip-pembibitan.index') }}"
-                   class="menu-item {{ request()->routeIs('arsip-pembibitan.*') ? 'active' : '' }}"
-                   id="nav-arsip-pembibitan">
-                    <i data-lucide="book-open"></i>
-                    Arsip Pembibitan
-                </a>
-
-                <span class="menu-section-label" style="margin-top:8px;">Administrasi</span>
-
-                @if(Auth::check() && Auth::user()->role === 'Admin')
-                <a href="{{ route('kategori-dokumen.index') }}"
-                   class="menu-item {{ request()->routeIs('kategori-dokumen.*') ? 'active' : '' }}"
-                   id="nav-kategori-dokumen">
-                    <i data-lucide="folder-tree"></i>
-                    Kategori Dokumen
-                </a>
-                <a href="{{ route('users.index') }}"
-                   class="menu-item {{ request()->routeIs('users.*') ? 'active' : '' }}"
-                   id="nav-users">
-                    <i data-lucide="users"></i>
-                    Manajemen Pengguna
-                </a>
-                @endif
-            </nav>
-
-            <div class="sidebar-footer">
-                @auth
-                <form action="{{ route('logout') }}" method="POST" class="logout-form">
-                    @csrf
-                    <button type="submit" class="btn-logout">
-                        <i data-lucide="log-out"></i>
-                        Logout
-                    </button>
-                </form>
-                @endauth
-            </div>
-        </aside>
-        @endif
 
         <!-- ====== MAIN CONTENT ====== -->
-        <main class="main-content {{ (Auth::check() && Auth::user()->role === 'Admin') ? '' : 'no-sidebar' }}" id="mainContent">
+        <main class="main-content no-sidebar" id="mainContent">
 
             <!-- Sticky Header -->
             <header class="header">
                 <div class="d-flex align-items-center justify-content-between w-100">
                     <div class="d-flex align-items-center">
-                        @if(Auth::check() && Auth::user()->role === 'Admin')
-                        <button class="menu-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
-                            <i data-lucide="menu"></i>
-                        </button>
-                        @endif
                         
                         <div class="top-brand d-flex align-items-center gap-2">
                             <img src="{{ asset('assets/img/logo.png') }}" alt="Logo" style="height: 32px;">
@@ -237,6 +156,12 @@
                             <div class="avatar" style="width: 36px; height: 36px; background: #16a34a; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700;">
                                 {{ strtoupper(substr(Auth::user()->nama, 0, 1)) }}
                             </div>
+                            <form action="{{ route('logout') }}" method="POST" style="margin: 0;">
+                                @csrf
+                                <button type="submit" style="background: #f1f5f9; border: none; width: 36px; height: 36px; border-radius: 10px; color: #ef4444; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;" title="Logout">
+                                    <i data-lucide="log-out" style="width: 18px; height: 18px;"></i>
+                                </button>
+                            </form>
                         </div>
                         @endauth
                     </div>
