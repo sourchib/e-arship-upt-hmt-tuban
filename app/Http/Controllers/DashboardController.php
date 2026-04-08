@@ -128,6 +128,7 @@ class DashboardController extends Controller
             return response()->json([
                 'stats' => $stats,
                 'docs_html' => view('dashboard._table', compact('docsTerbaru'))->render(),
+                'activities_html' => view('dashboard._activities', compact('recentActivities'))->render(),
             ]);
         }
 
@@ -174,5 +175,19 @@ class DashboardController extends Controller
         $suggestions = $suggestions->concat($docs);
 
         return response()->json($suggestions->unique()->filter()->values()->take(8));
+    }
+
+    public function getNotifications()
+    {
+        $recentActivities = LogAktivitas::with('user')
+            ->latest()
+            ->take(5)
+            ->get();
+
+        return response()->json([
+            'activities_html' => view('dashboard._activities', compact('recentActivities'))->render(),
+            'count' => $recentActivities->count(),
+            'latest_id' => $recentActivities->first() ? $recentActivities->first()->id : 0
+        ]);
     }
 }

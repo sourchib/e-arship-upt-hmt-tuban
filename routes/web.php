@@ -23,6 +23,7 @@ Route::get('/', function () {
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 Route::get('/dashboard/suggestions', [DashboardController::class, 'suggestions'])->name('dashboard.suggestions');
+Route::get('/notifications', [DashboardController::class, 'getNotifications'])->name('notifications');
 Route::get('/search', [\App\Http\Controllers\SearchController::class, 'index'])->name('search');
 
 // Index-only public routes for resources

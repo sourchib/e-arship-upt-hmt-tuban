@@ -15,7 +15,8 @@
     <!-- Dashboard CSS -->
     <link rel="stylesheet" href="{{ asset('assets/css/dashboard.css') }}">
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="{{ asset('assets/img/logo.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('assets/img/logo.png?v=1.1') }}">
+    <link rel="shortcut icon" type="image/png" href="{{ asset('assets/img/logo.png?v=1.1') }}">
 
     <style>
         .no-sidebar .main-content {
@@ -201,6 +202,52 @@
             };
         }
 
+        // ====== Real-time Notifications ======
+        let lastSeenId = localStorage.getItem('lastSeenActivityId') || 0;
+        let currentLatestId = 0;
+
+        function refreshNotifications() {
+            fetch("{{ route('notifications') }}", { 
+                headers: { 'X-Requested-With': 'XMLHttpRequest' } 
+            })
+            .then(res => res.json())
+            .then(data => {
+                const notifContent = document.getElementById('notifContent');
+                if (notifContent && data.activities_html) {
+                    notifContent.innerHTML = data.activities_html;
+                    currentLatestId = data.latest_id;
+                    
+                    // Update badge
+                    const badge = document.querySelector('.badge-notif');
+                    if (badge) {
+                        // Only show badge if there's a new ID the user hasn't "read" (clicked)
+                        if (currentLatestId > lastSeenId) {
+                            badge.innerText = data.count > 9 ? '9+' : data.count;
+                            badge.style.display = 'flex';
+                            badge.style.position = 'absolute';
+                            badge.style.top = '-5px';
+                            badge.style.right = '-5px';
+                            badge.style.width = '18px';
+                            badge.style.height = '18px';
+                            badge.style.background = '#ef4444';
+                            badge.style.color = '#fff';
+                            badge.style.fontSize = '10px';
+                            badge.style.fontWeight = '800';
+                            badge.style.borderRadius = '50%';
+                            badge.style.border = '2px solid #fff';
+                            badge.style.alignItems = 'center';
+                            badge.style.justifyContent = 'center';
+                            badge.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+                        } else {
+                            badge.style.display = 'none';
+                        }
+                    }
+                    lucide.createIcons();
+                }
+            })
+            .catch(err => console.error('Error fetching notifications:', err));
+        }
+
         // Notification Toggle
         const notifBtn = document.getElementById('notifBtn');
         const notifDropdown = document.getElementById('notifDropdown');
@@ -208,11 +255,24 @@
             notifBtn.onclick = (e) => {
                 e.stopPropagation();
                 notifDropdown.style.display = notifDropdown.style.display === 'none' ? 'block' : 'none';
+                
+                // Mark as read when opened
+                if (notifDropdown.style.display === 'block' && currentLatestId > 0) {
+                    lastSeenId = currentLatestId;
+                    localStorage.setItem('lastSeenActivityId', lastSeenId);
+                    const badge = document.querySelector('.badge-notif');
+                    if (badge) badge.style.display = 'none';
+                }
             };
             document.onclick = (e) => {
                 if (!notifBtn.contains(e.target)) notifDropdown.style.display = 'none';
             };
         }
+
+        // Initial fetch
+        refreshNotifications();
+        // Set interval
+        setInterval(refreshNotifications, 15000); // Check every 15s to be efficient
 
         // SweetAlert2
         @if(session('success'))
