@@ -118,7 +118,7 @@
                        style="width: 100%; padding: 10px 10px 10px 40px; border-radius: 10px; border: 1px solid #e2e8f0; font-size: 13px; color: #334155;">
             </form>
             
-            <a href="{{ route('dokumen.index', ['create' => 'true']) }}" class="btn btn-primary" style="padding: 10px 20px; border-radius: 10px; font-size: 13px; font-weight: 700; background: #16a34a; border: none; display: flex; align-items: center; gap: 8px;">
+            <a href="javascript:void(0)" onclick="checkAdminAction('{{ route('dokumen.index', ['create' => 'true']) }}')" class="btn btn-primary" style="padding: 10px 20px; border-radius: 10px; font-size: 13px; font-weight: 700; background: #16a34a; border: none; display: flex; align-items: center; gap: 8px;">
                 <i data-lucide="plus" style="width: 16px; height: 16px;"></i>
                 Buka Arsip Baru
             </a>
@@ -177,6 +177,14 @@
 @push('scripts')
 <script>
     lucide.createIcons();
+
+    function checkAdminAction(redirectUrl) {
+        @if(Auth::check() && Auth::user()->role === 'Admin')
+            window.location.href = redirectUrl;
+        @else
+            window.location.href = "{{ route('login') }}";
+        @endif
+    }
 
     // ====== Real-time Refresh ======
     setInterval(() => {

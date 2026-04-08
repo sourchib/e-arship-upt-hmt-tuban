@@ -17,11 +17,11 @@
                 <i data-lucide="folder-plus" style="width:16px;height:16px;"></i>
                 Tambah Kategori
             </button>
+            @endif
             <button type="button" class="btn btn-primary" id="openUploadModal">
                 <i data-lucide="folder-open" style="width:16px;height:16px;"></i>
                 Buka Arsip
             </button>
-            @endif
         </div>
     </div>
 
@@ -199,20 +199,8 @@
     const checkAdmin = (callback) => {
         @if(Auth::check() && Auth::user()->role === 'Admin')
             callback();
-        @elseif(!Auth::check())
-            window.location.href = "{{ route('login') }}";
         @else
-            Swal.fire({
-                title: 'Akses Khusus Admin',
-                text: 'Maaf, hanya Admin yang memiliki otoritas untuk fitur ini.',
-                icon: 'lock',
-                showCancelButton: true,
-                confirmButtonText: 'Login sebagai Admin',
-                cancelButtonText: 'Batal',
-                confirmButtonColor: '#16a34a'
-            }).then((result) => {
-                if (result.isConfirmed) window.location.href = "{{ route('login') }}";
-            });
+            window.location.href = "{{ route('login') }}";
         @endif
     };
 
@@ -222,7 +210,6 @@
         document.body.style.overflow = modal.classList.contains('show') ? 'hidden' : '';
     };
 
-    if(openModalBtn)   openModalBtn.addEventListener('click', toggleModal);
 
     const btnAddKategori = document.getElementById('btnAddKategori');
     if(btnAddKategori) {
