@@ -102,7 +102,7 @@
 
 </div>
 
-{{-- ====== Data Management ====== --}}
+{{-- ====== Main Content ====== --}}
 <div style="background: #fff; border-radius: 24px; border: 1px solid #f1f5f9; box-shadow: 0 4px 20px rgba(15, 23, 42, 0.03); overflow: hidden;">
     <div style="padding: 24px; border-bottom: 1px solid #f8fafc; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
         <div>
@@ -111,16 +111,16 @@
         </div>
         
         <div style="display: flex; gap: 12px;">
-            <form action="{{ route('dashboard') }}" method="GET" style="position: relative; width: 280px;">
+            <form action="{{ route('dashboard') }}" method="GET" style="position: relative; width: 220px;">
                 <i data-lucide="search" style="position: absolute; left: 14px; top: 12px; width: 16px; height: 16px; color: #94a3b8;"></i>
                 <input type="text" name="search" value="{{ request('search') }}" 
-                       placeholder="Cari dokumen..." 
+                       placeholder="Cari..." 
                        style="width: 100%; padding: 10px 10px 10px 40px; border-radius: 10px; border: 1px solid #e2e8f0; font-size: 13px; color: #334155;">
             </form>
             
             <a href="javascript:void(0)" onclick="checkAdminAction('{{ route('dokumen.index', ['create' => 'true']) }}')" class="btn btn-primary" style="padding: 10px 20px; border-radius: 10px; font-size: 13px; font-weight: 700; background: #16a34a; border: none; display: flex; align-items: center; gap: 8px;">
                 <i data-lucide="plus" style="width: 16px; height: 16px;"></i>
-                Buka Arsip Baru
+                Baru
             </a>
         </div>
     </div>
@@ -187,7 +187,7 @@
     }
 
     // ====== Real-time Refresh ======
-    setInterval(() => {
+    function refreshDashboardData() {
         const url = new URL(window.location.href);
         if (document.getElementById('previewModal').style.display === 'none') {
             fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
@@ -201,11 +201,19 @@
                     }
                     if (data.docs_html) {
                         document.getElementById('docsTableContainer').innerHTML = data.docs_html;
+                    }
+                    if (data.docs_html) {
                         lucide.createIcons();
                     }
                 });
         }
-    }, 10000);
+    }
+
+    // Initial fetch
+    refreshDashboardData();
+    
+    // Set interval for subsequent fetches
+    setInterval(refreshDashboardData, 10000);
 
     // ====== Preview Functionality ======
     function previewFile(url, title) {

@@ -12,7 +12,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
-    <link rel="icon" type="image/png" href="{{ asset('assets/img/upt_logo.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('assets/img/logo.png?v=1.1') }}">
+    <link rel="shortcut icon" type="image/png" href="{{ asset('assets/img/logo.png?v=1.1') }}">
 </head>
 
 <body>

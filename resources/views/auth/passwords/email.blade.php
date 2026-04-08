@@ -10,14 +10,14 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="{{ asset('assets/css/auth.css') }}">
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="{{ asset('assets/img/upt_logo.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('assets/img/logo.png') }}">
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
     <div class="auth-container">
         <div class="auth-card">
-            <img src="{{ asset('assets/img/upt_logo.png') }}" alt="UPT Logo" class="auth-logo">
+            <img src="{{ asset('assets/img/logo.png') }}" alt="UPT Logo" class="auth-logo">
             <div class="auth-header">
                 <h1>Lupa Password?</h1>
                 <p>Masukkan email Anda untuk menerima instruksi pemulihan.</p>
