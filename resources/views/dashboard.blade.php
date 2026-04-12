@@ -215,6 +215,40 @@
     // Set interval for subsequent fetches
     setInterval(refreshDashboardData, 10000);
 
+    // ====== Live Search Table ======
+    const dashSearchInput = document.querySelector('input[name="search"]');
+    let dashSearchTimer;
+
+    if (dashSearchInput) {
+        dashSearchInput.addEventListener('input', () => {
+            clearTimeout(dashSearchTimer);
+            dashSearchTimer = setTimeout(() => {
+                const searchVal = dashSearchInput.value.trim();
+                const url = new URL(window.location.href);
+                if (searchVal) {
+                    url.searchParams.set('search', searchVal);
+                } else {
+                    url.searchParams.delete('search');
+                }
+                
+                // Update URL history without reload
+                window.history.pushState({}, '', url);
+
+                fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.docs_html) {
+                            document.getElementById('docsTableContainer').innerHTML = data.docs_html;
+                            lucide.createIcons();
+                        }
+                    });
+            }, 400);
+        });
+
+        // Prevent form submit reload
+        dashSearchInput.closest('form').onsubmit = (e) => e.preventDefault();
+    }
+
     // ====== Preview Functionality ======
     function previewFile(url, title) {
         const modal = document.getElementById('previewModal');
