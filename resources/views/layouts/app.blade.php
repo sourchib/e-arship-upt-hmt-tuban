@@ -87,6 +87,43 @@
             .header-nav span { display: none; }
             .header-search-desktop { display: none; }
         }
+        /* Search Suggestions Header */
+        .search-bar { position: relative; }
+        .search-suggestions-header {
+            position: absolute;
+            top: 110%;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 1px solid #e2e8f0;
+            z-index: 1500;
+            max-height: 400px;
+            overflow-y: auto;
+            display: none;
+        }
+        .suggestion-item {
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 1px solid #f8fafc;
+        }
+        .suggestion-item:last-child { border-bottom: none; }
+        .suggestion-item:hover { background: #f0fdf4; }
+        .suggestion-icon {
+            width: 32px; height: 32px;
+            border-radius: 8px;
+            background: #f1f5f9;
+            color: #64748b;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .suggestion-item:hover .suggestion-icon { background: #16a34a; color: #fff; }
+        .suggestion-text { font-size: 13.5px; font-weight: 600; color: #1e293b; }
+        .suggestion-type { font-size: 10px; font-weight: 700; text-transform: uppercase; color: #94a3b8; }
     </style>
     @stack('css')
 </head>
@@ -121,9 +158,9 @@
                         </div>
                     </div>
 
-                    <form action="{{ route('dashboard') }}" method="GET" class="header-search-desktop search-bar">
+                    <form action="{{ route('search') }}" method="GET" class="header-search-desktop search-bar" id="globalSearchForm">
                         <i data-lucide="search" class="search-icon"></i>
-                        <input type="text" name="search" id="globalSearchInput" placeholder="Cari..." value="{{ request('search') }}" autocomplete="off">
+                        <input type="text" name="q" id="globalSearchInput" placeholder="Cari arsip, surat, atau dokumen..." value="{{ request('q') }}" autocomplete="off">
                         <div id="globalSearchSuggestions" class="search-suggestions-header"></div>
                     </form>
 
@@ -273,6 +310,63 @@
         refreshNotifications();
         // Set interval
         setInterval(refreshNotifications, 15000); // Check every 15s to be efficient
+
+        // ====== Global Search Suggestions ======
+        const globalSearchInput = document.getElementById('globalSearchInput');
+        const globalSearchSuggestions = document.getElementById('globalSearchSuggestions');
+        let searchTimer;
+
+        if (globalSearchInput) {
+            globalSearchInput.addEventListener('input', () => {
+                const q = globalSearchInput.value.trim();
+                clearTimeout(searchTimer);
+                
+                if (q.length < 2) {
+                    globalSearchSuggestions.style.display = 'none';
+                    return;
+                }
+
+                searchTimer = setTimeout(() => {
+                    fetch(`{{ route('dashboard.suggestions') }}?q=${encodeURIComponent(q)}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.length > 0) {
+                                globalSearchSuggestions.innerHTML = '';
+                                data.forEach(item => {
+                                    const div = document.createElement('div');
+                                    div.className = 'suggestion-item';
+                                    div.innerHTML = `
+                                        <div class="suggestion-icon"><i data-lucide="${item.icon}"></i></div>
+                                        <div style="flex:1; min-width:0;">
+                                            <div class="suggestion-type">${item.type}</div>
+                                            <div class="suggestion-text" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${item.text}</div>
+                                        </div>
+                                    `;
+                                    div.onclick = () => window.location.href = item.url;
+                                    globalSearchSuggestions.appendChild(div);
+                                });
+                                lucide.createIcons();
+                                globalSearchSuggestions.style.display = 'block';
+                            } else {
+                                globalSearchSuggestions.style.display = 'none';
+                            }
+                        });
+                }, 300);
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!globalSearchInput.contains(e.target) && !globalSearchSuggestions.contains(e.target)) {
+                    globalSearchSuggestions.style.display = 'none';
+                }
+            });
+
+            // Handle focus back
+            globalSearchInput.addEventListener('focus', () => {
+                if (globalSearchInput.value.trim().length >= 2 && globalSearchSuggestions.children.length > 0) {
+                    globalSearchSuggestions.style.display = 'block';
+                }
+            });
+        }
 
         // SweetAlert2
         @if(session('success'))

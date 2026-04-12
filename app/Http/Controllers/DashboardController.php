@@ -159,45 +159,99 @@ class DashboardController extends Controller
     public function suggestions(Request $request)
     {
         $search = $request->query('q');
-        if (strlen($search) < 1) return response()->json([]);
+        if (strlen($search) < 2) return response()->json([]);
 
         $suggestions = collect();
 
-        // All Data Suggestions (Restored per user request)
-        $sidebarFeatures = ['Dashboard', 'Manajemen Pengguna', 'Manajemen Dokumen', 'Surat Masuk', 'Surat Keluar', 'Arsip Pembibitan', 'Arsip Hijauan'];
+        // 1. Features
+        $sidebarFeatures = [
+            ['name' => 'Dashboard', 'route' => route('dashboard'), 'icon' => 'layout-grid'],
+            ['name' => 'Manajemen Pengguna', 'route' => route('users.index'), 'icon' => 'users'],
+            ['name' => 'Manajemen Dokumen', 'route' => route('dokumen.index'), 'icon' => 'file-text'],
+            ['name' => 'Surat Masuk', 'route' => route('surat-masuk.index'), 'icon' => 'mail'],
+            ['name' => 'Surat Keluar', 'route' => route('surat-keluar.index'), 'icon' => 'send'],
+            ['name' => 'Arsip Pembibitan', 'route' => route('arsip-pembibitan.index'), 'icon' => 'book-open'],
+            ['name' => 'Arsip Hijauan', 'route' => route('arsip-hijauan.index'), 'icon' => 'leaf'],
+        ];
+        
         foreach ($sidebarFeatures as $feature) {
-            if (stripos($feature, $search) !== false) {
-                $suggestions->push($feature);
+            if (stripos($feature['name'], $search) !== false) {
+                $suggestions->push([
+                    'text' => $feature['name'],
+                    'type' => 'Fitur',
+                    'icon' => $feature['icon'],
+                    'url' => $feature['route']
+                ]);
             }
         }
 
-        // 2. Letters
-        $sm = SuratMasuk::where('nomor_surat', 'like', "$search%")
+        // 2. Surat (Masuk & Keluar)
+        $sm = SuratMasuk::where('nomor_surat', 'like', "%$search%")
             ->orWhere('perihal', 'like', "%$search%")
-            ->take(3)->pluck('perihal')->toArray();
-        $sk = SuratKeluar::where('nomor_surat', 'like', "$search%")
+            ->take(3)->get()->map(function($item) {
+                return [
+                    'text' => $item->perihal,
+                    'type' => 'Surat Masuk',
+                    'icon' => 'mail',
+                    'url' => route('surat-masuk.index', ['search' => $item->nomor_surat])
+                ];
+            });
+        
+        $sk = SuratKeluar::where('nomor_surat', 'like', "%$search%")
             ->orWhere('perihal', 'like', "%$search%")
-            ->take(3)->pluck('perihal')->toArray();
+            ->take(3)->get()->map(function($item) {
+                return [
+                    'text' => $item->perihal,
+                    'type' => 'Surat Keluar',
+                    'icon' => 'send',
+                    'url' => route('surat-keluar.index', ['search' => $item->nomor_surat])
+                ];
+            });
+        
         $suggestions = $suggestions->concat($sm)->concat($sk);
 
         // 3. Arsip
-        $ap = ArsipPembibitan::where('kode', 'like', "$search%")
+        $ap = ArsipPembibitan::where('kode', 'like', "%$search%")
             ->orWhere('jenis_ternak', 'like', "%$search%")
-            ->take(3)->pluck('jenis_ternak')->toArray();
-        $ah = ArsipHijauan::where('kode_lahan', 'like', "$search%")
+            ->take(2)->get()->map(function($item) {
+                return [
+                    'text' => $item->jenis_ternak,
+                    'type' => 'Arsip Pembibitan',
+                    'icon' => 'book-open',
+                    'url' => route('arsip-pembibitan.index', ['search' => $item->kode])
+                ];
+            });
+            
+        $ah = ArsipHijauan::where('kode_lahan', 'like', "%$search%")
             ->orWhere('jenis_hijauan', 'like', "%$search%")
-            ->take(3)->pluck('jenis_hijauan')->toArray();
+            ->take(2)->get()->map(function($item) {
+                return [
+                    'text' => $item->jenis_hijauan,
+                    'type' => 'Arsip Hijauan',
+                    'icon' => 'leaf',
+                    'url' => route('arsip-hijauan.index', ['search' => $item->kode_lahan])
+                ];
+            });
+        
         $suggestions = $suggestions->concat($ap)->concat($ah);
 
         // 4. Documents
         $docs = Dokumen::visible()->where(function($q) use ($search) {
                 $q->where('nama', 'like', "%$search%")
-                  ->orWhere('kode', 'like', "$search%");
+                  ->orWhere('kode', 'like', "%$search%");
             })
-            ->take(3)->pluck('nama')->toArray();
+            ->take(5)->get()->map(function($item) {
+                return [
+                    'text' => $item->nama,
+                    'type' => 'Dokumen',
+                    'icon' => 'file-text',
+                    'url' => route('dokumen.index', ['search' => $item->nama])
+                ];
+            });
+            
         $suggestions = $suggestions->concat($docs);
 
-        return response()->json($suggestions->unique()->filter()->values()->take(8));
+        return response()->json($suggestions->values()->take(10));
     }
 
     public function getNotifications()
