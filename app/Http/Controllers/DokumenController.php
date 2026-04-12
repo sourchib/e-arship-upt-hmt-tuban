@@ -15,9 +15,9 @@ class DokumenController extends Controller
     {
         $query = Dokumen::latest();
 
-        // If role is not Admin, filter out private docs based on sifat_arsip
-        if (Auth::check() && Auth::user()->role !== 'Admin') {
-            $query->where('sifat_arsip', '!=', 'Dirahasiakan');
+        // If role is not Admin or user is Guest, filter out private docs
+        if (!Auth::check() || Auth::user()->role !== 'Admin') {
+            $query->where('sifat_arsip', '!=', 'Dirahasiakan')->where('is_public', true);
         }
 
         // Filtering by category if present

@@ -10,19 +10,28 @@ use App\Models\ArsipHijauan;
 use App\Models\Dokumen;
 use App\Models\LogAktivitas;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
     public function index(Request $request)
     {
+        $hideDirahasiakan = !Auth::check() || Auth::user()->role !== 'Admin';
+
         $categories = Kategori::orderBy('nama')->pluck('nama');
         $stats = [
             'surat_masuk' => SuratMasuk::count(),
             'surat_keluar' => SuratKeluar::count(),
             'arsip_pembibitan' => ArsipPembibitan::count(),
             'arsip_hijauan' => ArsipHijauan::count(),
-            'arsip_aktif' => Dokumen::where('status', 'Aktif')->count(),
-            'arsip_inaktif' => Dokumen::where('status', 'Inaktif')->count(),
+            'arsip_aktif' => Dokumen::where('status', 'Aktif')
+                ->when($hideDirahasiakan, function($q) { 
+                    return $q->where('sifat_arsip', '!=', 'Dirahasiakan')->where('is_public', true); 
+                })->count(),
+            'arsip_inaktif' => Dokumen::where('status', 'Inaktif')
+                ->when($hideDirahasiakan, function($q) { 
+                    return $q->where('sifat_arsip', '!=', 'Dirahasiakan')->where('is_public', true); 
+                })->count(),
         ];
 
         // Expanded Search Logic for All Data (Restored per user request)
@@ -82,14 +91,20 @@ class DashboardController extends Controller
             $searchResults['arsip'] = $ap->concat($ah);
 
             // 4. Search Dokumen
-            $searchResults['dokumen'] = Dokumen::where('nama', 'like', "%$search%")
-                ->orWhere('kode', 'like', "%$search%")
+            $searchResults['dokumen'] = Dokumen::where(function($q) use ($search) {
+                    $q->where('nama', 'like', "%$search%")
+                      ->orWhere('kode', 'like', "%$search%");
+                })
+                ->when($hideDirahasiakan, function($q) { return $q->where('sifat_arsip', '!=', 'Dirahasiakan'); })
                 ->take(3)->get()->map(function($item) {
                     return (object)['name' => $item->nama, 'info' => 'Dokumen: ' . ($item->kode ?? '#'.str_pad($item->id, 4, '0', STR_PAD_LEFT)), 'route' => route('dokumen.index', ['search' => $item->nama]), 'icon' => 'file-text'];
                 });
         }
 
         $query = Dokumen::query();
+        if ($hideDirahasiakan) {
+            $query->where('sifat_arsip', '!=', 'Dirahasiakan')->where('is_public', true);
+        }
         if ($request->filled('kategori')) {
             $query->where('kategori', $request->kategori);
         }
@@ -169,8 +184,14 @@ class DashboardController extends Controller
         $suggestions = $suggestions->concat($ap)->concat($ah);
 
         // 4. Documents
-        $docs = Dokumen::where('nama', 'like', "%$search%")
-            ->orWhere('kode', 'like', "$search%")
+        $hideDirahasiakan = !Auth::check() || Auth::user()->role !== 'Admin';
+        $docs = Dokumen::where(function($q) use ($search) {
+                $q->where('nama', 'like', "%$search%")
+                  ->orWhere('kode', 'like', "$search%");
+            })
+            ->when($hideDirahasiakan, function($q) { 
+                return $q->where('sifat_arsip', '!=', 'Dirahasiakan')->where('is_public', true); 
+            })
             ->take(3)->pluck('nama')->toArray();
         $suggestions = $suggestions->concat($docs);
 
