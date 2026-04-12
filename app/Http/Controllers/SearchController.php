@@ -86,10 +86,12 @@ class SearchController extends Controller
             $results = array_merge($results, $arsipHijauan->toArray());
 
             // Search Dokumen
-            $dokumen = Dokumen::where('nama', 'like', "%{$q}%")
-                ->orWhere('kategori', 'like', "%{$q}%")
-                ->orWhere('deskripsi', 'like', "%{$q}%")
-                ->get()->map(function($item) {
+            $dokumen = Dokumen::visible()->where(function($builder) use ($q) {
+                $builder->where('nama', 'like', "%{$q}%")
+                    ->orWhere('kategori', 'like', "%{$q}%")
+                    ->orWhere('deskripsi', 'like', "%{$q}%");
+            })
+            ->get()->map(function($item) {
                     return (object)[
                         'type' => 'Dokumen',
                         'title' => $item->nama,
