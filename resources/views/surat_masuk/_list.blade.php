@@ -41,6 +41,7 @@
                             $sc = 'bg-pending';
                             if($surat->status == 'Diproses') $sc = 'bg-diproses';
                             if($surat->status == 'Terarsip') $sc = 'bg-terarsip';
+                            if($surat->status == 'Selesai') $sc = 'status-success bg-success';
                         @endphp
                         <span class="status-badge {{ $sc }}">{{ $surat->status }}</span>
                     </td>
@@ -68,7 +69,10 @@
                                     data-perihal="{{ $surat->perihal }}"
                                     data-pengirim="{{ $surat->pengirim }}"
                                     data-tanggal="{{ $surat->tanggal_surat->format('Y-m-d') }}"
+                                    data-tanggal-terima="{{ $surat->tanggal_terima->format('Y-m-d') }}"
                                     data-kategori="{{ $surat->kategori }}"
+                                    data-status="{{ $surat->status }}"
+                                    data-prioritas="{{ $surat->prioritas }}"
                                     data-url="{{ route('surat-masuk.update', $surat->id) }}"
                                     title="Edit">
                                 <i data-lucide="edit-3"></i>
@@ -106,7 +110,12 @@
     <div class="mobile-card">
         <div class="mobile-card-header">
             <span style="font-size:11px;color:#94a3b8;font-weight:600;">#{{ $suratMasuk->firstItem() + $index }}</span>
-            @php $sc = 'bg-pending'; if($surat->status=='Diproses') $sc='bg-diproses'; if($surat->status=='Terarsip') $sc='bg-terarsip'; @endphp
+            @php 
+                $sc = 'bg-pending'; 
+                if($surat->status=='Diproses') $sc='bg-diproses'; 
+                if($surat->status=='Terarsip') $sc='bg-terarsip'; 
+                if($surat->status=='Selesai') $sc='status-success bg-success'; 
+            @endphp
             <span class="status-badge {{ $sc }}">{{ $surat->status }}</span>
         </div>
         <div class="mobile-card-field">
@@ -148,7 +157,10 @@
                         data-perihal="{{ $surat->perihal }}"
                         data-pengirim="{{ $surat->pengirim }}"
                         data-tanggal="{{ $surat->tanggal_surat->format('Y-m-d') }}"
+                        data-tanggal-terima="{{ $surat->tanggal_terima->format('Y-m-d') }}"
                         data-kategori="{{ $surat->kategori }}"
+                        data-status="{{ $surat->status }}"
+                        data-prioritas="{{ $surat->prioritas }}"
                         data-url="{{ route('surat-masuk.update', $surat->id) }}"
                         title="Edit">
                     <i data-lucide="edit-3"></i>

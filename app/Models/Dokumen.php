@@ -14,6 +14,7 @@ class Dokumen extends Model
     protected $casts = [
         'tanggal_upload' => 'date',
         'tanggal' => 'date',
+        'is_public' => 'boolean',
     ];
 
     protected $fillable = [
@@ -29,6 +30,8 @@ class Dokumen extends Model
         'deskripsi',
         'masa_retensi',
         'status',
+        'sifat_arsip',
+        'is_public',
         'download_counter',
         'uploaded_by',
     ];
