@@ -13,12 +13,7 @@ class DokumenController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Dokumen::latest();
-
-        // If role is not Admin or user is Guest, filter out private docs
-        if (!Auth::check() || Auth::user()->role !== 'Admin') {
-            $query->where('sifat_arsip', '!=', 'Dirahasiakan')->where('is_public', true);
-        }
+        $query = Dokumen::visible()->latest();
 
         // Filtering by category if present
         if ($request->has('kategori') && $request->kategori != 'Semua') {

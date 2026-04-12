@@ -40,4 +40,20 @@ class Dokumen extends Model
     {
         return $this->belongsTo(User::class, 'uploaded_by');
     }
+
+    /**
+     * Scope a query to only include visible documents for the current user.
+     */
+    public function scopeVisible($query)
+    {
+        // Hide 'Dirahasiakan' if guest or not Admin
+        $hideDirahasiakan = !auth()->check() || auth()->user()->role !== 'Admin';
+        
+        if ($hideDirahasiakan) {
+            return $query->where('sifat_arsip', '!=', 'Dirahasiakan')
+                         ->where('is_public', true);
+        }
+        
+        return $query;
+    }
 }

@@ -24,14 +24,8 @@ class DashboardController extends Controller
             'surat_keluar' => SuratKeluar::count(),
             'arsip_pembibitan' => ArsipPembibitan::count(),
             'arsip_hijauan' => ArsipHijauan::count(),
-            'arsip_aktif' => Dokumen::where('status', 'Aktif')
-                ->when($hideDirahasiakan, function($q) { 
-                    return $q->where('sifat_arsip', '!=', 'Dirahasiakan')->where('is_public', true); 
-                })->count(),
-            'arsip_inaktif' => Dokumen::where('status', 'Inaktif')
-                ->when($hideDirahasiakan, function($q) { 
-                    return $q->where('sifat_arsip', '!=', 'Dirahasiakan')->where('is_public', true); 
-                })->count(),
+            'arsip_aktif' => Dokumen::visible()->where('status', 'Aktif')->count(),
+            'arsip_inaktif' => Dokumen::visible()->where('status', 'Inaktif')->count(),
         ];
 
         // Expanded Search Logic for All Data (Restored per user request)
@@ -91,20 +85,16 @@ class DashboardController extends Controller
             $searchResults['arsip'] = $ap->concat($ah);
 
             // 4. Search Dokumen
-            $searchResults['dokumen'] = Dokumen::where(function($q) use ($search) {
+            $searchResults['dokumen'] = Dokumen::visible()->where(function($q) use ($search) {
                     $q->where('nama', 'like', "%$search%")
                       ->orWhere('kode', 'like', "%$search%");
                 })
-                ->when($hideDirahasiakan, function($q) { return $q->where('sifat_arsip', '!=', 'Dirahasiakan'); })
                 ->take(3)->get()->map(function($item) {
                     return (object)['name' => $item->nama, 'info' => 'Dokumen: ' . ($item->kode ?? '#'.str_pad($item->id, 4, '0', STR_PAD_LEFT)), 'route' => route('dokumen.index', ['search' => $item->nama]), 'icon' => 'file-text'];
                 });
         }
 
-        $query = Dokumen::query();
-        if ($hideDirahasiakan) {
-            $query->where('sifat_arsip', '!=', 'Dirahasiakan')->where('is_public', true);
-        }
+        $query = Dokumen::visible();
         if ($request->filled('kategori')) {
             $query->where('kategori', $request->kategori);
         }
@@ -123,8 +113,24 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        // Map real log statuses for badges
-        $recentActivities->transform(function($activity) {
+        // Map real log statuses for badges and mask confidential names
+        $recentActivities->transform(function($activity) use ($hideDirahasiakan) {
+            // Masking logic: if modul is Manajemen Dokumen and user is not admin
+            if ($hideDirahasiakan && $activity->modul == 'Manajemen Dokumen') {
+                // If the description contains the name of a document that is currently confidential
+                // We simplify by looking for "Dirahasiakan" documents
+                static $confidentialDocs = null;
+                if ($confidentialDocs === null) {
+                    $confidentialDocs = \App\Models\Dokumen::where('sifat_arsip', 'Dirahasiakan')->pluck('nama')->toArray();
+                }
+                
+                foreach ($confidentialDocs as $name) {
+                    if (stripos($activity->deskripsi, $name) !== false) {
+                        $activity->deskripsi = str_replace($name, "[DOKUMEN RAHASIA]", $activity->deskripsi);
+                    }
+                }
+            }
+
             $status = 'Terarsip';
             $badge = 'bg-terarsip';
             if ($activity->modul == 'Surat Masuk') {
@@ -184,13 +190,9 @@ class DashboardController extends Controller
         $suggestions = $suggestions->concat($ap)->concat($ah);
 
         // 4. Documents
-        $hideDirahasiakan = !Auth::check() || Auth::user()->role !== 'Admin';
-        $docs = Dokumen::where(function($q) use ($search) {
+        $docs = Dokumen::visible()->where(function($q) use ($search) {
                 $q->where('nama', 'like', "%$search%")
                   ->orWhere('kode', 'like', "$search%");
-            })
-            ->when($hideDirahasiakan, function($q) { 
-                return $q->where('sifat_arsip', '!=', 'Dirahasiakan')->where('is_public', true); 
             })
             ->take(3)->pluck('nama')->toArray();
         $suggestions = $suggestions->concat($docs);
