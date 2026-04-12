@@ -54,14 +54,7 @@
                                 <i data-lucide="download"></i>
                             </a>
                             @if(Auth::check() && Auth::user()->role === 'Admin')
-                                @if($surat->status == 'Draft')
-                                <form id="send-form-{{ $surat->id }}" action="{{ route('surat-keluar.send', $surat->id) }}" method="POST" style="display:inline;">
-                                    @csrf
-                                    <button type="button" class="action-btn action-btn-send btn-send-confirm" data-form="send-form-{{ $surat->id }}" title="Kirim">
-                                        <i data-lucide="send"></i>
-                                    </button>
-                                </form>
-                                @endif
+
                                 <button type="button" class="action-btn action-btn-edit btn-edit-surat"
                                         data-nomor="{{ $surat->nomor_surat }}"
                                         data-perihal="{{ $surat->perihal }}"
@@ -140,12 +133,7 @@
                 </button>
                 <a href="{{ $surat->file_path ? asset('storage/'.$surat->file_path) : '#' }}" class="action-btn action-btn-dl" target="_blank"><i data-lucide="download"></i></a>
                 @if(Auth::check() && Auth::user()->role === 'Admin')
-                    @if($surat->status == 'Draft')
-                    <form id="send-form-m-{{ $surat->id }}" action="{{ route('surat-keluar.send', $surat->id) }}" method="POST" style="display:inline;">
-                        @csrf
-                        <button type="button" class="action-btn action-btn-send btn-send-confirm" data-form="send-form-m-{{ $surat->id }}"><i data-lucide="send"></i></button>
-                    </form>
-                    @endif
+
                     <button type="button" class="action-btn action-btn-edit btn-edit-surat"
                             data-nomor="{{ $surat->nomor_surat }}"
                             data-perihal="{{ $surat->perihal }}"

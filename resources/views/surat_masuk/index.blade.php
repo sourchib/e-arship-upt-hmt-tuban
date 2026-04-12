@@ -31,6 +31,7 @@
         <button class="filter-tab" data-status="Pending">Pending</button>
         <button class="filter-tab" data-status="Diproses">Diproses</button>
         <button class="filter-tab" data-status="Terarsip">Terarsip</button>
+        <button class="filter-tab" data-status="Selesai">Selesai</button>
     </div>
 </div>
 
@@ -237,10 +238,23 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Ganti File (PDF) <small class="text-muted">(Opsional)</small></label>
-                        <input type="file" class="form-control" name="file">
+                        <label class="form-label">Status <span style="color:#dc2626">*</span></label>
+                        <select class="form-control" name="status" id="editStatusSelect">
+                            <option value="Pending">Pending</option>
+                            <option value="Diproses">Diproses</option>
+                            <option value="Terarsip">Terarsip</option>
+                            <option value="Selesai">Selesai</option>
+                        </select>
                     </div>
                 </div>
+
+                <div class="form-group">
+                    <label class="form-label">Ganti File (PDF) <small class="text-muted">(Opsional)</small></label>
+                    <input type="file" class="form-control" name="file">
+                </div>
+
+                <input type="hidden" name="tanggal_terima" id="editTanggalTerima">
+                <input type="hidden" name="prioritas" id="editPrioritas">
 
                 <div class="modal-footer-btns">
                     <button type="submit" class="btn-save-modal">Simpan Perubahan</button>
@@ -369,6 +383,9 @@
                 document.getElementById('editPengirimInput').value  = this.dataset.pengirim;
                 document.getElementById('editTanggalSurat').value   = this.dataset.tanggal;
                 document.getElementById('editKategoriSelect').value = this.dataset.kategori;
+                document.getElementById('editStatusSelect').value   = this.dataset.status;
+                document.getElementById('editTanggalTerima').value  = this.dataset.tanggalTerima;
+                document.getElementById('editPrioritas').value      = this.dataset.prioritas;
                 editForm.action = this.dataset.url;
                 toggleEditModal();
             });

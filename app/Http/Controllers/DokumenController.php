@@ -15,6 +15,11 @@ class DokumenController extends Controller
     {
         $query = Dokumen::latest();
 
+        // If role is not Admin, filter out private docs based on sifat_arsip
+        if (Auth::check() && Auth::user()->role !== 'Admin') {
+            $query->where('sifat_arsip', '!=', 'Dirahasiakan');
+        }
+
         // Filtering by category if present
         if ($request->has('kategori') && $request->kategori != 'Semua') {
             $query->where('kategori', $request->kategori);
@@ -101,9 +106,14 @@ class DokumenController extends Controller
             'lokasi' => 'required|string|max:255',
             'masa_retensi' => 'nullable|string|max:100',
             'status' => 'required|in:Aktif,Inaktif',
-            'file' => 'required|file|max:10240', // Max 10MB
+            'sifat_arsip' => 'nullable|string|max:50',
+            'file' => 'required|file|max:51200', // Max 50MB
             'deskripsi' => 'nullable|string',
         ]);
+
+        if ($request->has('kategori')) {
+            KategoriDokumen::firstOrCreate(['nama' => $request->kategori]);
+        }
 
         if ($request->hasFile('file')) {
             $file = $request->file('file');
@@ -117,6 +127,8 @@ class DokumenController extends Controller
                 'lokasi' => $request->lokasi,
                 'masa_retensi' => $request->masa_retensi,
                 'status' => $request->status,
+                'sifat_arsip' => $request->sifat_arsip,
+                'is_public' => $request->sifat_arsip !== 'Dirahasiakan',
                 'file_path' => $path,
                 'ukuran' => $file->getSize(),
                 'mime_type' => $file->getMimeType(),
@@ -162,10 +174,16 @@ class DokumenController extends Controller
             'lokasi' => 'required|string|max:255',
             'masa_retensi' => 'nullable|string|max:100',
             'status' => 'required|in:Aktif,Inaktif',
+            'sifat_arsip' => 'nullable|string|max:50',
+            'file' => 'nullable|file|max:51200', // Max 50MB
             'deskripsi' => 'nullable|string',
         ]);
 
-        $dokumen->update([
+        if ($request->has('kategori')) {
+            KategoriDokumen::firstOrCreate(['nama' => $request->kategori]);
+        }
+
+        $data = [
             'nama' => $request->nama,
             'kategori' => $request->kategori,
             'tanggal' => $request->tanggal,
@@ -173,8 +191,24 @@ class DokumenController extends Controller
             'lokasi' => $request->lokasi,
             'masa_retensi' => $request->masa_retensi,
             'status' => $request->status,
+            'sifat_arsip' => $request->sifat_arsip,
+            'is_public' => $request->sifat_arsip !== 'Dirahasiakan',
             'deskripsi' => $request->deskripsi,
-        ]);
+        ];
+
+        if ($request->hasFile('file')) {
+            // Delete old file
+            if (!empty($dokumen->file_path) && Storage::disk('public')->exists($dokumen->file_path)) {
+                Storage::disk('public')->delete($dokumen->file_path);
+            }
+            
+            $file = $request->file('file');
+            $data['file_path'] = $file->store('documents', 'public');
+            $data['ukuran'] = $file->getSize();
+            $data['mime_type'] = $file->getMimeType();
+        }
+
+        $dokumen->update($data);
 
         LogAktivitas::create([
             'jenis_aktivitas' => 'Update',

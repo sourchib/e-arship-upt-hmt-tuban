@@ -14,6 +14,10 @@ class SuratMasukController extends Controller
     {
         $query = SuratMasuk::latest();
 
+        if ($request->has('status') && $request->status !== 'Semua') {
+            $query->where('status', $request->status);
+        }
+
         if ($request->has('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
@@ -53,7 +57,7 @@ class SuratMasukController extends Controller
             'tanggal_surat' => 'required|date',
             'tanggal_terima' => 'required|date',
             'prioritas' => 'required|in:Tinggi,Sedang,Rendah',
-            'status' => 'required|in:Pending,Diproses,Terarsip',
+            'status' => 'required|in:Pending,Diproses,Terarsip,Selesai',
             'file' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
             'keterangan' => 'nullable|string',
         ]);
@@ -92,7 +96,7 @@ class SuratMasukController extends Controller
             'tanggal_surat' => 'required|date',
             'tanggal_terima' => 'required|date',
             'prioritas' => 'required|in:Tinggi,Sedang,Rendah',
-            'status' => 'required|in:Pending,Diproses,Terarsip',
+            'status' => 'required|in:Pending,Diproses,Terarsip,Selesai',
             'file' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
             'keterangan' => 'nullable|string',
         ]);

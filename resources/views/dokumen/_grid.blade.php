@@ -55,15 +55,36 @@
                 </div>
             </div>
 
-            <div style="margin-top: 8px;">
-                <div style="font-size: 9px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">Rak / Lokasi:</div>
-                <div style="font-size: 12px; font-weight: 600; color: #475569; display: flex; align-items: center; gap: 4px;">
-                    <i data-lucide="archive" style="width: 12px; height: 12px; color: #16a34a;"></i>
-                    {{ $doc->lokasi ?? '-' }}
+            <div style="margin-top: 8px; display: flex; justify-content: space-between; align-items: flex-end;">
+                <div>
+                    <div style="font-size: 9px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">Rak / Lokasi:</div>
+                    <div style="font-size: 12px; font-weight: 600; color: #475569; display: flex; align-items: center; gap: 4px;">
+                        <i data-lucide="archive" style="width: 12px; height: 12px; color: #16a34a;"></i>
+                        {{ $doc->lokasi ?? '-' }}
+                    </div>
                 </div>
+                @if($doc->sifat_arsip)
+                <div style="text-align: right;">
+                    <div style="font-size: 9px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">Sifat Arsip:</div>
+                    <div style="margin-top: 2px;">
+                        <span style="padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; background: {{ $doc->sifat_arsip == 'Dirahasiakan' ? '#fef2f2' : '#f0fdf4' }}; color: {{ $doc->sifat_arsip == 'Dirahasiakan' ? '#dc2626' : '#15803d' }}; border: 1px solid {{ $doc->sifat_arsip == 'Dirahasiakan' ? '#fecaca' : '#bbf7d0' }};">
+                            {{ strtoupper($doc->sifat_arsip) }}
+                        </span>
+                    </div>
+                </div>
+                @endif
             </div>
-            <div style="margin-top: 8px; font-size: 10px; color: #94a3b8; display: flex; align-items: center; gap: 4px;">
-                <i data-lucide="user" style="width: 12px; height: 12px;"></i> Diupload: {{ $doc->uploader->nama ?? 'Admin' }}
+            <div style="margin-top: 8px; font-size: 10px; color: #94a3b8; display: flex; align-items: center; justify-content: space-between; gap: 4px;">
+                <div style="display: flex; align-items: center; gap: 4px;">
+                    <i data-lucide="user" style="width: 12px; height: 12px;"></i> Diupload: {{ $doc->uploader->nama ?? 'Admin' }}
+                </div>
+                <div>
+                    @if($doc->is_public)
+                        <span style="color: #16a34a; display: flex; align-items: center; gap: 4px; font-weight: 600;" title="Bisa dilihat Staf Umum"><i data-lucide="globe" style="width: 12px; height: 12px;"></i> Publik</span>
+                    @else
+                        <span style="color: #dc2626; display: flex; align-items: center; gap: 4px; font-weight: 600;" title="Hanya dilihat Admin"><i data-lucide="lock" style="width: 12px; height: 12px;"></i> Private</span>
+                    @endif
+                </div>
             </div>
         </div>
 

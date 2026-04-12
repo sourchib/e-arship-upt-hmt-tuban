@@ -12,12 +12,6 @@
             <p>Kelola semua dokumen arsip digital secara terpusat</p>
         </div>
         <div class="page-header-actions" style="display: flex; gap: 12px;">
-            @if(Auth::check() && Auth::user()->role === 'Admin')
-            <button type="button" class="btn btn-secondary" id="btnAddKategori">
-                <i data-lucide="folder-plus" style="width:16px;height:16px;"></i>
-                Tambah Kategori
-            </button>
-            @endif
             <button type="button" class="btn btn-primary" id="openUploadModal">
                 <i data-lucide="folder-open" style="width:16px;height:16px;"></i>
                 Buka Arsip
@@ -112,14 +106,14 @@
                 <div class="form-row-custom" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
                     <div class="form-group">
                         <label class="form-label">Kategori <span style="color:#dc2626">*</span></label>
-                        <select class="form-control" name="kategori" id="input_kategori" required>
-                            <option value="" disabled selected>Pilih Kategori</option>
+                        <input type="text" class="form-control" name="kategori" id="input_kategori" list="kategoriList" placeholder="Pilih yang ada atau ketik kategori baru..." required autocomplete="off">
+                        <datalist id="kategoriList">
                             @foreach($categories as $cat)
                                 @if($cat != 'Semua')
-                                <option value="{{ $cat }}">{{ $cat }}</option>
+                                <option value="{{ $cat }}">
                                 @endif
                             @endforeach
-                        </select>
+                        </datalist>
                     </div>
 
                     <div class="form-group">
@@ -145,12 +139,22 @@
                                placeholder="Contoh: 5 Tahun, Permanen">
                     </div>
 
-                    <div class="form-group" style="grid-column: 1 / -1;">
-                        <label class="form-label">Status Arsip <span style="color:#dc2626">*</span></label>
-                        <select class="form-control" name="status" id="input_status" required>
-                            <option value="Aktif">Aktif</option>
-                            <option value="Inaktif">Inaktif</option>
-                        </select>
+                    <div class="form-group" style="grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div>
+                            <label class="form-label">Sifat Arsip</label>
+                            <select class="form-control" name="sifat_arsip" id="input_sifat_arsip">
+                                <option value="Tidak Dirahasiakan">Tidak Dirahasiakan</option>
+                                <option value="Dirahasiakan">Dirahasiakan</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label">Status Arsip <span style="color:#dc2626">*</span></label>
+                            <select class="form-control" name="status" id="input_status" required>
+                                <option value="Aktif">Aktif</option>
+                                <option value="Inaktif">Inaktif</option>
+                            </select>
+                        </div>
+
                     </div>
                 </div>
                 </div>
@@ -160,7 +164,7 @@
                     <div class="drop-zone" id="dropZone">
                         <i data-lucide="upload-cloud"></i>
                         <p>Tarik file ke sini atau klik untuk memilih</p>
-                        <small>Maks. 10MB (PDF, Excel, Docx, dsb)</small>
+                        <small>Semua Ekstensi File Diizinkan (Maks. 50MB)</small>
                         <input type="file" name="file" id="fileInput" required>
                     </div>
                     <div class="file-info" id="fileInfo">
@@ -211,52 +215,7 @@
     };
 
 
-    const btnAddKategori = document.getElementById('btnAddKategori');
-    if(btnAddKategori) {
-        btnAddKategori.addEventListener('click', () => {
-            checkAdmin(async () => {
-                const { value: namaKategori } = await Swal.fire({
-                    title: 'Tambah Kategori Baru',
-                    input: 'text',
-                    inputLabel: 'Nama Kategori',
-                    inputPlaceholder: 'Contoh: Arsip Keuangan',
-                    showCancelButton: true,
-                    confirmButtonText: 'Simpan',
-                    cancelButtonText: 'Batal',
-                    confirmButtonColor: '#16a34a',
-                    inputValidator: (value) => {
-                        if (!value) return 'Nama kategori tidak boleh kosong!';
-                    }
-                });
 
-                if (namaKategori) {
-                    fetch("{{ route('dokumen.kategori.store') }}", {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        },
-                        body: JSON.stringify({ nama: namaKategori })
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.success) {
-                            Swal.fire('Berhasil!', data.message, 'success');
-                            // Refresh the page or update UI components
-                            performUpdate();
-                        } else {
-                            Swal.fire('Gagal!', data.message || 'Terjadi kesalahan.', 'error');
-                        }
-                    })
-                    .catch(err => {
-                        console.error('Error:', err);
-                        Swal.fire('Error!', 'Tidak dapat menghubungi server.', 'error');
-                    });
-                }
-            });
-        });
-    }
 
     if(closeModalBtn)  closeModalBtn.addEventListener('click', toggleModal);
     if(cancelModalBtn) cancelModalBtn.addEventListener('click', toggleModal);
@@ -323,16 +282,16 @@
                             }
                         });
 
-                        // Update Upload Select Option
-                        if (inputKategori) {
-                            const currentVal = inputKategori.value;
-                            let selectHtml = '<option value="" disabled selected>Pilih Kategori</option>';
+                        // Update Upload Datalist Option
+                        const kategoriList = document.getElementById('kategoriList');
+                        if (kategoriList) {
+                            let selectHtml = '';
                             data.categories.forEach(cat => {
                                 if (cat !== 'Semua') {
-                                    selectHtml += `<option value="${cat}" ${cat == currentVal ? 'selected' : ''}>${cat}</option>`;
+                                    selectHtml += `<option value="${cat}">`;
                                 }
                             });
-                            inputKategori.innerHTML = selectHtml;
+                            kategoriList.innerHTML = selectHtml;
                         }
                     }
 
@@ -370,10 +329,20 @@
                 body: formData,
                 headers: { 
                     'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 }
             })
-            .then(response => response.json())
+            .then(async response => {
+                const data = await response.json().catch(() => null);
+                if (!response.ok) {
+                    if (response.status === 422 && data && data.errors) {
+                        throw { isValidationError: true, errors: data.errors, message: data.message };
+                    }
+                    throw new Error((data && data.message) ? data.message : 'Terjadi kesalahan sistem.');
+                }
+                return data;
+            })
             .then(data => {
                 if(data.success) {
                     Swal.fire('Berhasil!', data.message, 'success');
@@ -387,7 +356,15 @@
             })
             .catch(error => {
                 console.error('Error:', error);
-                Swal.fire('Error!', 'Terjadi kesalahan sistem.', 'error');
+                if (error.isValidationError) {
+                    let errorMessages = '';
+                    for (const key in error.errors) {
+                        errorMessages += error.errors[key][0] + '<br>';
+                    }
+                    Swal.fire('Peringatan!', errorMessages, 'warning');
+                } else {
+                    Swal.fire('Error!', error.message || 'Terjadi kesalahan sistem.', 'error');
+                }
             })
             .finally(() => {
                 btnSubmit.disabled = false;
@@ -422,6 +399,7 @@
                 document.getElementById('input_tanggal').value = doc.tanggal ? doc.tanggal.split('T')[0] : '';
                 document.getElementById('input_lokasi').value = doc.lokasi;
                 document.getElementById('input_masa_retensi').value = doc.masa_retensi;
+                document.getElementById('input_sifat_arsip').value = doc.sifat_arsip || '';
                 document.getElementById('input_status').value = doc.status || 'Aktif';
                 document.getElementById('input_deskripsi').value = doc.deskripsi;
 
