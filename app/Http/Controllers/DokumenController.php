@@ -220,6 +220,22 @@ class DokumenController extends Controller
         ]);
     }
 
+    public function preview(Dokumen $dokumen)
+    {
+        if (empty($dokumen->file_path) || !Storage::disk('public')->exists($dokumen->file_path)) {
+            abort(404, 'File tidak ditemukan.');
+        }
+
+        $mimeType = $dokumen->mime_type ?: 'application/octet-stream';
+        $content  = Storage::disk('public')->get($dokumen->file_path);
+        $filename = basename($dokumen->file_path);
+
+        return response($content, 200)
+            ->header('Content-Type', $mimeType)
+            ->header('Content-Disposition', 'inline; filename="' . $filename . '"')
+            ->header('Cache-Control', 'public, max-age=3600');
+    }
+
     public function download(Dokumen $dokumen)
     {
         if (!empty($dokumen->file_path) && is_string($dokumen->file_path) && Storage::disk('public')->exists($dokumen->file_path)) {

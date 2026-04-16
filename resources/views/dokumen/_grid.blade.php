@@ -90,7 +90,7 @@
 
         <div class="doc-footer">
             <div style="gap:4px; display:flex;">
-                <a href="{{ asset('storage/' . $doc->file_path) }}" target="_blank" class="action-btn action-btn-view" title="Lihat">
+                <a href="{{ route('dokumen.preview', $doc->id) }}" target="_blank" class="action-btn action-btn-view" title="Lihat">
                     <i data-lucide="eye"></i>
                 </a>
                 <a href="{{ route('dokumen.download', $doc->id) }}" class="action-btn action-btn-dl" title="Download">

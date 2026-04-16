@@ -33,6 +33,7 @@ Route::get('arsip-pembibitan', [\App\Http\Controllers\ArsipPembibitanController:
 Route::get('arsip-hijauan', [\App\Http\Controllers\ArsipHijauanController::class, 'index'])->name('arsip-hijauan.index');
 Route::get('dokumen', [\App\Http\Controllers\DokumenController::class, 'index'])->name('dokumen.index');
 Route::get('dokumen/{dokumen}/download', [\App\Http\Controllers\DokumenController::class, 'download'])->name('dokumen.download');
+Route::get('dokumen/{dokumen}/preview', [\App\Http\Controllers\DokumenController::class, 'preview'])->name('dokumen.preview');
 
 // Admin-only Write Routes
 Route::middleware(['auth'])->group(function () {
@@ -62,6 +63,37 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Password Reset Routes
+// Route khusus untuk memperbaiki link storage di hosting (Byethost/Shared Hosting)
+Route::get('/fix-storage', function () {
+    try {
+        // 1. Lokasi folder
+        $target = storage_path('app/public');
+        $link = public_path('storage');
+        $docFolder = $link . '/documents';
+        
+        // 2. Set chmod 777 ke folder-folder utama
+        if (file_exists($link)) {
+            chmod($link, 0777); 
+        }
+        if (file_exists($docFolder)) {
+            chmod($docFolder, 0777);
+        }
+
+        // 3. Coba buat symbolic link (jika belum ada)
+        if (file_exists($link) && !is_link($link)) {
+            // rename($link, $link . '_backup_' . time());
+        }
+        
+        if (!file_exists($link)) {
+            app('files')->link($target, $link);
+        }
+        
+        return "✅ chmod 777 berhasil diterapkan dan link storage telah diperiksa. Silakan coba akses dokumen Anda lagi.";
+    } catch (\Exception $e) {
+        return "❌ Gagal: " . $e->getMessage();
+    }
+});
+
 Route::get('/forgot-password', [\App\Http\Controllers\PasswordResetController::class, 'showLinkRequestForm'])->name('password.request');
 Route::post('/forgot-password', [\App\Http\Controllers\PasswordResetController::class, 'sendResetLinkEmail'])->name('password.email');
 Route::get('/reset-password/{token}', [\App\Http\Controllers\PasswordResetController::class, 'showResetForm'])->name('password.reset');
