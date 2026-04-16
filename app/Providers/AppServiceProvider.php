@@ -13,7 +13,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Penyesuaian untuk struktur folder webapp di dalam htdocs
+        $this->app->bind('path.public', function() {
+            return base_path('../');
+        });
     }
 
     /**

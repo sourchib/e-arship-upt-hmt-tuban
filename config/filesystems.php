@@ -38,9 +38,19 @@ return [
 
         'public' => [
             'driver' => 'local',
-            'root' => storage_path('app/public'),
-            'url' => env('APP_URL').'/storage',
+            'root' => public_path('data_arsip'),
+            'url' => env('APP_URL').'/data_arsip',
             'visibility' => 'public',
+            'permissions' => [
+                'file' => [
+                    'public' => 0666,
+                    'private' => 0666,
+                ],
+                'dir' => [
+                    'public' => 0777,
+                    'private' => 0777,
+                ],
+            ],
             'throw' => false,
         ],
 
