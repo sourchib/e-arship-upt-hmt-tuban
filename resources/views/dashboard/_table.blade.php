@@ -51,7 +51,7 @@
                 </td>
                 <td style="padding: 16px 16px; text-align: right;">
                     <div style="display: flex; justify-content: flex-end; gap: 6px;">
-                        <button onclick="previewFile('{{ asset('storage/' . $item->file_path) }}', '{{ $item->nama }}')" style="width: 30px; height: 30px; background: #f5f3ff; color: #6366f1; border: none; display: flex; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer;" title="Lihat">
+                        <button onclick="previewFile('{{ route('dokumen.preview', $item->id) }}', '{{ addslashes($item->nama) }}', '{{ route('dokumen.download', $item->id) }}', '{{ $item->mime_type }}')" style="width: 30px; height: 30px; background: #f5f3ff; color: #6366f1; border: none; display: flex; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer;" title="Lihat">
                             <i data-lucide="eye" style="width:14px;height:14px;"></i>
                         </button>
                         <a href="{{ route('dokumen.download', $item->id) }}" style="width: 30px; height: 30px; background: #f0fdf4; color: #16a34a; display: flex; align-items: center; justify-content: center; border-radius: 8px;" title="Download">

@@ -250,7 +250,7 @@
     }
 
     // ====== Preview Functionality ======
-    function previewFile(url, title) {
+    function previewFile(url, title, downloadUrl, mimeType) {
         const modal = document.getElementById('previewModal');
         const iframe = document.getElementById('previewIframe');
         const img = document.getElementById('previewImage');
@@ -259,14 +259,16 @@
         const downloadBtn = document.getElementById('downloadButton');
 
         titleEl.innerText = title;
-        downloadBtn.href = url;
+        // Use explicit download URL if provided, otherwise fall back to preview URL
+        downloadBtn.href = downloadUrl || url;
         loading.style.display = 'block';
         iframe.style.display = 'none';
         img.style.display = 'none';
         modal.style.display = 'flex';
 
-        const ext = url.split('.').pop().toLowerCase();
-        if (['jpg', 'jpeg', 'png', 'gif', 'svg'].includes(ext)) {
+        // Use mime_type for detection (works with route-based URLs)
+        const isImage = mimeType && mimeType.startsWith('image/');
+        if (isImage) {
             img.src = url;
             img.onload = () => {
                 loading.style.display = 'none';
