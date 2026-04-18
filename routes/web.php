@@ -32,6 +32,7 @@ Route::get('surat-keluar', [\App\Http\Controllers\SuratKeluarController::class, 
 Route::get('arsip-pembibitan', [\App\Http\Controllers\ArsipPembibitanController::class, 'index'])->name('arsip-pembibitan.index');
 Route::get('arsip-hijauan', [\App\Http\Controllers\ArsipHijauanController::class, 'index'])->name('arsip-hijauan.index');
 Route::get('dokumen', [\App\Http\Controllers\DokumenController::class, 'index'])->name('dokumen.index');
+Route::get('dokumen/print', [\App\Http\Controllers\DokumenController::class, 'print'])->name('dokumen.print');
 Route::get('dokumen/{dokumen}/download', [\App\Http\Controllers\DokumenController::class, 'download'])->name('dokumen.download');
 Route::get('dokumen/{dokumen}/preview', [\App\Http\Controllers\DokumenController::class, 'preview'])->name('dokumen.preview');
 
@@ -48,6 +49,11 @@ Route::middleware(['auth'])->group(function () {
     
     Route::resource('kategori-dokumen', \App\Http\Controllers\KategoriDokumenController::class)->except(['create', 'edit', 'show']);
     Route::post('dokumen/kategori', [\App\Http\Controllers\DokumenController::class, 'storeKategori'])->name('dokumen.kategori.store');
+    
+    // Folder Management
+    Route::resource('folders', \App\Http\Controllers\FolderController::class)->only(['store', 'update', 'destroy']);
+    Route::post('folders/move-documents', [\App\Http\Controllers\FolderController::class, 'moveDocuments'])->name('folders.move-documents');
+    Route::post('folders/copy-documents', [\App\Http\Controllers\FolderController::class, 'copyDocuments'])->name('folders.copy-documents');
     
     // User Management
     Route::post('users/{user}/approve', [\App\Http\Controllers\UserManagementController::class, 'approve'])->name('users.approve');

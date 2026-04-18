@@ -217,6 +217,10 @@
     <!-- Sidebar Overlay (mobile) -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
+    <!-- Global App UI Layers -->
+    <div class="modal-backdrop-custom" id="modalBackdrop" style="z-index: 1500; display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5);"></div>
+    <div class="filter-overlay" id="filterOverlay" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.4); backdrop-filter:blur(4px); z-index:1900;"></div>
+
     <!-- Scripts -->
     <script>
         lucide.createIcons();
