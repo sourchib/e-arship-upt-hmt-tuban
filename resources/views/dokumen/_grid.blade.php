@@ -44,6 +44,13 @@
                 <div style="font-size: 13px; font-weight: 700; color: #1e293b;">{{ $doc->kode ?? '-' }}</div>
             </div>
 
+            @if($doc->folder)
+            <div style="margin-bottom: 8px; border-bottom: 1px solid #edf2f7; padding-bottom: 6px;">
+                <div style="font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">Folder / Kelompok:</div>
+                <div style="font-size: 13px; font-weight: 700; color: #16a34a;">{{ $doc->folder }}</div>
+            </div>
+            @endif
+
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                 <div>
                     <div style="font-size: 9px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">Tanggal:</div>

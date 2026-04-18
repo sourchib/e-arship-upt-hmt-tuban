@@ -20,6 +20,7 @@ class Dokumen extends Model
     protected $fillable = [
         'nama',
         'kategori',
+        'folder',
         'tanggal',
         'kode',
         'lokasi',
@@ -33,8 +34,14 @@ class Dokumen extends Model
         'sifat_arsip',
         'is_public',
         'download_counter',
+        'folder_id',
         'uploaded_by',
     ];
+
+    public function folder()
+    {
+        return $this->belongsTo(Folder::class, 'folder_id');
+    }
 
     public function uploader()
     {

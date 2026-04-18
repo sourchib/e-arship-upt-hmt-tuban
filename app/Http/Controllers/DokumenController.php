@@ -13,7 +13,78 @@ class DokumenController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Dokumen::visible()->latest();
+        $query = Dokumen::visible();
+
+        // Folder filtering (File Manager Style)
+        $parentId = $request->get('parent_id');
+        if ($parentId) {
+            $query->where('folder_id', $parentId);
+        } else {
+            // In Root, if not searching and no category filter, only show documents with no folder
+            if (!$request->search && (!$request->filled('kategori') || $request->kategori === 'Semua')) {
+                $query->whereNull('folder_id');
+            }
+        }
+
+        // Sorting
+        $sort = $request->get('sort', 'latest');
+        switch ($sort) {
+            case 'oldest':
+                $query->orderBy('tanggal', 'asc');
+                break;
+            case 'name_asc':
+                $query->orderBy('nama', 'asc');
+                break;
+            case 'name_desc':
+                $query->orderBy('nama', 'desc');
+                break;
+            case 'kode_asc':
+                $query->orderBy('kode', 'asc');
+                break;
+            case 'kode_desc':
+                $query->orderBy('kode', 'desc');
+                break;
+            case 'kategori_asc':
+                $query->orderBy('kategori', 'asc');
+                break;
+            case 'kategori_desc':
+                $query->orderBy('kategori', 'desc');
+                break;
+            case 'folder_asc':
+                $query->orderBy('folder', 'asc');
+                break;
+            case 'folder_desc':
+                $query->orderBy('folder', 'desc');
+                break;
+            case 'status_asc':
+                $query->orderBy('status', 'asc');
+                break;
+            case 'status_desc':
+                $query->orderBy('status', 'desc');
+                break;
+            case 'lokasi_asc':
+                $query->orderBy('lokasi', 'asc');
+                break;
+            case 'lokasi_desc':
+                $query->orderBy('lokasi', 'desc');
+                break;
+            case 'retensi_asc':
+                $query->orderBy('masa_retensi', 'asc');
+                break;
+            case 'retensi_desc':
+                $query->orderBy('masa_retensi', 'desc');
+                break;
+            case 'no_asc':
+                $query->orderBy('id', 'asc');
+                break;
+            case 'no_desc':
+                $query->orderBy('id', 'desc');
+                break;
+            case 'latest':
+            default:
+                $query->orderBy('tanggal', 'desc');
+                break;
+        }
 
         // Filtering by category if present
         if ($request->has('kategori') && $request->kategori != 'Semua') {
@@ -48,21 +119,62 @@ class DokumenController extends Controller
         $aktifCount = Dokumen::where('status', 'Aktif')->count();
         $inaktifCount = Dokumen::where('status', 'Inaktif')->count();
 
-        // Dynamic categories for tabs
-        $dbCategories = KategoriDokumen::orderBy('nama', 'asc')->pluck('nama')->toArray();
-        $categories = array_merge(['Semua'], $dbCategories);
+        // Dynamic categories from existing documents + predefined categories
+        $docCategories = Dokumen::visible()->distinct()->pluck('kategori')->filter()->toArray();
+        $dbCategories = \App\Models\KategoriDokumen::orderBy('nama', 'asc')->pluck('nama')->toArray();
+        $categories = array_values(array_unique(array_merge(['Semua'], $docCategories, $dbCategories)));
+
+        // Folder Navigation
+        $currentFolderId = $request->get('parent_id');
+        if($currentFolderId === "") $currentFolderId = null;
+        $currentFolder = $currentFolderId ? \App\Models\Folder::find($currentFolderId) : null;
+        
+        // Breadcrumbs logic
+        $breadcrumbs = [];
+        $temp = $currentFolder;
+        while ($temp) {
+            array_unshift($breadcrumbs, ['id' => $temp->id, 'nama' => $temp->nama]);
+            $temp = $temp->parent;
+        }
+
+        // Folder Navigation (Hide if filtering by specific category)
+        $allFolders = collect();
+        if (!$request->filled('kategori') || $request->kategori === 'Semua') {
+            $folderQuery = \App\Models\Folder::where('parent_id', $currentFolderId)
+                ->withCount(['dokumen' => function($q) {
+                    $q->visible();
+                }]);
+            
+            // Dynamic sorting for folders
+            if ($sort === 'name_asc') {
+                $folderQuery->orderBy('nama', 'asc');
+            } elseif ($sort === 'name_desc') {
+                $folderQuery->orderBy('nama', 'desc');
+            } else {
+                $folderQuery->orderBy('nama', 'asc');
+            }
+            
+            $allFolders = $folderQuery->get();
+        }
+        
+        // Get all folders for select inputs (flattened)
+        $flatFolders = \App\Models\Folder::orderBy('nama', 'asc')->get();
 
         if ($request->ajax()) {
             return response()->json([
-                'html' => view('dokumen._grid', compact('documents'))->render(),
+                'html' => view('dokumen._table', compact('documents', 'allFolders'))->render(),
                 'stats' => view('dokumen._stats', compact('totalDokumen', 'pdfCount', 'excelCount', 'categoryCount', 'aktifCount', 'inaktifCount'))->render(),
                 'kategori' => $request->kategori ?? 'Semua',
                 'search' => $request->search ?? '',
-                'categories' => $categories
+                'categories' => $categories,
+                'folders' => $allFolders,
+                'flatFolders' => $flatFolders,
+                'breadcrumbs' => $breadcrumbs,
+                'currentFolder' => $currentFolder
             ]);
         }
 
-        return view('dokumen.index', compact('documents', 'totalDokumen', 'pdfCount', 'excelCount', 'categoryCount', 'categories', 'aktifCount', 'inaktifCount'));
+        return view('dokumen.index', compact('documents', 'totalDokumen', 'pdfCount', 'excelCount', 'categoryCount', 'categories', 'aktifCount', 'inaktifCount', 'allFolders', 'flatFolders', 'breadcrumbs', 'currentFolder'));
     }
 
     public function storeKategori(Request $request)
@@ -91,11 +203,57 @@ class DokumenController extends Controller
         ]);
     }
 
+    public function print(Request $request)
+    {
+        $query = Dokumen::visible();
+
+        // Sorting
+        $sort = $request->get('sort', 'latest');
+        switch ($sort) {
+            case 'kode_asc': $query->orderBy('kode', 'asc'); break;
+            case 'kode_desc': $query->orderBy('kode', 'desc'); break;
+            case 'name_asc': $query->orderBy('nama', 'asc'); break;
+            case 'name_desc': $query->orderBy('nama', 'desc'); break;
+            case 'kategori_asc': $query->orderBy('kategori', 'asc'); break;
+            case 'kategori_desc': $query->orderBy('kategori', 'desc'); break;
+            case 'status_asc': $query->orderBy('status', 'asc'); break;
+            case 'status_desc': $query->orderBy('status', 'desc'); break;
+            case 'lokasi_asc': $query->orderBy('lokasi', 'asc'); break;
+            case 'lokasi_desc': $query->orderBy('lokasi', 'desc'); break;
+            case 'retensi_asc': $query->orderBy('masa_retensi', 'asc'); break;
+            case 'retensi_desc': $query->orderBy('masa_retensi', 'desc'); break;
+            case 'oldest': $query->orderBy('tanggal', 'asc'); break;
+            case 'no_asc': $query->orderBy('id', 'asc'); break;
+            case 'no_desc': $query->orderBy('id', 'desc'); break;
+            case 'latest':
+            default: $query->orderBy('tanggal', 'desc'); break;
+        }
+
+        // Filtering
+        if ($request->has('kategori') && $request->kategori != 'Semua') {
+            $query->where('kategori', $request->kategori);
+        }
+
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('nama', 'like', "%{$search}%")
+                  ->orWhere('kategori', 'like', "%{$search}%")
+                  ->orWhere('kode', 'like', "%{$search}%")
+                  ->orWhere('lokasi', 'like', "%{$search}%");
+            });
+        }
+
+        $documents = $query->get();
+        return view('dokumen.print', compact('documents'));
+    }
+
     public function store(Request $request)
     {
         $request->validate([
             'nama' => 'required|string|max:255',
             'kategori' => 'required|string',
+            'folder' => 'nullable|string|max:255',
             'tanggal' => 'nullable|date',
             'kode' => 'nullable|string|max:255',
             'lokasi' => 'required|string|max:255',
@@ -114,9 +272,13 @@ class DokumenController extends Controller
             $file = $request->file('file');
             $path = $file->store('documents', 'public');
 
+            $folder = $request->folder_id ? \App\Models\Folder::find($request->folder_id) : null;
+
             $dokumen = Dokumen::create([
                 'nama' => $request->nama,
                 'kategori' => $request->kategori,
+                'folder_id' => $request->folder_id,
+                'folder' => $folder ? $folder->nama : null,
                 'tanggal' => $request->tanggal,
                 'kode' => $request->kode,
                 'lokasi' => $request->lokasi,
@@ -164,6 +326,7 @@ class DokumenController extends Controller
         $request->validate([
             'nama' => 'required|string|max:255',
             'kategori' => 'required|string',
+            'folder' => 'nullable|string|max:255',
             'tanggal' => 'nullable|date',
             'kode' => 'nullable|string|max:255',
             'lokasi' => 'required|string|max:255',
@@ -178,9 +341,13 @@ class DokumenController extends Controller
             KategoriDokumen::firstOrCreate(['nama' => $request->kategori]);
         }
 
+        $folder = $request->folder_id ? \App\Models\Folder::find($request->folder_id) : null;
+        
         $data = [
             'nama' => $request->nama,
             'kategori' => $request->kategori,
+            'folder_id' => $request->folder_id,
+            'folder' => $folder ? $folder->nama : null,
             'tanggal' => $request->tanggal,
             'kode' => $request->kode,
             'lokasi' => $request->lokasi,
@@ -214,10 +381,14 @@ class DokumenController extends Controller
             'user_id' => Auth::id(),
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Dokumen berhasil diperbarui.'
-        ]);
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Dokumen berhasil diperbarui.'
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Dokumen berhasil diperbarui.');
     }
 
     public function preview(Dokumen $dokumen)

@@ -77,7 +77,9 @@ class AuthController extends Controller
             $token = str_replace(['+', '/', '='], ['-', '_', ''], $header) . "." . 
                      str_replace(['+', '/', '='], ['-', '_', ''], $payload) . ".signature";
 
-            return redirect()->intended('/')->with('token', $token)->with('success', 'Login berhasil!');
+            // Arahkan Admin langsung ke halaman dokumen dengan form upload terbuka
+            $intended = session()->pull('url.intended', route('dokumen.index', ['create' => 'true']));
+            return redirect($intended)->with('token', $token)->with('success', 'Login berhasil! Silakan upload dokumen.');
         }
 
         return back()->withErrors([
