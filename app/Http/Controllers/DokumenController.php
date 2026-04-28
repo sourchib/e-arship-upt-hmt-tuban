@@ -230,6 +230,16 @@ class DokumenController extends Controller
         }
 
         // Filtering
+        $parentId = $request->get('parent_id');
+        if ($parentId) {
+            $query->where('folder_id', $parentId);
+        } else {
+            // In Root, if not searching and no category filter, only show documents with no folder
+            if (!$request->search && (!$request->filled('kategori') || $request->kategori === 'Semua')) {
+                $query->whereNull('folder_id');
+            }
+        }
+
         if ($request->has('kategori') && $request->kategori != 'Semua') {
             $query->where('kategori', $request->kategori);
         }
@@ -240,7 +250,8 @@ class DokumenController extends Controller
                 $q->where('nama', 'like', "%{$search}%")
                   ->orWhere('kategori', 'like', "%{$search}%")
                   ->orWhere('kode', 'like', "%{$search}%")
-                  ->orWhere('lokasi', 'like', "%{$search}%");
+                  ->orWhere('lokasi', 'like', "%{$search}%")
+                  ->orWhere('deskripsi', 'like', "%{$search}%");
             });
         }
 

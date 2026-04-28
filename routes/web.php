@@ -26,6 +26,12 @@ Route::get('/dashboard/suggestions', [DashboardController::class, 'suggestions']
 Route::get('/notifications', [DashboardController::class, 'getNotifications'])->name('notifications');
 Route::get('/search', [\App\Http\Controllers\SearchController::class, 'index'])->name('search');
 
+// ERD Page (Admin only)
+Route::get('/erd', function () {
+    abort_unless(auth()->check() && auth()->user()->role === 'Admin', 403);
+    return view('erd.index');
+})->name('erd')->middleware('auth');
+
 // Index-only public routes for resources
 Route::get('surat-masuk', [\App\Http\Controllers\SuratMasukController::class, 'index'])->name('surat-masuk.index');
 Route::get('surat-keluar', [\App\Http\Controllers\SuratKeluarController::class, 'index'])->name('surat-keluar.index');

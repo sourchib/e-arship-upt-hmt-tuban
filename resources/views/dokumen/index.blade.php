@@ -87,7 +87,12 @@
             <input type="hidden" id="folderFilterInput" name="folder_id" value="{{ request('folder_id') }}">
             <input type="hidden" id="parentIdInput" name="parent_id" value="{{ request('parent_id') }}">
 
-            @if(Auth::check() && Auth::user()->role === 'Admin')
+            @auth
+            <button type="button" class="btn" id="printAllBtn" style="padding: 0 16px; height: 44px; border-radius: 12px; font-weight: 700; gap: 6px; background: #fff; border: 1.5px solid #e2e8f0; color: #64748b; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+                <i data-lucide="printer" style="width:18px;height:18px;"></i>
+                <span class="d-none d-sm-inline">Cetak Semua</span>
+            </button>
+            @if(Auth::user()->role === 'Admin')
             <button type="button" class="btn" id="openFolderModal" style="padding: 0 16px; height: 44px; border-radius: 12px; font-weight: 700; gap: 6px; background: #fff; border: 1.5px solid #e2e8f0; color: #64748b; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
                 <i data-lucide="folder-plus" style="width:18px;height:18px;"></i>
                 <span class="d-none d-sm-inline">Folder Baru</span>
@@ -96,12 +101,13 @@
                 <i data-lucide="plus" style="width:18px;height:18px;"></i>
                 <span>Baru</span>
             </button>
+            @endif
             @else
             <a href="{{ route('login') }}" class="btn btn-primary" style="padding: 0 16px; height: 44px; border-radius: 12px; font-weight: 700; gap: 6px; display: flex; align-items: center; justify-content: center; text-decoration: none;">
                 <i data-lucide="log-in" style="width:18px;height:18px;"></i>
                 <span>Login Admin</span>
             </a>
-            @endif
+            @endauth
         </div>
     </div>
 
@@ -408,6 +414,23 @@
 
 @push('scripts')
 <script>
+    // ====== Print All ======
+    const printAllBtn = document.getElementById('printAllBtn');
+    if(printAllBtn) {
+        printAllBtn.onclick = () => {
+            const searchVal = searchInput.value.trim();
+            const sortVal = sortValueInput.value;
+            const catVal = currentKategori;
+            const parentId = document.getElementById('parentIdInput').value;
+            
+            let printUrl = `{{ route('dokumen.print') }}?kategori=${encodeURIComponent(catVal)}&sort=${sortVal}`;
+            if(searchVal) printUrl += `&search=${encodeURIComponent(searchVal)}`;
+            if(parentId) printUrl += `&parent_id=${parentId}`;
+            
+            window.open(printUrl, '_blank');
+        };
+    }
+
     // ====== Folder Management ======
     const openFolderModalBtn = document.getElementById('openFolderModal');
     const folderModal = document.getElementById('folderModal');

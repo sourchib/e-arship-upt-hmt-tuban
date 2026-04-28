@@ -154,6 +154,10 @@
                                 <i data-lucide="users"></i>
                                 <span>Pengguna</span>
                             </a>
+                            <a href="{{ route('erd') }}" class="nav-btn-header {{ request()->routeIs('erd') ? 'active' : '' }}" title="Entity Relationship Diagram">
+                                <i data-lucide="share-2"></i>
+                                <span>ERD</span>
+                            </a>
                             @endif
                         </div>
                     </div>
