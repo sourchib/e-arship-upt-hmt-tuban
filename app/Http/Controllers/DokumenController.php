@@ -15,16 +15,8 @@ class DokumenController extends Controller
     {
         $query = Dokumen::visible();
 
-        // Folder filtering (File Manager Style)
-        $parentId = $request->get('parent_id');
-        if ($parentId) {
-            $query->where('folder_id', $parentId);
-        } else {
-            // In Root, if not searching and no category filter, only show documents with no folder
-            if (!$request->search && (!$request->filled('kategori') || $request->kategori === 'Semua')) {
-                $query->whereNull('folder_id');
-            }
-        }
+        // Removed root-only filtering logic to show all documents in main view
+
 
         // Sorting
         $sort = $request->get('sort', 'latest');
@@ -229,16 +221,8 @@ class DokumenController extends Controller
             default: $query->orderBy('tanggal', 'desc'); break;
         }
 
-        // Filtering
-        $parentId = $request->get('parent_id');
-        if ($parentId) {
-            $query->where('folder_id', $parentId);
-        } else {
-            // In Root, if not searching and no category filter, only show documents with no folder
-            if (!$request->search && (!$request->filled('kategori') || $request->kategori === 'Semua')) {
-                $query->whereNull('folder_id');
-            }
-        }
+        // Removed root-only filtering logic for print view
+
 
         if ($request->has('kategori') && $request->kategori != 'Semua') {
             $query->where('kategori', $request->kategori);

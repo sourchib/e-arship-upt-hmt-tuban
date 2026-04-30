@@ -45,21 +45,49 @@
                         @enderror
                     </div>
                     <div class="col-md-6">
+                        <label for="penerima" class="form-label fw-medium">Penerima</label>
+                        <input type="text" class="form-control @error('penerima') is-invalid @enderror" id="penerima" name="penerima" value="{{ old('penerima') }}" placeholder="Nama penerima" style="border-radius: 12px; padding: 12px;">
+                        @error('penerima')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
                         <label for="tanggal_surat" class="form-label fw-medium">Tanggal Surat <span class="text-danger">*</span></label>
                         <input type="date" class="form-control @error('tanggal_surat') is-invalid @enderror" id="tanggal_surat" name="tanggal_surat" value="{{ old('tanggal_surat') }}" required style="border-radius: 12px; padding: 12px;">
                         @error('tanggal_surat')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
+                    <div class="col-md-6">
+                        <label for="prioritas" class="form-label fw-medium">Prioritas <span class="text-danger">*</span></label>
+                        <select class="form-select" id="prioritas" name="prioritas" style="border-radius: 12px; padding: 12px;">
+                            <option value="Sedang">Sedang</option>
+                            <option value="Tinggi">Tinggi</option>
+                            <option value="Rendah">Rendah</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="mb-3">
-                    <label for="kategori" class="form-label fw-medium">Kategori <span class="text-danger">*</span></label>
-                    <select class="form-select" id="kategori" name="kategori" style="border-radius: 12px; padding: 12px;">
-                        <option value="Permohonan">Permohonan</option>
-                        <option value="Undangan">Undangan</option>
-                        <option value="Laporan">Laporan</option>
-                        <option value="Lainnya">Lainnya</option>
+                    <label for="disposisi" class="form-label fw-medium">Disposisi</label>
+                    <textarea class="form-control @error('disposisi') is-invalid @enderror" id="disposisi" name="disposisi" rows="2" placeholder="Isi disposisi jika ada" style="border-radius: 12px; padding: 12px;">{{ old('disposisi') }}</textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label for="penerima_disposisi" class="form-label fw-medium">Penerima Disposisi</label>
+                    <input type="text" class="form-control @error('penerima_disposisi') is-invalid @enderror" id="penerima_disposisi" name="penerima_disposisi" value="{{ old('penerima_disposisi') }}" placeholder="Nama penerima disposisi" style="border-radius: 12px; padding: 12px;">
+                </div>
+
+                <div class="mb-3">
+                    <label for="status" class="form-label fw-medium">Status <span class="text-danger">*</span></label>
+                    <select class="form-select" id="status" name="status" style="border-radius: 12px; padding: 12px;">
+                        <option value="Pending">Pending</option>
+                        <option value="Diproses">Diproses</option>
+                        <option value="Terarsip">Terarsip</option>
+                        <option value="Selesai">Selesai</option>
                     </select>
                 </div>
 
@@ -73,10 +101,7 @@
                     @enderror
                 </div>
 
-                <!-- Hidden/Default fields for backend compatibility -->
                 <input type="hidden" name="tanggal_terima" value="{{ date('Y-m-d') }}">
-                <input type="hidden" name="prioritas" value="Sedang">
-                <input type="hidden" name="status" value="Pending">
 
                 <div class="d-flex gap-3">
                     <button type="submit" class="btn flex-grow-1 fw-bold py-3" style="background-color: #00C853; color: white; border-radius: 12px; border: none;">

@@ -157,4 +157,21 @@ class SuratKeluarController extends Controller
 
         return redirect()->route('surat-keluar.index')->with('success', 'Surat keluar berhasil dikirim.');
     }
+
+    public function print(Request $request)
+    {
+        $query = SuratKeluar::query();
+
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('nomor_surat', 'like', "%{$search}%")
+                  ->orWhere('perihal', 'like', "%{$search}%")
+                  ->orWhere('tujuan', 'like', "%{$search}%");
+            });
+        }
+
+        $suratKeluar = $query->latest()->get();
+        return view('surat_keluar.print', compact('suratKeluar'));
+    }
 }

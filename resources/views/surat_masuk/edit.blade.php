@@ -29,11 +29,18 @@
                         @enderror
                     </div>
 
-                    <!-- Pengirim -->
+                    <!-- Pengirim & Penerima -->
                     <div class="col-md-6">
                         <label for="pengirim" class="form-label fw-semibold">Pengirim</label>
                         <input type="text" class="form-control @error('pengirim') is-invalid @enderror" id="pengirim" name="pengirim" value="{{ old('pengirim', $suratMasuk->pengirim) }}" required style="border-radius: 10px; padding: 12px;">
                         @error('pengirim')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="col-md-6">
+                        <label for="penerima" class="form-label fw-semibold">Penerima</label>
+                        <input type="text" class="form-control @error('penerima') is-invalid @enderror" id="penerima" name="penerima" value="{{ old('penerima', $suratMasuk->penerima) }}" style="border-radius: 10px; padding: 12px;">
+                        @error('penerima')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
@@ -78,6 +85,24 @@
                         @enderror
                     </div>
 
+                    <!-- Disposisi -->
+                    <div class="col-12">
+                        <label for="disposisi" class="form-label fw-semibold">Disposisi</label>
+                        <textarea class="form-control @error('disposisi') is-invalid @enderror" id="disposisi" name="disposisi" rows="2" style="border-radius: 10px; padding: 12px;">{{ old('disposisi', $suratMasuk->disposisi) }}</textarea>
+                        @error('disposisi')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <!-- Penerima Disposisi -->
+                    <div class="col-md-6">
+                        <label for="penerima_disposisi" class="form-label fw-semibold">Penerima Disposisi</label>
+                        <input type="text" class="form-control @error('penerima_disposisi') is-invalid @enderror" id="penerima_disposisi" name="penerima_disposisi" value="{{ old('penerima_disposisi', $suratMasuk->penerima_disposisi) }}" style="border-radius: 10px; padding: 12px;">
+                        @error('penerima_disposisi')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
                     <!-- Status -->
                     <div class="col-md-6">
                         <label for="status" class="form-label fw-semibold">Status</label>
@@ -85,6 +110,7 @@
                             <option value="Pending" {{ old('status', $suratMasuk->status) == 'Pending' ? 'selected' : '' }}>Pending</option>
                             <option value="Diproses" {{ old('status', $suratMasuk->status) == 'Diproses' ? 'selected' : '' }}>Diproses</option>
                             <option value="Terarsip" {{ old('status', $suratMasuk->status) == 'Terarsip' ? 'selected' : '' }}>Terarsip</option>
+                            <option value="Selesai" {{ old('status', $suratMasuk->status) == 'Selesai' ? 'selected' : '' }}>Selesai</option>
                         </select>
                         @error('status')
                             <div class="invalid-feedback">{{ $message }}</div>

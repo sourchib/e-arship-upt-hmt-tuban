@@ -11,6 +11,10 @@
         <p>Kelola surat masuk dan disposisi</p>
     </div>
     <div class="page-header-actions">
+        <a href="{{ route('surat-masuk.print') }}" target="_blank" class="btn btn-outline-secondary me-2">
+            <i data-lucide="printer" style="width:16px;height:16px;"></i>
+            Cetak Laporan
+        </a>
         @if(Auth::check() && Auth::user()->role === 'Admin')
         <button type="button" class="btn btn-primary" id="openCreateModal">
             <i data-lucide="plus" style="width:16px;height:16px;"></i>
@@ -84,11 +88,38 @@
                         @error('pengirim')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="form-group">
+                        <label class="form-label">Penerima</label>
+                        <input type="text" class="form-control @error('penerima') is-invalid @enderror"
+                               name="penerima" value="{{ old('penerima') }}"
+                               placeholder="Nama penerima">
+                    </div>
+                </div>
+
+                <div class="form-row-2">
+                    <div class="form-group">
                         <label class="form-label">Tanggal Surat <span style="color:#dc2626">*</span></label>
                         <input type="date" class="form-control @error('tanggal_surat') is-invalid @enderror"
                                name="tanggal_surat" value="{{ old('tanggal_surat') }}" required>
                         @error('tanggal_surat')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
+                    <div class="form-group">
+                        <label class="form-label">Prioritas <span style="color:#dc2626">*</span></label>
+                        <select class="form-control" name="prioritas">
+                            <option value="Sedang">Sedang</option>
+                            <option value="Tinggi">Tinggi</option>
+                            <option value="Rendah">Rendah</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Disposisi</label>
+                    <textarea class="form-control" name="disposisi" rows="2" placeholder="Isi disposisi jika ada"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Penerima Disposisi</label>
+                    <input type="text" class="form-control" name="penerima_disposisi" placeholder="Nama penerima disposisi">
                 </div>
 
                 <div class="form-row-2">
@@ -110,7 +141,6 @@
                 </div>
 
                 <input type="hidden" name="tanggal_terima" value="{{ date('Y-m-d') }}">
-                <input type="hidden" name="prioritas" value="Sedang">
                 <input type="hidden" name="status" value="Pending">
 
                 <div class="modal-footer-btns">
@@ -222,9 +252,34 @@
                         <input type="text" class="form-control" name="pengirim" id="editPengirimInput" required>
                     </div>
                     <div class="form-group">
+                        <label class="form-label">Penerima</label>
+                        <input type="text" class="form-control" name="penerima" id="editPenerimaInput">
+                    </div>
+                </div>
+
+                <div class="form-row-2">
+                    <div class="form-group">
                         <label class="form-label">Tanggal Surat <span style="color:#dc2626">*</span></label>
                         <input type="date" class="form-control" name="tanggal_surat" id="editTanggalSurat" required>
                     </div>
+                    <div class="form-group">
+                        <label class="form-label">Prioritas <span style="color:#dc2626">*</span></label>
+                        <select class="form-control" name="prioritas" id="editPrioritasSelect">
+                            <option value="Sedang">Sedang</option>
+                            <option value="Tinggi">Tinggi</option>
+                            <option value="Rendah">Rendah</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Disposisi</label>
+                    <textarea class="form-control" name="disposisi" id="editDisposisiInput" rows="2"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Penerima Disposisi</label>
+                    <input type="text" class="form-control" name="penerima_disposisi" id="editPenerimaDisposisiInput">
                 </div>
 
                 <div class="form-row-2">
@@ -254,7 +309,6 @@
                 </div>
 
                 <input type="hidden" name="tanggal_terima" id="editTanggalTerima">
-                <input type="hidden" name="prioritas" id="editPrioritas">
 
                 <div class="modal-footer-btns">
                     <button type="submit" class="btn-save-modal">Simpan Perubahan</button>
@@ -381,11 +435,14 @@
                 document.getElementById('editNomorSurat').value     = this.dataset.nomor;
                 document.getElementById('editPerihalInput').value   = this.dataset.perihal;
                 document.getElementById('editPengirimInput').value  = this.dataset.pengirim;
+                document.getElementById('editPenerimaInput').value  = this.dataset.penerima;
                 document.getElementById('editTanggalSurat').value   = this.dataset.tanggal;
                 document.getElementById('editKategoriSelect').value = this.dataset.kategori;
                 document.getElementById('editStatusSelect').value   = this.dataset.status;
                 document.getElementById('editTanggalTerima').value  = this.dataset.tanggalTerima;
-                document.getElementById('editPrioritas').value      = this.dataset.prioritas;
+                document.getElementById('editPrioritasSelect').value = this.dataset.prioritas;
+                document.getElementById('editDisposisiInput').value = this.dataset.disposisi;
+                document.getElementById('editPenerimaDisposisiInput').value = this.dataset.penerimaDisposisi;
                 editForm.action = this.dataset.url;
                 toggleEditModal();
             });

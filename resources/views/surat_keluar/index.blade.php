@@ -11,6 +11,10 @@
         <p>Kelola surat keluar dan pengiriman</p>
     </div>
     <div class="page-header-actions">
+        <a href="{{ route('surat-keluar.print') }}" target="_blank" class="btn btn-outline-secondary me-2">
+            <i data-lucide="printer" style="width:16px;height:16px;"></i>
+            Cetak Laporan
+        </a>
         @if(Auth::check() && Auth::user()->role === 'Admin')
         <button type="button" class="btn btn-primary" id="openCreateModal">
             <i data-lucide="plus" style="width:16px;height:16px;"></i>

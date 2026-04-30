@@ -34,7 +34,9 @@ Route::get('/erd', function () {
 
 // Index-only public routes for resources
 Route::get('surat-masuk', [\App\Http\Controllers\SuratMasukController::class, 'index'])->name('surat-masuk.index');
+Route::get('surat-masuk/print', [\App\Http\Controllers\SuratMasukController::class, 'print'])->name('surat-masuk.print');
 Route::get('surat-keluar', [\App\Http\Controllers\SuratKeluarController::class, 'index'])->name('surat-keluar.index');
+Route::get('surat-keluar/print', [\App\Http\Controllers\SuratKeluarController::class, 'print'])->name('surat-keluar.print');
 Route::get('arsip-pembibitan', [\App\Http\Controllers\ArsipPembibitanController::class, 'index'])->name('arsip-pembibitan.index');
 Route::get('arsip-hijauan', [\App\Http\Controllers\ArsipHijauanController::class, 'index'])->name('arsip-hijauan.index');
 Route::get('dokumen', [\App\Http\Controllers\DokumenController::class, 'index'])->name('dokumen.index');
