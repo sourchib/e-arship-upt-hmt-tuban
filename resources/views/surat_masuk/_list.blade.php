@@ -12,7 +12,8 @@
                     <th>Nomor Surat</th>
                     <th>Perihal</th>
                     <th>Pengirim</th>
-                    <th>Tanggal</th>
+                    <th>Tanggal Surat</th>
+                    <th>Tanggal Terima</th>
                     <th>Status</th>
                     <th style="text-align:center;">Aksi</th>
                 </tr>
@@ -37,6 +38,12 @@
                         </span>
                     </td>
                     <td>
+                        <span style="color:#64748b;font-size:13px;display:flex;align-items:center;gap:6px;">
+                            <i data-lucide="calendar-check" style="width:14px;height:14px;color:#94a3b8;"></i>
+                            {{ $surat->tanggal_terima->format('d/m/Y') }}
+                        </span>
+                    </td>
+                    <td>
                         @php
                             $sc = 'bg-pending';
                             if($surat->status == 'Diproses') $sc = 'bg-diproses';
@@ -54,7 +61,8 @@
                                     data-penerima="{{ $surat->penerima }}"
                                     data-disposisi="{{ $surat->disposisi }}"
                                     data-penerima-disposisi="{{ $surat->penerima_disposisi }}"
-                                    data-tanggal="{{ $surat->tanggal_surat->format('d/m/Y') }}"
+                                    data-tanggal-surat="{{ $surat->tanggal_surat->format('d/m/Y') }}"
+                                    data-tanggal-terima="{{ $surat->tanggal_terima->format('d/m/Y') }}"
                                     data-kategori="{{ $surat->kategori }}"
                                     data-status="{{ $surat->status }}"
                                     data-status-class="{{ $sc }}"
@@ -138,8 +146,12 @@
                 <div class="mobile-card-value" style="font-size:12px;">{{ $surat->pengirim }}</div>
             </div>
             <div>
-                <div class="mobile-card-label">Tanggal</div>
+                <div class="mobile-card-label">Tgl Surat</div>
                 <div class="mobile-card-value" style="font-size:12px;">{{ $surat->tanggal_surat->format('d/m/Y') }}</div>
+            </div>
+            <div>
+                <div class="mobile-card-label">Tgl Terima</div>
+                <div class="mobile-card-value" style="font-size:12px;">{{ $surat->tanggal_terima->format('d/m/Y') }}</div>
             </div>
         </div>
         <div class="mobile-card-footer">
@@ -151,7 +163,8 @@
                         data-penerima="{{ $surat->penerima }}"
                         data-disposisi="{{ $surat->disposisi }}"
                         data-penerima-disposisi="{{ $surat->penerima_disposisi }}"
-                        data-tanggal="{{ $surat->tanggal_surat->format('d/m/Y') }}"
+                        data-tanggal-surat="{{ $surat->tanggal_surat->format('d/m/Y') }}"
+                        data-tanggal-terima="{{ $surat->tanggal_terima->format('d/m/Y') }}"
                         data-kategori="{{ $surat->kategori }}"
                         data-status="{{ $surat->status }}"
                         data-status-class="{{ $sc }}"

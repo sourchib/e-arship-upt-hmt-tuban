@@ -84,15 +84,19 @@
                                placeholder="Nama tujuan/penerima" required>
                         @error('tujuan')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
+                </div>
+                <div class="form-row-3">
                     <div class="form-group">
-                        <label class="form-label">Tanggal Surat <span style="color:#dc2626">*</span></label>
+                        <label class="form-label">Tgl Surat <span style="color:#dc2626">*</span></label>
                         <input type="date" class="form-control @error('tanggal_surat') is-invalid @enderror"
                                name="tanggal_surat" value="{{ old('tanggal_surat') }}" required>
                         @error('tanggal_surat')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
-                </div>
-
-                <div class="form-row-2">
+                    <div class="form-group">
+                        <label class="form-label">Tgl Kirim</label>
+                        <input type="date" class="form-control @error('tanggal_kirim') is-invalid @enderror"
+                               name="tanggal_kirim" value="{{ old('tanggal_kirim') }}">
+                    </div>
                     <div class="form-group">
                         <label class="form-label">Prioritas <span style="color:#dc2626">*</span></label>
                         <select class="form-control @error('prioritas') is-invalid @enderror" name="prioritas" required>
@@ -101,6 +105,7 @@
                             <option value="Rendah">Rendah</option>
                         </select>
                     </div>
+                </div>
                     <div class="form-group">
                         <label class="form-label">Upload File (PDF) <span style="color:#dc2626">*</span></label>
                         <input type="file" class="form-control @error('file') is-invalid @enderror" name="file" required>
@@ -144,9 +149,16 @@
                 <div class="detail-item">
                     <div class="detail-label-modern">
                         <i data-lucide="calendar" style="color: #22c55e;"></i>
-                        Tanggal
+                        Tgl Surat
                     </div>
-                    <div class="detail-value-modern" id="detailTanggal"></div>
+                    <div class="detail-value-modern" id="detailTanggalSurat"></div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label-modern">
+                        <i data-lucide="send" style="color: #3b82f6;"></i>
+                        Tgl Kirim
+                    </div>
+                    <div class="detail-value-modern" id="detailTanggalKirim"></div>
                 </div>
             </div>
 
@@ -217,13 +229,16 @@
                         <label class="form-label">Tujuan <span style="color:#dc2626">*</span></label>
                         <input type="text" class="form-control" name="tujuan" id="editTujuanInput" required>
                     </div>
+                </div>
+                <div class="form-row-3">
                     <div class="form-group">
-                        <label class="form-label">Tanggal Surat <span style="color:#dc2626">*</span></label>
+                        <label class="form-label">Tgl Surat <span style="color:#dc2626">*</span></label>
                         <input type="date" class="form-control" name="tanggal_surat" id="editTanggalSurat" required>
                     </div>
-                </div>
-
-                <div class="form-row-2">
+                    <div class="form-group">
+                        <label class="form-label">Tgl Kirim</label>
+                        <input type="date" class="form-control" name="tanggal_kirim" id="editTanggalKirimInput">
+                    </div>
                     <div class="form-group">
                         <label class="form-label">Prioritas <span style="color:#dc2626">*</span></label>
                         <select class="form-control" name="prioritas" id="editPrioritasSelect">
@@ -232,6 +247,7 @@
                             <option value="Rendah">Rendah</option>
                         </select>
                     </div>
+                </div>
                     <div class="form-group">
                         <label class="form-label">Ganti File (PDF) <small class="text-muted">(Opsional)</small></label>
                         <input type="file" class="form-control" name="file">
@@ -250,8 +266,13 @@
 <style>
     .detail-row-modern {
         display: grid;
-        grid-template-columns: 1.2fr 0.8fr;
+        grid-template-columns: 1fr 1fr;
         gap: 16px;
+    }
+    .form-row-3 {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 12px;
     }
     .detail-label-modern {
         font-size: 13px;
@@ -346,7 +367,8 @@
                 document.getElementById('detailNomor').innerText    = this.dataset.nomor;
                 document.getElementById('detailPerihal').innerText  = this.dataset.perihal;
                 document.getElementById('detailTujuan').innerText   = this.dataset.tujuan;
-                document.getElementById('detailTanggal').innerText  = this.dataset.tanggal;
+                document.getElementById('detailTanggalSurat').innerText = this.dataset.tanggalSurat;
+                document.getElementById('detailTanggalKirim').innerText = this.dataset.tanggalKirim;
                 document.getElementById('detailPrioritas').innerText = this.dataset.prioritas;
                 const statusEl = document.getElementById('detailStatus');
                 statusEl.innerHTML = `<span class="status-badge ${this.dataset.statusClass}">${this.dataset.status}</span>`;
@@ -361,6 +383,7 @@
                 document.getElementById('editPerihalInput').value   = this.dataset.perihal;
                 document.getElementById('editTujuanInput').value    = this.dataset.tujuan;
                 document.getElementById('editTanggalSurat').value   = this.dataset.tanggal;
+                document.getElementById('editTanggalKirimInput').value = this.dataset.tanggalKirim;
                 document.getElementById('editPrioritasSelect').value = this.dataset.prioritas;
                 editForm.action = this.dataset.url;
                 toggleEditModal();

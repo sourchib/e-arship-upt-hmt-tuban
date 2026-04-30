@@ -103,6 +103,15 @@
                         @error('tanggal_surat')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="form-group">
+                        <label class="form-label">Tanggal Terima <span style="color:#dc2626">*</span></label>
+                        <input type="date" class="form-control @error('tanggal_terima') is-invalid @enderror"
+                               name="tanggal_terima" value="{{ old('tanggal_terima', date('Y-m-d')) }}" required>
+                        @error('tanggal_terima')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+                </div>
+
+                <div class="form-row-2">
+                    <div class="form-group">
                         <label class="form-label">Prioritas <span style="color:#dc2626">*</span></label>
                         <select class="form-control" name="prioritas">
                             <option value="Sedang">Sedang</option>
@@ -110,7 +119,6 @@
                             <option value="Rendah">Rendah</option>
                         </select>
                     </div>
-                </div>
 
                 <div class="form-group">
                     <label class="form-label">Disposisi</label>
@@ -140,7 +148,7 @@
                     </div>
                 </div>
 
-                <input type="hidden" name="tanggal_terima" value="{{ date('Y-m-d') }}">
+
                 <input type="hidden" name="status" value="Pending">
 
                 <div class="modal-footer-btns">
@@ -178,9 +186,16 @@
                 <div class="detail-item">
                     <div class="detail-label-modern">
                         <i data-lucide="calendar" style="color: #22c55e;"></i>
-                        Tanggal
+                        Tgl Surat
                     </div>
-                    <div class="detail-value-modern" id="detailTanggal"></div>
+                    <div class="detail-value-modern" id="detailTanggalSurat"></div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label-modern">
+                        <i data-lucide="calendar-check" style="color: #3b82f6;"></i>
+                        Tgl Terima
+                    </div>
+                    <div class="detail-value-modern" id="detailTanggalTerima"></div>
                 </div>
             </div>
 
@@ -257,10 +272,14 @@
                     </div>
                 </div>
 
-                <div class="form-row-2">
+                <div class="form-row-3">
                     <div class="form-group">
-                        <label class="form-label">Tanggal Surat <span style="color:#dc2626">*</span></label>
+                        <label class="form-label">Tgl Surat <span style="color:#dc2626">*</span></label>
                         <input type="date" class="form-control" name="tanggal_surat" id="editTanggalSurat" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Tgl Terima <span style="color:#dc2626">*</span></label>
+                        <input type="date" class="form-control" name="tanggal_terima" id="editTanggalTerimaInput" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Prioritas <span style="color:#dc2626">*</span></label>
@@ -308,7 +327,7 @@
                     <input type="file" class="form-control" name="file">
                 </div>
 
-                <input type="hidden" name="tanggal_terima" id="editTanggalTerima">
+
 
                 <div class="modal-footer-btns">
                     <button type="submit" class="btn-save-modal">Simpan Perubahan</button>
@@ -323,8 +342,13 @@
 <style>
     .detail-row-modern {
         display: grid;
-        grid-template-columns: 1.2fr 0.8fr;
+        grid-template-columns: 1fr 1fr;
         gap: 16px;
+    }
+    .form-row-3 {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 12px;
     }
     .detail-label-modern {
         font-size: 13px;
@@ -421,7 +445,8 @@
                 document.getElementById('detailNomor').innerText    = this.dataset.nomor;
                 document.getElementById('detailPerihal').innerText  = this.dataset.perihal;
                 document.getElementById('detailPengirim').innerText = this.dataset.pengirim;
-                document.getElementById('detailTanggal').innerText  = this.dataset.tanggal;
+                document.getElementById('detailTanggalSurat').innerText = this.dataset.tanggalSurat;
+                document.getElementById('detailTanggalTerima').innerText = this.dataset.tanggalTerima;
                 document.getElementById('detailKategori').innerText = this.dataset.kategori;
                 const statusEl = document.getElementById('detailStatus');
                 statusEl.innerHTML = `<span class="status-badge ${this.dataset.statusClass}">${this.dataset.status}</span>`;
@@ -439,7 +464,7 @@
                 document.getElementById('editTanggalSurat').value   = this.dataset.tanggal;
                 document.getElementById('editKategoriSelect').value = this.dataset.kategori;
                 document.getElementById('editStatusSelect').value   = this.dataset.status;
-                document.getElementById('editTanggalTerima').value  = this.dataset.tanggalTerima;
+                document.getElementById('editTanggalTerimaInput').value = this.dataset.tanggalTerima;
                 document.getElementById('editPrioritasSelect').value = this.dataset.prioritas;
                 document.getElementById('editDisposisiInput').value = this.dataset.disposisi;
                 document.getElementById('editPenerimaDisposisiInput').value = this.dataset.penerimaDisposisi;

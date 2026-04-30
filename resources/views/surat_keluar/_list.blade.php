@@ -12,7 +12,8 @@
                     <th>Nomor Surat</th>
                     <th>Perihal</th>
                     <th>Tujuan</th>
-                    <th>Tanggal</th>
+                    <th>Tgl Surat</th>
+                    <th>Tgl Kirim</th>
                     <th>Status</th>
                     <th style="text-align:center;">Aksi</th>
                 </tr>
@@ -31,6 +32,12 @@
                         </span>
                     </td>
                     <td>
+                        <span style="color:#64748b;font-size:13px;display:flex;align-items:center;gap:6px;">
+                            <i data-lucide="send" style="width:14px;height:14px;color:#94a3b8;"></i>
+                            {{ $surat->tanggal_kirim ? $surat->tanggal_kirim->format('d/m/Y') : '-' }}
+                        </span>
+                    </td>
+                    <td>
                         @php
                             $sc = 'bg-terarsip'; // Draft
                             if($surat->status == 'Terkirim') $sc = 'bg-terkirim';
@@ -43,7 +50,8 @@
                                     data-nomor="{{ $surat->nomor_surat }}"
                                     data-perihal="{{ $surat->perihal }}"
                                     data-tujuan="{{ $surat->tujuan }}"
-                                    data-tanggal="{{ $surat->tanggal_surat->format('d/m/Y') }}"
+                                    data-tanggal-surat="{{ $surat->tanggal_surat->format('d/m/Y') }}"
+                                    data-tanggal-kirim="{{ $surat->tanggal_kirim ? $surat->tanggal_kirim->format('d/m/Y') : '-' }}"
                                     data-prioritas="{{ $surat->prioritas }}"
                                     data-status="{{ $surat->status }}"
                                     data-status-class="{{ $sc }}"
@@ -60,6 +68,7 @@
                                         data-perihal="{{ $surat->perihal }}"
                                         data-tujuan="{{ $surat->tujuan }}"
                                         data-tanggal="{{ $surat->tanggal_surat->format('Y-m-d') }}"
+                                        data-tanggal-kirim="{{ $surat->tanggal_kirim ? $surat->tanggal_kirim->format('Y-m-d') : '' }}"
                                         data-prioritas="{{ $surat->prioritas }}"
                                         data-url="{{ route('surat-keluar.update', $surat->id) }}"
                                         title="Edit">
@@ -114,8 +123,12 @@
                 <div class="mobile-card-value" style="font-size:12px;">{{ $surat->tujuan }}</div>
             </div>
             <div>
-                <div class="mobile-card-label">Tanggal</div>
+                <div class="mobile-card-label">Tgl Surat</div>
                 <div class="mobile-card-value" style="font-size:12px;">{{ $surat->tanggal_surat->format('d/m/Y') }}</div>
+            </div>
+            <div>
+                <div class="mobile-card-label">Tgl Kirim</div>
+                <div class="mobile-card-value" style="font-size:12px;">{{ $surat->tanggal_kirim ? $surat->tanggal_kirim->format('d/m/Y') : '-' }}</div>
             </div>
         </div>
         <div class="mobile-card-footer">
@@ -124,7 +137,8 @@
                         data-nomor="{{ $surat->nomor_surat }}"
                         data-perihal="{{ $surat->perihal }}"
                         data-tujuan="{{ $surat->tujuan }}"
-                        data-tanggal="{{ $surat->tanggal_surat->format('d/m/Y') }}"
+                        data-tanggal-surat="{{ $surat->tanggal_surat->format('d/m/Y') }}"
+                        data-tanggal-kirim="{{ $surat->tanggal_kirim ? $surat->tanggal_kirim->format('d/m/Y') : '-' }}"
                         data-prioritas="{{ $surat->prioritas }}"
                         data-status="{{ $surat->status }}"
                         data-status-class="{{ $sc }}"
@@ -139,6 +153,7 @@
                             data-perihal="{{ $surat->perihal }}"
                             data-tujuan="{{ $surat->tujuan }}"
                             data-tanggal="{{ $surat->tanggal_surat->format('Y-m-d') }}"
+                            data-tanggal-kirim="{{ $surat->tanggal_kirim ? $surat->tanggal_kirim->format('Y-m-d') : '' }}"
                             data-prioritas="{{ $surat->prioritas }}"
                             data-url="{{ route('surat-keluar.update', $surat->id) }}"
                             title="Edit">
