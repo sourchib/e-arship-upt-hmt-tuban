@@ -15,35 +15,37 @@
             </tr>
         </thead>
         <tbody style="font-size: 13px;">
-            {{-- Show Folders First --}}
-            @foreach($allFolders ?? [] as $f)
-            <tr class="dash-folder-row" data-id="{{ $f->id }}" style="border-bottom: 1px solid #f1f5f9; background: #fffcf0; transition: background 0.2s; cursor: pointer;">
-                <td style="padding: 16px 16px; color: #94a3b8; font-weight: 600;">-</td>
-                <td class="hide-mobile" style="padding: 16px 16px;">-</td>
-                <td style="padding: 16px 16px;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <div style="width: 32px; height: 32px; background: #fef3c7; color: #d97706; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                            <i data-lucide="folder" style="width: 18px; height: 18px;"></i>
+            {{-- Show Folders only on the first page --}}
+            @if($docsTerbaru->onFirstPage())
+                @foreach($allFolders ?? [] as $f)
+                <tr class="dash-folder-row" data-id="{{ $f->id }}" style="border-bottom: 1px solid #f1f5f9; background: #fffcf0; transition: background 0.2s; cursor: pointer;">
+                    <td style="padding: 16px 16px; color: #94a3b8; font-weight: 600;">-</td>
+                    <td class="hide-mobile" style="padding: 16px 16px;">-</td>
+                    <td style="padding: 16px 16px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 32px; height: 32px; background: #fef3c7; color: #d97706; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                <i data-lucide="folder" style="width: 18px; height: 18px;"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight: 700; color: #1e293b;">{{ $f->nama }}</div>
+                                <div style="font-size: 11px; color: #94a3b8;">{{ $f->dokumen_count ?? $f->dokumen()->count() }} Item</div>
+                            </div>
                         </div>
-                        <div>
-                            <div style="font-weight: 700; color: #1e293b;">{{ $f->nama }}</div>
-                            <div style="font-size: 11px; color: #94a3b8;">{{ $f->dokumen_count ?? $f->dokumen()->count() }} Item</div>
-                        </div>
-                    </div>
-                </td>
-                <td style="padding: 16px 16px;">
-                    <span style="padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0;">
-                        Folder
-                    </span>
-                </td>
-                <td class="hide-mobile" style="padding: 16px 16px;">-</td>
-                <td style="padding: 16px 16px;">-</td>
-                <td class="hide-mobile" style="padding: 16px 16px;">-</td>
-                <td class="hide-mobile" style="padding: 16px 16px;">-</td>
-                <td style="padding: 16px 16px; color: #64748b;">{{ $f->created_at->format('d/m/Y') }}</td>
-                <td style="padding: 16px 16px; text-align: right;">-</td>
-            </tr>
-            @endforeach
+                    </td>
+                    <td style="padding: 16px 16px;">
+                        <span style="padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0;">
+                            Folder
+                        </span>
+                    </td>
+                    <td class="hide-mobile" style="padding: 16px 16px;">-</td>
+                    <td style="padding: 16px 16px;">-</td>
+                    <td class="hide-mobile" style="padding: 16px 16px;">-</td>
+                    <td class="hide-mobile" style="padding: 16px 16px;">-</td>
+                    <td style="padding: 16px 16px; color: #64748b;">{{ $f->created_at->format('d/m/Y') }}</td>
+                    <td style="padding: 16px 16px; text-align: right;">-</td>
+                </tr>
+                @endforeach
+            @endif
 
             @forelse($docsTerbaru as $index => $item)
             <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.2s;">

@@ -18,46 +18,48 @@
                 </tr>
             </thead>
             <tbody style="font-size: 13.5px; color: #1e293b;" id="docsTableBody">
-                {{-- Show Folders First --}}
-                @foreach($allFolders ?? [] as $f)
-                <tr class="folder-row" data-id="{{ $f->id }}" style="border-bottom: 1px solid #f1f5f9; background: #fffcf0; transition: background 0.2s; cursor: pointer;">
-                    <td style="padding: 14px 16px; text-align: center;">
-                        <input type="checkbox" class="folder-checkbox" data-id="{{ $f->id }}">
-                    </td>
-                    <td class="hide-mobile" style="padding: 14px 16px;">-</td>
-                    <td style="padding: 14px 16px;">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <div style="width: 36px; height: 36px; background: #fef3c7; color: #d97706; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                                <i data-lucide="folder" style="width: 20px; height: 20px;"></i>
+                {{-- Show Folders only on the first page --}}
+                @if($documents->onFirstPage())
+                    @foreach($allFolders ?? [] as $f)
+                    <tr class="folder-row" data-id="{{ $f->id }}" style="border-bottom: 1px solid #f1f5f9; background: #fffcf0; transition: background 0.2s; cursor: pointer;">
+                        <td style="padding: 14px 16px; text-align: center;">
+                            <input type="checkbox" class="folder-checkbox" data-id="{{ $f->id }}">
+                        </td>
+                        <td class="hide-mobile" style="padding: 14px 16px;">-</td>
+                        <td style="padding: 14px 16px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="width: 36px; height: 36px; background: #fef3c7; color: #d97706; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                    <i data-lucide="folder" style="width: 20px; height: 20px;"></i>
+                                </div>
+                                <div>
+                                    <div style="font-weight: 800; color: #1e293b;">{{ $f->nama }}</div>
+                                    <div style="font-size: 11px; color: #94a3b8;">{{ $f->dokumen_count ?? $f->dokumen()->count() }} Item</div>
+                                </div>
                             </div>
-                            <div>
-                                <div style="font-weight: 800; color: #1e293b;">{{ $f->nama }}</div>
-                                <div style="font-size: 11px; color: #94a3b8;">{{ $f->dokumen_count ?? $f->dokumen()->count() }} Item</div>
+                        </td>
+                        <td style="padding: 14px 16px;">
+                            <span style="padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0;">
+                                Folder
+                            </span>
+                        </td>
+                        <td class="hide-mobile" style="padding: 14px 16px;">-</td>
+                        <td style="padding: 14px 16px;">-</td>
+                        <td class="hide-mobile" style="padding: 14px 16px;">-</td>
+                        <td class="hide-mobile" style="padding: 14px 16px;">-</td>
+                        <td style="padding: 14px 16px; color: #64748b;">{{ $f->created_at->format('d/m/Y') }}</td>
+                        <td style="padding: 14px 16px; text-align: right;">
+                            <div style="display: flex; justify-content: flex-end; gap: 8px;">
+                                <button type="button" class="action-btn-table edit btn-rename-folder" data-id="{{ $f->id }}" data-nama="{{ $f->nama }}" title="Rename">
+                                    <i data-lucide="edit-2"></i>
+                                </button>
+                                <button type="button" class="action-btn-table delete btn-delete-folder" data-id="{{ $f->id }}" title="Hapus">
+                                    <i data-lucide="trash-2"></i>
+                                </button>
                             </div>
-                        </div>
-                    </td>
-                    <td style="padding: 14px 16px;">
-                        <span style="padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0;">
-                            Folder
-                        </span>
-                    </td>
-                    <td class="hide-mobile" style="padding: 14px 16px;">-</td>
-                    <td style="padding: 14px 16px;">-</td>
-                    <td class="hide-mobile" style="padding: 14px 16px;">-</td>
-                    <td class="hide-mobile" style="padding: 14px 16px;">-</td>
-                    <td style="padding: 14px 16px; color: #64748b;">{{ $f->created_at->format('d/m/Y') }}</td>
-                    <td style="padding: 14px 16px; text-align: right;">
-                        <div style="display: flex; justify-content: flex-end; gap: 8px;">
-                            <button type="button" class="action-btn-table edit btn-rename-folder" data-id="{{ $f->id }}" data-nama="{{ $f->nama }}" title="Rename">
-                                <i data-lucide="edit-2"></i>
-                            </button>
-                            <button type="button" class="action-btn-table delete btn-delete-folder" data-id="{{ $f->id }}" title="Hapus">
-                                <i data-lucide="trash-2"></i>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-                @endforeach
+                        </td>
+                    </tr>
+                    @endforeach
+                @endif
 
                 {{-- Show Documents --}}
                 @forelse($documents as $index => $doc)

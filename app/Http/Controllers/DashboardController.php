@@ -109,18 +109,26 @@ class DashboardController extends Controller
         }
 
         $query = Dokumen::visible();
+
+        // Date Filter Logic
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('tanggal', [$request->start_date, $request->end_date]);
+        }
+
         if ($request->filled('kategori') && $request->kategori !== 'Semua') {
             $query->where('kategori', $request->kategori);
         }
 
         // Apply folder filter
-        if ($parentId) {
-            $query->where('folder_id', $parentId);
+        if ($request->filled('search') || ($request->filled('start_date') && $request->filled('end_date'))) {
+            // Global search or Global date filtering: allow finding documents across all folders
         } else {
-            // Only show root documents if no search
-            // Only show root documents if no search and no category filter
-            if (!$request->search && (!$request->filled('kategori') || $request->kategori === 'Semua')) {
-                $query->whereNull('folder_id');
+            // Regular view or category filtering: constrain to current folder
+            $query->where('folder_id', $parentId);
+            
+            // If at root level (Utama) and no filters are active, hide all documents
+            if (!$parentId && (!$request->filled('kategori') || $request->kategori === 'Semua')) {
+                $query->where('id', 0); 
             }
         }
 
@@ -222,7 +230,9 @@ class DashboardController extends Controller
                 'breadcrumbs' => $breadcrumbs,
                 'parentId' => $parentId,
                 'totalDokumen' => $totalDokumen,
-                'categories' => $categories
+                'categories' => $categories,
+                'start_date' => $request->start_date,
+                'end_date' => $request->end_date
             ]);
         }
 

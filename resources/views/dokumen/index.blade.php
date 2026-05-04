@@ -17,6 +17,10 @@
                 <input type="text" id="searchInput" name="search" value="{{ request()->search }}" placeholder="Cari dokumen..." style="padding: 10px 16px 10px 42px; border-radius: 12px; height: 44px;">
             </div>
 
+            <button type="button" id="mainDateFilterBtn" title="Filter Tanggal" style="background: #fff; border: 1.5px solid #e2e8f0; width: 44px; height: 44px; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 12px; color: #64748b;">
+                <i data-lucide="calendar" style="width:20px;height:20px;"></i>
+            </button>
+
             <div class="sort-dropdown">
                 <button type="button" class="btn-sort" id="mainFilterBtn" title="Urutkan & Filter" style="background: #fff; border: 1.5px solid #e2e8f0; width: 44px; height: 44px; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 12px; color: #64748b;">
                     <i data-lucide="filter" style="width:20px;height:20px;"></i>
@@ -34,6 +38,11 @@
                             <span style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase;">Aksi Cepat</span>
                             <span id="resetFilter" style="font-size: 11px; color: #ef4444; font-weight: 700; cursor: pointer;">Reset Semua</span>
                         </div>
+
+                        <button type="button" id="sidebarDateFilterBtn" style="width: 100%; display: flex; align-items: center; gap: 8px; padding: 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; color: #475569; font-size: 13px; font-weight: 600; cursor: pointer; margin-bottom: 20px;">
+                            <i data-lucide="calendar" style="width: 18px; height: 18px; color: #16a34a;"></i>
+                            Filter Berdasarkan Tanggal
+                        </button>
 
                         <div class="filter-section">
                             <label class="filter-label">Urutkan Berdasarkan</label>
@@ -86,6 +95,8 @@
             <input type="hidden" id="kategoriInput" name="kategori" value="{{ request('kategori', 'Semua') }}">
             <input type="hidden" id="folderFilterInput" name="folder_id" value="{{ request('folder_id') }}">
             <input type="hidden" id="parentIdInput" name="parent_id" value="{{ request('parent_id') }}">
+            <input type="hidden" id="startDateInput" value="{{ request('start_date') }}">
+            <input type="hidden" id="endDateInput" value="{{ request('end_date') }}">
 
             @auth
             <button type="button" class="btn" id="printAllBtn" style="padding: 0 16px; height: 44px; border-radius: 12px; font-weight: 700; gap: 6px; background: #fff; border: 1.5px solid #e2e8f0; color: #64748b; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
@@ -103,9 +114,13 @@
             </button>
             @endif
             @else
-            <a href="{{ route('login') }}" class="btn btn-primary" style="padding: 0 16px; height: 44px; border-radius: 12px; font-weight: 700; gap: 6px; display: flex; align-items: center; justify-content: center; text-decoration: none;">
+            <a href="{{ route('login') }}" class="btn" style="padding: 0 16px; height: 44px; border-radius: 12px; font-weight: 700; gap: 6px; background: #fff; border: 1.5px solid #e2e8f0; color: #64748b; display: flex; align-items: center; justify-content: center; text-decoration: none; transition: all 0.2s;">
                 <i data-lucide="log-in" style="width:18px;height:18px;"></i>
                 <span>Login Admin</span>
+            </a>
+            <a href="{{ route('login') }}" class="btn btn-primary" style="padding: 0 16px; height: 44px; border-radius: 12px; font-weight: 700; gap: 6px; display: flex; align-items: center; justify-content: center; text-decoration: none; background: #16a34a; border: none;">
+                <i data-lucide="plus-circle" style="width:18px;height:18px;"></i>
+                <span>Tambah Surat Baru</span>
             </a>
             @endauth
         </div>
@@ -208,6 +223,58 @@
     .folder-card.add-card:hover div {
         color: #3b82f6;
     }
+</style>
+
+{{-- Date Filter Modal (Mutasi Rekening Style) --}}
+<div id="dateFilterModal" style="display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px); z-index: 10000; justify-content: center; align-items: center; padding: 20px;">
+    <div style="background: #fff; width: 100%; max-width: 400px; border-radius: 24px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.1); animation: modalFadeIn 0.3s ease-out;">
+        <div style="padding: 20px; text-align: center; border-bottom: 1px solid #f1f5f9; position: relative;">
+            <h4 style="margin: 0; color: #475569; font-size: 18px; font-weight: 600;">Filter Berdasarkan Tanggal</h4>
+            <button onclick="closeDateFilter()" style="position: absolute; right: 15px; top: 18px; background: none; border: none; color: #94a3b8; cursor: pointer;">
+                <i data-lucide="x" style="width: 20px; height: 20px;"></i>
+            </button>
+        </div>
+        
+        <div style="padding: 24px;">
+            {{-- Icon Box --}}
+            <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #f1f5f9;">
+                <div style="width: 54px; height: 54px; background: #16a34a; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; flex-shrink: 0;">
+                    <i data-lucide="file-text" style="width: 28px; height: 28px;"></i>
+                </div>
+                <div>
+                    <div style="font-weight: 700; color: #1e293b; font-size: 15px;" id="selectedDateRangeText">Semua Tanggal</div>
+                    <div style="font-size: 12px; color: #94a3b8;">Pilih rentang waktu dokumen</div>
+                </div>
+            </div>
+
+            {{-- Date Inputs Grid --}}
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+                <div>
+                    <label style="display: block; font-size: 12px; color: #64748b; font-weight: 600; margin-bottom: 8px;">Dari Tanggal</label>
+                    <div style="position: relative;">
+                        <input type="date" id="inputStartDate" style="width: 100%; padding: 12px; border-radius: 12px; border: 1.5px solid #e2e8f0; font-size: 13px; color: #334155;">
+                    </div>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 12px; color: #64748b; font-weight: 600; margin-bottom: 8px;">Sampai Tanggal</label>
+                    <div style="position: relative;">
+                        <input type="date" id="inputEndDate" style="width: 100%; padding: 12px; border-radius: 12px; border: 1.5px solid #e2e8f0; font-size: 13px; color: #334155;">
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" id="applyDateFilterBtn" style="width: 100%; background: #dc2626; color: #fff; border: none; padding: 14px; border-radius: 12px; font-weight: 700; font-size: 15px; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2);">
+                Lanjut
+            </button>
+            <button type="button" id="resetDateFilterBtn" style="width: 100%; background: transparent; color: #64748b; border: none; margin-top: 12px; font-size: 13px; font-weight: 600; cursor: pointer;">
+                Hapus Filter Tanggal
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+    @keyframes modalFadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 </style>
 
 {{-- ====== Upload Modal ====== --}}
@@ -744,6 +811,69 @@
     const applyFilterBtn    = document.getElementById('applyFilterBtn');
     const resetFilter       = document.getElementById('resetFilter');
 
+    // ====== Date Filter Logic ======
+    const mainDateFilterBtn = document.getElementById('mainDateFilterBtn');
+    const sidebarDateFilterBtn = document.getElementById('sidebarDateFilterBtn');
+    const dateFilterModal = document.getElementById('dateFilterModal');
+    const applyDateFilterBtn = document.getElementById('applyDateFilterBtn');
+    const resetDateFilterBtn = document.getElementById('resetDateFilterBtn');
+
+    function openDateFilter() {
+        dateFilterModal.style.display = 'flex';
+        document.getElementById('inputStartDate').value = document.getElementById('startDateInput').value;
+        document.getElementById('inputEndDate').value = document.getElementById('endDateInput').value;
+        updateDateRangeText();
+    }
+
+    function closeDateFilter() {
+        dateFilterModal.style.display = 'none';
+    }
+
+    function updateDateRangeText() {
+        const start = document.getElementById('inputStartDate').value;
+        const end = document.getElementById('inputEndDate').value;
+        const textEl = document.getElementById('selectedDateRangeText');
+        
+        if (start && end) {
+            textEl.innerText = `${formatDateID(start)} - ${formatDateID(end)}`;
+        } else {
+            textEl.innerText = 'Semua Tanggal';
+        }
+    }
+
+    function formatDateID(dateStr) {
+        if (!dateStr) return '';
+        const d = new Date(dateStr);
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+        return `${d.getDate().toString().padStart(2, '0')}-${months[d.getMonth()]}-${d.getFullYear()}`;
+    }
+
+    if (mainDateFilterBtn) mainDateFilterBtn.onclick = openDateFilter;
+    if (sidebarDateFilterBtn) sidebarDateFilterBtn.onclick = openDateFilter;
+    
+    document.getElementById('inputStartDate').onchange = updateDateRangeText;
+    document.getElementById('inputEndDate').onchange = updateDateRangeText;
+
+    if (applyDateFilterBtn) {
+        applyDateFilterBtn.onclick = () => {
+            document.getElementById('startDateInput').value = document.getElementById('inputStartDate').value;
+            document.getElementById('endDateInput').value = document.getElementById('inputEndDate').value;
+            closeDateFilter();
+            performUpdate();
+        };
+    }
+
+    if (resetDateFilterBtn) {
+        resetDateFilterBtn.onclick = () => {
+            document.getElementById('startDateInput').value = '';
+            document.getElementById('endDateInput').value = '';
+            document.getElementById('inputStartDate').value = '';
+            document.getElementById('inputEndDate').value = '';
+            closeDateFilter();
+            performUpdate();
+        };
+    }
+
     const documentsGrid  = document.getElementById('documentsGrid');
     const statsContainer = document.getElementById('statsContainer');
     let currentKategori  = '{{ request()->kategori ?? "Semua" }}';
@@ -754,14 +884,21 @@
 
     const performUpdate = () => {
         const url = new URL(window.location.href);
-        const parentId = document.getElementById('parentIdInput').value;
-        const searchVal = searchInput.value.trim();
         const sortVal = sortValueInput.value;
         const catVal = currentKategori;
+        const startDate = document.getElementById('startDateInput').value;
+        const endDate = document.getElementById('endDateInput').value;
         
         url.searchParams.set('kategori', catVal);
         url.searchParams.set('search', searchVal);
         url.searchParams.set('sort', sortVal);
+        
+        if (startDate) url.searchParams.set('start_date', startDate);
+        else url.searchParams.delete('start_date');
+
+        if (endDate) url.searchParams.set('end_date', endDate);
+        else url.searchParams.delete('end_date');
+
         url.searchParams.set('_v', Date.now()); // Anti-cache
         if (parentId) url.searchParams.set('parent_id', parentId);
         else url.searchParams.delete('parent_id');

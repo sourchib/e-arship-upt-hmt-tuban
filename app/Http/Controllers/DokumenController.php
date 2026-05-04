@@ -15,8 +15,30 @@ class DokumenController extends Controller
     {
         $query = Dokumen::visible();
 
-        // Removed root-only filtering logic to show all documents in main view
+        // Date Filter Logic
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('tanggal', [$request->start_date, $request->end_date]);
+        }
 
+        $parentId = $request->get('parent_id');
+        if ($parentId === "") $parentId = null;
+
+        // Apply folder filter
+        if ($request->filled('search') || ($request->filled('start_date') && $request->filled('end_date'))) {
+            // Global search or Global date filtering: allow finding documents across all folders
+        } else {
+            // Regular view or category filtering: constrain to current folder
+            if ($parentId) {
+                $query->where('folder_id', $parentId);
+            } else {
+                $query->whereNull('folder_id');
+                
+                // If at root level (Utama) and no filters are active, hide all documents
+                if (!$request->filled('kategori') || $request->kategori === 'Semua') {
+                    $query->where('id', 0); 
+                }
+            }
+        }
 
         // Sorting
         $sort = $request->get('sort', 'latest');
@@ -162,7 +184,9 @@ class DokumenController extends Controller
                 'folders' => $allFolders,
                 'flatFolders' => $flatFolders,
                 'breadcrumbs' => $breadcrumbs,
-                'currentFolder' => $currentFolder
+                'currentFolder' => $currentFolder,
+                'start_date' => $request->start_date,
+                'end_date' => $request->end_date
             ]);
         }
 
@@ -221,8 +245,22 @@ class DokumenController extends Controller
             default: $query->orderBy('tanggal', 'desc'); break;
         }
 
-        // Removed root-only filtering logic for print view
+        $parentId = $request->get('parent_id');
+        if ($parentId === "") $parentId = null;
 
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('tanggal', [$request->start_date, $request->end_date]);
+        }
+
+        if ($request->filled('search') || ($request->filled('start_date') && $request->filled('end_date'))) {
+            // Global search or Global date filtering
+        } else {
+            if ($parentId) {
+                $query->where('folder_id', $parentId);
+            } else {
+                $query->whereNull('folder_id');
+            }
+        }
 
         if ($request->has('kategori') && $request->kategori != 'Semua') {
             $query->where('kategori', $request->kategori);
