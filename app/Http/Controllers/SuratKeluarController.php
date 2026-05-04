@@ -14,6 +14,10 @@ class SuratKeluarController extends Controller
     {
         $query = SuratKeluar::latest();
 
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('tanggal_surat', [$request->start_date, $request->end_date]);
+        }
+
         if ($request->has('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
@@ -161,6 +165,10 @@ class SuratKeluarController extends Controller
     public function print(Request $request)
     {
         $query = SuratKeluar::query();
+
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('tanggal_surat', [$request->start_date, $request->end_date]);
+        }
 
         if ($request->has('search')) {
             $search = $request->search;

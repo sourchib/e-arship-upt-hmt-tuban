@@ -18,6 +18,10 @@ class SuratMasukController extends Controller
             $query->where('status', $request->status);
         }
 
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('tanggal_terima', [$request->start_date, $request->end_date]);
+        }
+
         if ($request->has('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
@@ -176,6 +180,10 @@ class SuratMasukController extends Controller
 
         if ($request->has('status') && $request->status !== 'Semua') {
             $query->where('status', $request->status);
+        }
+
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('tanggal_terima', [$request->start_date, $request->end_date]);
         }
 
         if ($request->has('search')) {
