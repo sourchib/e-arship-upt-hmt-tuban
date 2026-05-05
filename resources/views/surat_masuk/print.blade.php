@@ -79,14 +79,12 @@
         <thead>
             <tr>
                 <th style="width: 30px;">No</th>
-                <th style="width: 120px;">No. Surat</th>
-                <th>Pengirim</th>
-                <th>Penerima</th>
+                <th style="width: 140px;">No. Surat</th>
                 <th>Perihal</th>
-                <th style="width: 80px;">Tgl Surat</th>
-                <th style="width: 80px;">Tgl Terima</th>
-                <th>Prioritas</th>
-                <th>Status</th>
+                <th>Penerima Disposisi</th>
+                <th style="width: 100px;">Tgl Terima</th>
+                <th>Isi Disposisi</th>
+                <th style="width: 80px;">Status</th>
             </tr>
         </thead>
         <tbody>
@@ -94,12 +92,10 @@
             <tr>
                 <td style="text-align: center;">{{ $index + 1 }}</td>
                 <td class="text-bold">{{ $surat->nomor_surat }}</td>
-                <td>{{ $surat->pengirim }}</td>
-                <td>{{ $surat->penerima ?? '-' }}</td>
                 <td class="text-bold">{{ $surat->perihal }}</td>
-                <td>{{ $surat->tanggal_surat ? $surat->tanggal_surat->format('d/m/Y') : '-' }}</td>
+                <td>{{ $surat->penerima_disposisi ?? '-' }}</td>
                 <td>{{ $surat->tanggal_terima ? $surat->tanggal_terima->format('d/m/Y') : '-' }}</td>
-                <td>{{ $surat->prioritas }}</td>
+                <td>{{ $surat->disposisi ?? '-' }}</td>
                 <td>{{ $surat->status }}</td>
             </tr>
             @endforeach
