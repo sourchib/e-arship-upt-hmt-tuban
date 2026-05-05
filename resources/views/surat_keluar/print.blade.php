@@ -86,14 +86,12 @@
         .text-bold { font-weight: 700; }
         
         /* Column Widths */
-        .col-no { width: 30px; }
-        .col-nomor { width: 110px; }
-        .col-perihal { width: 180px; }
-        .col-pengirim { width: 110px; }
-        .col-penerima { width: 110px; }
-        .col-tgl { width: 70px; }
-        .col-ket { width: 120px; }
-        .col-status { width: 80px; }
+        .col-no { width: 40px; }
+        .col-nomor { width: 150px; }
+        .col-perihal { width: 250px; }
+        .col-tujuan { width: 150px; }
+        .col-tgl { width: 100px; }
+        .col-status { width: 100px; }
 
         .status-badge {
             display: inline-block;
@@ -145,11 +143,9 @@
                 <th class="col-no text-center">NO</th>
                 <th class="col-nomor">NOMOR SURAT</th>
                 <th class="col-perihal">PERIHAL</th>
-                <th class="col-pengirim">PENGIRIM</th>
-                <th class="col-penerima">TUJUAN</th>
-                <th class="col-tgl">TGL SURAT</th>
-                <th class="col-tgl">TGL KIRIM</th>
-                <th class="col-ket">KETERANGAN</th>
+                <th class="col-tujuan">TUJUAN</th>
+                <th class="col-tgl text-center">TANGGAL SURAT</th>
+                <th class="col-tgl text-center">TANGGAL KIRIM</th>
                 <th class="col-status text-center">STATUS</th>
             </tr>
         </thead>
@@ -159,11 +155,9 @@
                 <td class="text-center">{{ $index + 1 }}</td>
                 <td class="text-bold">{{ $surat->nomor_surat }}</td>
                 <td>{{ $surat->perihal }}</td>
-                <td>UPT PT dan HMT Tuban</td>
                 <td>{{ $surat->tujuan }}</td>
                 <td class="text-center">{{ $surat->tanggal_surat ? $surat->tanggal_surat->format('d/m/Y') : '-' }}</td>
                 <td class="text-center">{{ $surat->tanggal_kirim ? $surat->tanggal_kirim->format('d/m/Y') : '-' }}</td>
-                <td>{{ $surat->keterangan ?? '-' }}</td>
                 <td class="text-center">
                     @php
                         $sc = 'bg-draft';
