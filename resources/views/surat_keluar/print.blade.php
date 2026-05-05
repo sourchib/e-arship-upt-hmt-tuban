@@ -79,11 +79,11 @@
         <thead>
             <tr>
                 <th style="width: 30px;">No</th>
-                <th style="width: 140px;">No. Surat</th>
+                <th style="width: 140px;">Nomor Surat</th>
                 <th>Perihal</th>
-                <th>Tujuan</th>
-                <th style="width: 100px;">Tgl Kirim</th>
-                <th>Keterangan</th>
+                <th>Pengirim</th>
+                <th style="width: 100px;">Tanggal Surat</th>
+                <th style="width: 100px;">Tanggal Terima</th>
                 <th style="width: 80px;">Status</th>
             </tr>
         </thead>
@@ -92,10 +92,10 @@
             <tr>
                 <td style="text-align: center;">{{ $index + 1 }}</td>
                 <td class="text-bold">{{ $surat->nomor_surat }}</td>
-                <td class="text-bold">{{ $surat->perihal }}</td>
+                <td>{{ $surat->perihal }}</td>
                 <td>{{ $surat->tujuan }}</td>
+                <td>{{ $surat->tanggal_surat ? $surat->tanggal_surat->format('d/m/Y') : '-' }}</td>
                 <td>{{ $surat->tanggal_kirim ? $surat->tanggal_kirim->format('d/m/Y') : '-' }}</td>
-                <td>{{ $surat->keterangan ?? '-' }}</td>
                 <td>{{ $surat->status }}</td>
             </tr>
             @endforeach
