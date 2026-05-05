@@ -12,8 +12,11 @@
                     <th>Nomor Surat</th>
                     <th>Perihal</th>
                     <th>Pengirim</th>
-                    <th>Tanggal Surat</th>
-                    <th>Tanggal Terima</th>
+                    <th>Penerima</th>
+                    <th>Tgl Surat</th>
+                    <th>Tgl Terima</th>
+                    <th>Penerima Disposisi</th>
+                    <th>Isi Disposisi</th>
                     <th>Status</th>
                     <th style="text-align:center;">Aksi</th>
                 </tr>
@@ -26,22 +29,25 @@
                         <span style="font-weight:600;font-size:13.5px;">{{ $surat->nomor_surat }}</span>
                     </td>
                     <td>
-                        <span style="color:#475569;font-size:13.5px;max-width:260px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ $surat->perihal }}</span>
+                        <span style="color:#475569;font-size:13.5px;max-width:200px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ $surat->perihal }}</span>
                     </td>
                     <td>
                         <span style="color:#64748b;font-size:13px;">{{ $surat->pengirim }}</span>
                     </td>
                     <td>
-                        <span style="color:#64748b;font-size:13px;display:flex;align-items:center;gap:6px;">
-                            <i data-lucide="calendar" style="width:14px;height:14px;color:#94a3b8;"></i>
-                            {{ $surat->tanggal_surat->format('d/m/Y') }}
-                        </span>
+                        <span style="color:#64748b;font-size:13px;">{{ $surat->penerima ?? '-' }}</span>
                     </td>
                     <td>
-                        <span style="color:#64748b;font-size:13px;display:flex;align-items:center;gap:6px;">
-                            <i data-lucide="calendar-check" style="width:14px;height:14px;color:#94a3b8;"></i>
-                            {{ $surat->tanggal_terima->format('d/m/Y') }}
-                        </span>
+                        <span style="color:#64748b;font-size:12px;">{{ $surat->tanggal_surat->format('d/m/Y') }}</span>
+                    </td>
+                    <td>
+                        <span style="color:#64748b;font-size:12px;">{{ $surat->tanggal_terima->format('d/m/Y') }}</span>
+                    </td>
+                    <td>
+                        <span style="color:#64748b;font-size:13px;">{{ $surat->penerima_disposisi ?? '-' }}</span>
+                    </td>
+                    <td>
+                        <span style="color:#64748b;font-size:13px;max-width:150px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ $surat->disposisi ?? '-' }}</span>
                     </td>
                     <td>
                         @php
