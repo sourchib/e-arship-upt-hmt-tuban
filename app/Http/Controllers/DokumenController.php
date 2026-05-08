@@ -293,7 +293,7 @@ class DokumenController extends Controller
             'masa_retensi' => 'nullable|string|max:100',
             'status' => 'required|in:Aktif,Inaktif',
             'sifat_arsip' => 'nullable|string|max:50',
-            'file' => 'required|file|max:51200', // Max 50MB
+            'file' => 'required|file',
             'deskripsi' => 'nullable|string',
         ]);
 
@@ -366,7 +366,7 @@ class DokumenController extends Controller
             'masa_retensi' => 'nullable|string|max:100',
             'status' => 'required|in:Aktif,Inaktif',
             'sifat_arsip' => 'nullable|string|max:50',
-            'file' => 'nullable|file|max:51200', // Max 50MB
+            'file' => 'nullable|file',
             'deskripsi' => 'nullable|string',
         ]);
 

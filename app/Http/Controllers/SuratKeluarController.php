@@ -14,6 +14,10 @@ class SuratKeluarController extends Controller
     {
         $query = SuratKeluar::latest();
 
+        if ($request->has('status') && $request->status !== 'Semua') {
+            $query->where('status', $request->status);
+        }
+
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $query->whereBetween('tanggal_surat', [$request->start_date, $request->end_date]);
         }
@@ -58,7 +62,7 @@ class SuratKeluarController extends Controller
             'tanggal_kirim' => 'nullable|date',
             'prioritas' => 'required|in:Tinggi,Sedang,Rendah',
             'status' => 'required|in:Draft,Terkirim,Selesai',
-            'file' => 'required|file|mimes:pdf,jpg,png|max:2048',
+            'file' => 'required|file',
             'keterangan' => 'nullable|string',
         ]);
 
@@ -97,7 +101,7 @@ class SuratKeluarController extends Controller
             'tanggal_kirim' => 'nullable|date',
             'prioritas' => 'required|in:Tinggi,Sedang,Rendah',
             'status' => 'required|in:Draft,Terkirim,Selesai',
-            'file' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
+            'file' => 'nullable|file',
             'keterangan' => 'nullable|string',
         ]);
 
@@ -165,6 +169,10 @@ class SuratKeluarController extends Controller
     public function print(Request $request)
     {
         $query = SuratKeluar::query();
+
+        if ($request->has('status') && $request->status !== 'Semua') {
+            $query->where('status', $request->status);
+        }
 
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $query->whereBetween('tanggal_surat', [$request->start_date, $request->end_date]);

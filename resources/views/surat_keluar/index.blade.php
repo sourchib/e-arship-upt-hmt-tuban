@@ -241,7 +241,17 @@
                 </div>
             </div>
 
-            <div class="modal-footer-btns" style="justify-content: flex-end;">
+            <div class="modal-footer-btns" style="justify-content: flex-end; gap: 12px;">
+                <a id="btnLihatFile" href="#" target="_blank" class="btn-save-modal" 
+                   style="background: #3b82f6; text-decoration: none; display: flex; align-items: center; gap: 8px; justify-content: center; flex: none; min-width: 140px; padding: 10px 20px;">
+                    <i data-lucide="external-link" style="width: 16px; height: 16px;"></i>
+                    Lihat
+                </a>
+                <a id="btnDownloadFile" href="#" class="btn-save-modal" 
+                   style="background: #10b981; text-decoration: none; display: flex; align-items: center; gap: 8px; justify-content: center; flex: none; min-width: 140px; padding: 10px 20px;">
+                    <i data-lucide="download" style="width: 16px; height: 16px;"></i>
+                    Download
+                </a>
                 <button type="button" class="btn-cancel-modal" id="cancelDetailModal" style="flex: none; min-width: 100px; padding: 10px 24px;">Tutup</button>
             </div>
         </div>
@@ -483,6 +493,22 @@
                 document.getElementById('detailTanggalSurat').innerText = this.dataset.tanggalSurat;
                 document.getElementById('detailTanggalKirim').innerText = this.dataset.tanggalKirim;
                 document.getElementById('detailPrioritas').innerText = this.dataset.prioritas;
+                
+                const fileBtn = document.getElementById('btnLihatFile');
+                const dlBtn = document.getElementById('btnDownloadFile');
+                if (fileBtn) {
+                    if (this.dataset.filePath) {
+                        const encodedPath = this.dataset.filePath.replace(/\//g, '|');
+                        fileBtn.href = `/view-dokumen/${encodedPath}`;
+                        if(dlBtn) dlBtn.href = `/download-dokumen/${encodedPath}`;
+                        fileBtn.style.display = 'flex';
+                        if(dlBtn) dlBtn.style.display = 'flex';
+                    } else {
+                        fileBtn.style.display = 'none';
+                        if(dlBtn) dlBtn.style.display = 'none';
+                    }
+                }
+
                 const statusEl = document.getElementById('detailStatus');
                 statusEl.innerHTML = `<span class="status-badge ${this.dataset.statusClass}">${this.dataset.status}</span>`;
                 toggleDetailModal();
