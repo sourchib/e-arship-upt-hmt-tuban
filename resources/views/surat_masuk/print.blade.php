@@ -223,6 +223,7 @@
 
     <div class="info-bar">
         <div class="info-item">Status: <span>{{ request('status', 'Semua') }}</span></div>
+        <div class="info-item">Prioritas: <span>{{ request('prioritas', 'Semua') }}</span></div>
         <div class="info-item">Total: <span>{{ count($suratMasuk) }} surat</span></div>
     </div>
 

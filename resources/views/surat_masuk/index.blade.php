@@ -31,12 +31,38 @@
             <input type="text" id="searchInput" placeholder="Cari nomor, perihal, pengirim, atau penerima...">
         </div>
         <div class="toolbar-actions-wrapper">
+            <div style="position: relative; display: inline-block;">
+                <select id="sortSelect" class="btn date-filter-btn" style="padding-right: 32px; appearance: none; -webkit-appearance: none; cursor: pointer;">
+                    <option value="created_at-desc">Urutkan: Terbaru</option>
+                    <option value="tanggal_surat-desc">Tgl Surat (Terbaru)</option>
+                    <option value="tanggal_surat-asc">Tgl Surat (Terlama)</option>
+                    <option value="tanggal_terima-desc">Tgl Terima (Terbaru)</option>
+                    <option value="tanggal_terima-asc">Tgl Terima (Terlama)</option>
+                </select>
+                <i data-lucide="chevron-down" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: #64748b; pointer-events: none;"></i>
+            </div>
+
+            <div style="position: relative; display: inline-block;">
+                <select id="prioritasSelect" class="btn date-filter-btn" style="padding-right: 32px; appearance: none; -webkit-appearance: none; cursor: pointer;">
+                    <option value="Semua">Semua Prioritas</option>
+                    <option value="Tinggi">⚡ Tinggi</option>
+                    <option value="Sedang">🟢 Sedang</option>
+                    <option value="Rendah">🔵 Rendah</option>
+                </select>
+                <i data-lucide="chevron-down" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: #64748b; pointer-events: none;"></i>
+            </div>
+
             <button type="button" id="openDateFilter" class="btn date-filter-btn">
                 <i data-lucide="calendar" style="width: 18px; height: 18px;"></i>
                 <span id="dateRangeText">Filter Tanggal</span>
             </button>
             <input type="hidden" id="startDateInput" value="{{ request('start_date') }}">
             <input type="hidden" id="endDateInput" value="{{ request('end_date') }}">
+
+            <button type="button" id="resetFiltersBtn" class="btn date-filter-btn" style="border-color: #f87171; color: #ef4444; background: #fef2f2; display: none; align-items: center; gap: 6px; padding: 0 12px;">
+                <i data-lucide="rotate-ccw" style="width: 16px; height: 16px;"></i>
+                <span>Reset</span>
+            </button>
         </div>
         <div class="filter-tabs">
             <button class="filter-tab active" data-status="Semua">Semua</button>
@@ -762,17 +788,94 @@
 
         // AJAX Search
         const searchInput = document.getElementById('searchInput');
+        const prioritasSelect = document.getElementById('prioritasSelect');
+        const sortSelect = document.getElementById('sortSelect');
+        const resetFiltersBtn = document.getElementById('resetFiltersBtn');
         const listContainer = document.getElementById('listContainer');
         let typingTimer;
+        let currentStatus = 'Semua';
 
-        const performUpdate = (status = currentStatus) => {
+        // Read initial state from URL
+        const initializeFiltersFromUrl = () => {
+            const params = new URLSearchParams(window.location.search);
+            
+            // Search Input
+            if (params.has('search') && searchInput) {
+                searchInput.value = params.get('search');
+            }
+            
+            // Status Tab
+            if (params.has('status')) {
+                currentStatus = params.get('status');
+                document.querySelectorAll('.filter-tab').forEach(tab => {
+                    if (tab.dataset.status === currentStatus) {
+                        document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                        tab.classList.add('active');
+                    }
+                });
+            }
+            
+            // Prioritas Select
+            if (params.has('prioritas') && prioritasSelect) {
+                prioritasSelect.value = params.get('prioritas');
+            }
+            
+            // Sort Select
+            if (params.has('sort_by') && params.has('sort_order') && sortSelect) {
+                sortSelect.value = `${params.get('sort_by')}-${params.get('sort_order')}`;
+            }
+            
+            // Date Filter inputs
+            if (params.has('start_date') && startDateInput) {
+                startDateInput.value = params.get('start_date');
+            }
+            if (params.has('end_date') && endDateInput) {
+                endDateInput.value = params.get('end_date');
+            }
+            updateDateRangeText();
+            
+            // Toggle Reset Button
+            checkResetFiltersButton();
+        };
+
+        const checkResetFiltersButton = () => {
+            const hasActiveFilters = (searchInput && searchInput.value) || 
+                                     currentStatus !== 'Semua' || 
+                                     (prioritasSelect && prioritasSelect.value !== 'Semua') || 
+                                     (sortSelect && sortSelect.value !== 'created_at-desc') ||
+                                     (startDateInput && startDateInput.value) || 
+                                     (endDateInput && endDateInput.value);
+            if (resetFiltersBtn) {
+                resetFiltersBtn.style.display = hasActiveFilters ? 'flex' : 'none';
+            }
+        };
+
+        const performUpdate = (status = currentStatus, page = 1) => {
             const url = new URL(window.location.href);
-            url.searchParams.set('search', searchInput.value);
+            url.searchParams.set('search', searchInput ? searchInput.value : '');
             url.searchParams.set('status', status);
-            if (startDateInput.value) url.searchParams.set('start_date', startDateInput.value);
+            url.searchParams.set('page', page);
+            
+            const prioritasVal = prioritasSelect ? prioritasSelect.value : 'Semua';
+            if (prioritasVal !== 'Semua') {
+                url.searchParams.set('prioritas', prioritasVal);
+            } else {
+                url.searchParams.delete('prioritas');
+            }
+
+            if (sortSelect) {
+                const [sortBy, sortOrder] = sortSelect.value.split('-');
+                url.searchParams.set('sort_by', sortBy);
+                url.searchParams.set('sort_order', sortOrder);
+            }
+
+            if (startDateInput && startDateInput.value) url.searchParams.set('start_date', startDateInput.value);
             else url.searchParams.delete('start_date');
-            if (endDateInput.value) url.searchParams.set('end_date', endDateInput.value);
+            
+            if (endDateInput && endDateInput.value) url.searchParams.set('end_date', endDateInput.value);
             else url.searchParams.delete('end_date');
+
+            checkResetFiltersButton();
 
             fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
                 .then(r => r.json())
@@ -781,11 +884,22 @@
                     lucide.createIcons();
                     bindDeleteConfirm();
                     bindActionButtons(); // Re-bind dynamic buttons
+                    bindPagination();    // Bind AJAX pagination
                     window.history.pushState({}, '', url);
                 });
         };
 
-        let currentStatus = 'Semua';
+        const bindPagination = () => {
+            document.querySelectorAll('#listContainer .pagination-list a.page-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const page = this.dataset.page || 1;
+                    performUpdate(currentStatus, page);
+                });
+            });
+        };
+
+        // Tab selection event listener
         document.querySelectorAll('.filter-tab').forEach(tab => {
             tab.addEventListener('click', function () {
                 document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
@@ -795,10 +909,47 @@
             });
         });
 
+        // Search input keydown listener (debounced)
         if (searchInput) {
             searchInput.addEventListener('input', () => {
                 clearTimeout(typingTimer);
                 typingTimer = setTimeout(() => performUpdate(), 300);
+            });
+        }
+
+        // Prioritas select listener
+        if (prioritasSelect) {
+            prioritasSelect.addEventListener('change', () => {
+                performUpdate();
+            });
+        }
+
+        // Sort select listener
+        if (sortSelect) {
+            sortSelect.addEventListener('change', () => {
+                performUpdate();
+            });
+        }
+
+        // Reset Filters Button listener
+        if (resetFiltersBtn) {
+            resetFiltersBtn.addEventListener('click', () => {
+                if (searchInput) searchInput.value = '';
+                if (prioritasSelect) prioritasSelect.value = 'Semua';
+                if (sortSelect) sortSelect.value = 'created_at-desc';
+                if (startDateInput) startDateInput.value = '';
+                if (endDateInput) endDateInput.value = '';
+                if (modalStartDate) modalStartDate.value = '';
+                if (modalEndDate) modalEndDate.value = '';
+                
+                currentStatus = 'Semua';
+                document.querySelectorAll('.filter-tab').forEach(tab => {
+                    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                    if (tab.dataset.status === 'Semua') tab.classList.add('active');
+                });
+                
+                updateDateRangeText();
+                performUpdate('Semua');
             });
         }
 
@@ -821,7 +972,11 @@
                 });
             });
         }
+
+        // Initial bindings
         bindDeleteConfirm();
+        bindPagination();
+        initializeFiltersFromUrl();
 
         window.addEventListener('DOMContentLoaded', () => {
             if (new URLSearchParams(window.location.search).get('create') === 'true') {

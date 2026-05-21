@@ -12,10 +12,24 @@ class SuratMasukController extends Controller
 {
     public function index(Request $request)
     {
-        $query = SuratMasuk::latest();
+        $query = SuratMasuk::query();
+
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortOrder = $request->get('sort_order', 'desc');
+
+        if (in_array($sortBy, ['tanggal_surat', 'tanggal_terima', 'created_at'])) {
+            $sortOrder = in_array($sortOrder, ['asc', 'desc']) ? $sortOrder : 'desc';
+            $query->orderBy($sortBy, $sortOrder);
+        } else {
+            $query->latest();
+        }
 
         if ($request->has('status') && $request->status !== 'Semua') {
             $query->where('status', $request->status);
+        }
+
+        if ($request->has('prioritas') && $request->prioritas !== 'Semua') {
+            $query->where('prioritas', $request->prioritas);
         }
 
         if ($request->filled('start_date') && $request->filled('end_date')) {
@@ -182,6 +196,10 @@ class SuratMasukController extends Controller
             $query->where('status', $request->status);
         }
 
+        if ($request->has('prioritas') && $request->prioritas !== 'Semua') {
+            $query->where('prioritas', $request->prioritas);
+        }
+
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $query->whereBetween('tanggal_terima', [$request->start_date, $request->end_date]);
         }
@@ -195,7 +213,17 @@ class SuratMasukController extends Controller
             });
         }
 
-        $suratMasuk = $query->latest()->get();
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortOrder = $request->get('sort_order', 'desc');
+
+        if (in_array($sortBy, ['tanggal_surat', 'tanggal_terima', 'created_at'])) {
+            $sortOrder = in_array($sortOrder, ['asc', 'desc']) ? $sortOrder : 'desc';
+            $query->orderBy($sortBy, $sortOrder);
+        } else {
+            $query->latest();
+        }
+
+        $suratMasuk = $query->get();
         return view('surat_masuk.print', compact('suratMasuk'));
     }
 

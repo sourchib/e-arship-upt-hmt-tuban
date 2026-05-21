@@ -335,7 +335,7 @@
                 <div class="form-row-custom" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
                     <div class="form-group">
                         <label class="form-label">Tanggal Dokumen <span style="color:#dc2626">*</span></label>
-                        <input type="date" class="form-control" name="tanggal" id="input_tanggal" value="{{ date('Y-m-d') }}" required>
+                        <input type="date" class="form-control" name="tanggal" id="input_tanggal" value="{{ date('Y-m-d') }}" required readonly>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Lokasi Penyimpanan <span style="color:#dc2626">*</span></label>
@@ -888,6 +888,8 @@
         const catVal = currentKategori;
         const startDate = document.getElementById('startDateInput').value;
         const endDate = document.getElementById('endDateInput').value;
+        const searchVal = searchInput ? searchInput.value.trim() : '';
+        const parentId = document.getElementById('parentIdInput') ? document.getElementById('parentIdInput').value : '';
         
         url.searchParams.set('kategori', catVal);
         url.searchParams.set('search', searchVal);

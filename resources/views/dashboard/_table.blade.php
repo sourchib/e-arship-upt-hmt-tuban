@@ -28,7 +28,13 @@
                             </div>
                             <div>
                                 <div style="font-weight: 700; color: #1e293b;">{{ $f->nama }}</div>
-                                <div style="font-size: 11px; color: #94a3b8;">{{ $f->dokumen_count ?? $f->dokumen()->count() }} Item</div>
+                                <div style="font-size: 11px; color: #94a3b8; display: flex; gap: 6px; align-items: center; margin-top: 4px;">
+                                    <span>{{ $f->dokumen_count ?? $f->dokumen()->count() }} Item</span>
+                                    @php
+                                        $latestDoc = $f->dokumen()->latest('created_at')->first();
+                                        $folderDate = $latestDoc ? $latestDoc->created_at : ($f->updated_at ?? $f->created_at);
+                                    @endphp
+                                </div>
                             </div>
                         </div>
                     </td>
@@ -41,7 +47,14 @@
                     <td style="padding: 16px 16px;">-</td>
                     <td class="hide-mobile" style="padding: 16px 16px;">-</td>
                     <td class="hide-mobile" style="padding: 16px 16px;">-</td>
-                    <td style="padding: 16px 16px; color: #64748b;">{{ $f->created_at->format('d/m/Y') }}</td>
+                    <td style="padding: 16px 16px;">
+                        <div style="font-weight: 600; color: #475569;">
+                            {{ $folderDate ? $folderDate->format('d/m/Y') : '-' }}
+                        </div>
+                        <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;">
+                            Update: {{ $folderDate ? $folderDate->format('F Y') : '-' }}
+                        </div>
+                    </td>
                     <td style="padding: 16px 16px; text-align: right;">-</td>
                 </tr>
                 @endforeach

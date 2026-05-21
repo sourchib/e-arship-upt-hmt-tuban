@@ -33,7 +33,13 @@
                                 </div>
                                 <div>
                                     <div style="font-weight: 800; color: #1e293b;">{{ $f->nama }}</div>
-                                    <div style="font-size: 11px; color: #94a3b8;">{{ $f->dokumen_count ?? $f->dokumen()->count() }} Item</div>
+                                    <div style="font-size: 11px; color: #94a3b8; display: flex; gap: 6px; align-items: center; margin-top: 4px;">
+                                        <span>{{ $f->dokumen_count ?? $f->dokumen()->count() }} Item</span>
+                                        @php
+                                            $latestDoc = $f->dokumen()->latest('created_at')->first();
+                                            $folderDate = $latestDoc ? $latestDoc->created_at : ($f->updated_at ?? $f->created_at);
+                                        @endphp
+                                    </div>
                                 </div>
                             </div>
                         </td>
@@ -46,7 +52,14 @@
                         <td style="padding: 14px 16px;">-</td>
                         <td class="hide-mobile" style="padding: 14px 16px;">-</td>
                         <td class="hide-mobile" style="padding: 14px 16px;">-</td>
-                        <td style="padding: 14px 16px; color: #64748b;">{{ $f->created_at->format('d/m/Y') }}</td>
+                        <td style="padding: 14px 16px;">
+                            <div style="font-weight: 600; color: #475569;">
+                                {{ $folderDate ? $folderDate->format('d/m/Y') : '-' }}
+                            </div>
+                            <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;">
+                                Update: {{ $folderDate ? $folderDate->format('F Y') : '-' }}
+                            </div>
+                        </td>
                         <td style="padding: 14px 16px; text-align: right;">
                             <div style="display: flex; justify-content: flex-end; gap: 8px;">
                                 <button type="button" class="action-btn-table edit btn-rename-folder" data-id="{{ $f->id }}" data-nama="{{ $f->nama }}" title="Rename">
@@ -74,7 +87,6 @@
                     </td>
                     <td style="padding: 14px 16px;">
                         <div style="font-weight: 700; color: #1e293b;">{{ $doc->nama }}</div>
-                        <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">{{ number_format($doc->ukuran / 1024, 1) }} KB • {{ strtoupper(pathinfo($doc->file_path, PATHINFO_EXTENSION)) }}</div>
                     </td>
                     <td style="padding: 14px 16px;">
                         @php
@@ -116,8 +128,16 @@
                     <td class="hide-mobile" style="padding: 14px 16px; font-weight: 600; color: #64748b; font-size: 12.5px;">
                         {{ $doc->masa_retensi ?? '-' }}
                     </td>
-                    <td style="padding: 14px 16px; color: #64748b; font-weight: 500;">
-                        {{ $doc->tanggal ? $doc->tanggal->format('d/m/Y') : $doc->tanggal_upload->format('d/m/Y') }}
+                    <td style="padding: 14px 16px;">
+                        <div style="font-weight: 600; color: #475569;">
+                            {{ $doc->tanggal ? $doc->tanggal->format('d/m/Y') : $doc->tanggal_upload->format('d/m/Y') }}
+                        </div>
+                        <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;">
+                            {{ number_format($doc->ukuran / 1024, 1) }} KB &bull; {{ strtoupper(pathinfo($doc->file_path, PATHINFO_EXTENSION)) }}
+                        </div>
+                        <div style="font-size: 10px; color: #cbd5e1; margin-top: 2px;">
+                            {{ $doc->updated_at && $doc->updated_at->ne($doc->created_at) ? 'Diperbarui ' . $doc->updated_at->format('d M Y') : 'Dibuat ' . $doc->created_at->format('d M Y') }}
+                        </div>
                     </td>
                     <td style="padding: 14px 16px; text-align: right;">
                         <div style="display: flex; justify-content: flex-end; gap: 8px;">
