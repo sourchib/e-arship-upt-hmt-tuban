@@ -12,7 +12,25 @@ class SuratKeluarController extends Controller
 {
     public function index(Request $request)
     {
-        $query = SuratKeluar::latest();
+        $query = SuratKeluar::query();
+
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortOrder = $request->get('sort_order', 'desc');
+
+        if (in_array($sortBy, ['tanggal_surat', 'tanggal_kirim', 'created_at'])) {
+            $sortOrder = in_array($sortOrder, ['asc', 'desc']) ? $sortOrder : 'desc';
+            $query->orderBy($sortBy, $sortOrder);
+        } else {
+            $query->latest();
+        }
+
+        if ($request->has('status') && $request->status !== 'Semua') {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('tanggal_surat', [$request->start_date, $request->end_date]);
+        }
 
         if ($request->has('search')) {
             $search = $request->search;
@@ -54,7 +72,7 @@ class SuratKeluarController extends Controller
             'tanggal_kirim' => 'nullable|date',
             'prioritas' => 'required|in:Tinggi,Sedang,Rendah',
             'status' => 'required|in:Draft,Terkirim,Selesai',
-            'file' => 'required|file|mimes:pdf,jpg,png|max:2048',
+            'file' => 'required|file',
             'keterangan' => 'nullable|string',
         ]);
 
@@ -93,7 +111,7 @@ class SuratKeluarController extends Controller
             'tanggal_kirim' => 'nullable|date',
             'prioritas' => 'required|in:Tinggi,Sedang,Rendah',
             'status' => 'required|in:Draft,Terkirim,Selesai',
-            'file' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
+            'file' => 'nullable|file',
             'keterangan' => 'nullable|string',
         ]);
 
@@ -156,5 +174,40 @@ class SuratKeluarController extends Controller
         ]);
 
         return redirect()->route('surat-keluar.index')->with('success', 'Surat keluar berhasil dikirim.');
+    }
+
+    public function print(Request $request)
+    {
+        $query = SuratKeluar::query();
+
+        if ($request->has('status') && $request->status !== 'Semua') {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('tanggal_surat', [$request->start_date, $request->end_date]);
+        }
+
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('nomor_surat', 'like', "%{$search}%")
+                  ->orWhere('perihal', 'like', "%{$search}%")
+                  ->orWhere('tujuan', 'like', "%{$search}%");
+            });
+        }
+
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortOrder = $request->get('sort_order', 'desc');
+
+        if (in_array($sortBy, ['tanggal_surat', 'tanggal_kirim', 'created_at'])) {
+            $sortOrder = in_array($sortOrder, ['asc', 'desc']) ? $sortOrder : 'desc';
+            $query->orderBy($sortBy, $sortOrder);
+        } else {
+            $query->latest();
+        }
+
+        $suratKeluar = $query->get();
+        return view('surat_keluar.print', compact('suratKeluar'));
     }
 }

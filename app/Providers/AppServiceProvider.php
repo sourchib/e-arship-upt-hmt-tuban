@@ -13,7 +13,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Penyesuaian untuk struktur folder webapp di dalam htdocs
+        $this->app->bind('path.public', function () {
+            return base_path('../');
+        });
     }
 
     /**
@@ -21,21 +24,25 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        if (config('app.env') === 'production' || env('FORCE_HTTPS', true)) {
+            \Illuminate\Support\Facades\URL::forceScheme('https');
+        }
+
         View::composer('*', function ($view) {
             if (auth()->check()) {
                 $activities = LogAktivitas::with('user')->latest()->take(6)->get();
-                
+
                 if ($activities->isEmpty()) {
                     $activities = collect([
-                        (object)[
+                        (object) [
                             'modul' => 'Sistem',
                             'deskripsi' => 'Selamat datang di E-Arsip!',
                             'created_at' => now(),
-                            'user' => (object)['nama' => 'System']
+                            'user' => (object) ['nama' => 'System']
                         ]
                     ]);
                 }
-                
+
                 $view->with('globalActivities', $activities);
             }
         });

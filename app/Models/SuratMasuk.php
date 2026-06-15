@@ -14,6 +14,7 @@ class SuratMasuk extends Model
     protected $fillable = [
         'nomor_surat',
         'pengirim',
+        'penerima',
         'perihal',
         'tanggal_surat',
         'tanggal_terima',
@@ -21,6 +22,8 @@ class SuratMasuk extends Model
         'status',
         'file_path',
         'keterangan',
+        'disposisi',
+        'penerima_disposisi',
         'created_by',
     ];
 

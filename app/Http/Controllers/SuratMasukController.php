@@ -12,10 +12,28 @@ class SuratMasukController extends Controller
 {
     public function index(Request $request)
     {
-        $query = SuratMasuk::latest();
+        $query = SuratMasuk::query();
+
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortOrder = $request->get('sort_order', 'desc');
+
+        if (in_array($sortBy, ['tanggal_surat', 'tanggal_terima', 'created_at'])) {
+            $sortOrder = in_array($sortOrder, ['asc', 'desc']) ? $sortOrder : 'desc';
+            $query->orderBy($sortBy, $sortOrder);
+        } else {
+            $query->latest();
+        }
 
         if ($request->has('status') && $request->status !== 'Semua') {
             $query->where('status', $request->status);
+        }
+
+        if ($request->has('prioritas') && $request->prioritas !== 'Semua') {
+            $query->where('prioritas', $request->prioritas);
+        }
+
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('tanggal_terima', [$request->start_date, $request->end_date]);
         }
 
         if ($request->has('search')) {
@@ -53,13 +71,16 @@ class SuratMasukController extends Controller
         $validated = $request->validate([
             'nomor_surat' => 'required|string|unique:surat_masuk',
             'pengirim' => 'required|string',
+            'penerima' => 'nullable|string',
             'perihal' => 'required|string',
             'tanggal_surat' => 'required|date',
             'tanggal_terima' => 'required|date',
             'prioritas' => 'required|in:Tinggi,Sedang,Rendah',
             'status' => 'required|in:Pending,Diproses,Terarsip,Selesai',
-            'file' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
+            'file' => 'nullable|file',
             'keterangan' => 'nullable|string',
+            'disposisi' => 'nullable|string',
+            'penerima_disposisi' => 'nullable|string',
         ]);
 
         if ($request->hasFile('file')) {
@@ -69,6 +90,10 @@ class SuratMasukController extends Controller
         $validated['created_by'] = Auth::id();
         
         $surat = SuratMasuk::create($validated);
+
+        if ($surat->status === 'Terarsip') {
+            $this->autoArsip($surat);
+        }
 
         LogAktivitas::create([
             'jenis_aktivitas' => 'Create',
@@ -92,14 +117,19 @@ class SuratMasukController extends Controller
         $validated = $request->validate([
             'nomor_surat' => 'required|string|unique:surat_masuk,nomor_surat,' . $suratMasuk->id,
             'pengirim' => 'required|string',
+            'penerima' => 'nullable|string',
             'perihal' => 'required|string',
             'tanggal_surat' => 'required|date',
             'tanggal_terima' => 'required|date',
             'prioritas' => 'required|in:Tinggi,Sedang,Rendah',
             'status' => 'required|in:Pending,Diproses,Terarsip,Selesai',
-            'file' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
+            'file' => 'nullable|file',
             'keterangan' => 'nullable|string',
+            'disposisi' => 'nullable|string',
+            'penerima_disposisi' => 'nullable|string',
         ]);
+
+        $oldStatus = $suratMasuk->status;
 
         if ($request->hasFile('file')) {
             if ($suratMasuk->file_path) {
@@ -109,6 +139,10 @@ class SuratMasukController extends Controller
         }
 
         $suratMasuk->update($validated);
+
+        if ($oldStatus !== 'Terarsip' && $suratMasuk->status === 'Terarsip') {
+            $this->autoArsip($suratMasuk);
+        }
 
         LogAktivitas::create([
             'jenis_aktivitas' => 'Update',
@@ -120,6 +154,77 @@ class SuratMasukController extends Controller
         ]);
 
         return redirect()->route('surat-masuk.index')->with('success', 'Surat masuk berhasil diperbarui.');
+    }
+
+    private function autoArsip(SuratMasuk $suratMasuk)
+    {
+        $year = date('Y', strtotime($suratMasuk->tanggal_terima));
+        $folderName = "Surat Masuk " . $year;
+        
+        $folder = \App\Models\Folder::firstOrCreate(['nama' => $folderName]);
+        
+        $newPath = null;
+        if ($suratMasuk->file_path && Storage::disk('public')->exists($suratMasuk->file_path)) {
+            $extension = pathinfo($suratMasuk->file_path, PATHINFO_EXTENSION);
+            $newPath = 'documents/' . time() . '_' . basename($suratMasuk->file_path);
+            Storage::disk('public')->copy($suratMasuk->file_path, $newPath);
+        }
+
+        \App\Models\Dokumen::create([
+            'nama' => "Surat: " . $suratMasuk->perihal,
+            'kategori' => 'Surat Masuk',
+            'folder_id' => $folder->id,
+            'folder' => $folder->nama,
+            'tanggal' => $suratMasuk->tanggal_surat,
+            'kode' => $suratMasuk->nomor_surat,
+            'lokasi' => 'Arsip Digital',
+            'status' => 'Aktif',
+            'file_path' => $newPath,
+            'ukuran' => $newPath ? Storage::disk('public')->size($newPath) : 0,
+            'mime_type' => $newPath ? Storage::disk('public')->mimeType($newPath) : null,
+            'tanggal_upload' => now(),
+            'deskripsi' => "Otomatis diarsipkan dari Surat Masuk nomor {$suratMasuk->nomor_surat}. Pengirim: {$suratMasuk->pengirim}.",
+            'uploaded_by' => Auth::id(),
+        ]);
+    }
+
+    public function print(Request $request)
+    {
+        $query = SuratMasuk::query();
+
+        if ($request->has('status') && $request->status !== 'Semua') {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->has('prioritas') && $request->prioritas !== 'Semua') {
+            $query->where('prioritas', $request->prioritas);
+        }
+
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('tanggal_terima', [$request->start_date, $request->end_date]);
+        }
+
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('nomor_surat', 'like', "%{$search}%")
+                  ->orWhere('perihal', 'like', "%{$search}%")
+                  ->orWhere('pengirim', 'like', "%{$search}%");
+            });
+        }
+
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortOrder = $request->get('sort_order', 'desc');
+
+        if (in_array($sortBy, ['tanggal_surat', 'tanggal_terima', 'created_at'])) {
+            $sortOrder = in_array($sortOrder, ['asc', 'desc']) ? $sortOrder : 'desc';
+            $query->orderBy($sortBy, $sortOrder);
+        } else {
+            $query->latest();
+        }
+
+        $suratMasuk = $query->get();
+        return view('surat_masuk.print', compact('suratMasuk'));
     }
 
     public function destroy(Request $request, SuratMasuk $suratMasuk)

@@ -11,6 +11,13 @@
         <p>Kelola surat keluar dan pengiriman</p>
     </div>
     <div class="page-header-actions">
+        <a href="{{ route('surat-keluar.print', request()->only(['search', 'start_date', 'end_date'])) }}"
+           target="_blank"
+           class="btn btn-outline-secondary me-2"
+           id="btnPrintLaporan">
+            <i data-lucide="printer" style="width:16px;height:16px;"></i>
+            Cetak Laporan
+        </a>
         @if(Auth::check() && Auth::user()->role === 'Admin')
         <button type="button" class="btn btn-primary" id="openCreateModal">
             <i data-lucide="plus" style="width:16px;height:16px;"></i>
@@ -24,12 +31,15 @@
 <div class="toolbar">
     <div class="toolbar-search">
         <i data-lucide="search" class="search-icon"></i>
-        <input type="text" id="searchInput" placeholder="Cari nomor, perihal, atau tujuan...">
+        <input type="text" id="searchInput" value="{{ request('search') }}" placeholder="Cari nomor, perihal, atau tujuan...">
     </div>
-    <div class="filter-tabs">
-        <button class="filter-tab active" data-status="Semua">Semua</button>
-        <button class="filter-tab" data-status="Draft">Draft</button>
-        <button class="filter-tab" data-status="Terkirim">Terkirim</button>
+    <div class="toolbar-actions-wrapper">
+        <button type="button" id="openDateFilter" class="btn date-filter-btn">
+            <i data-lucide="calendar" style="width: 18px; height: 18px;"></i>
+            <span id="dateRangeText">Filter Tanggal</span>
+        </button>
+        <input type="hidden" id="startDateInput" value="{{ request('start_date') }}">
+        <input type="hidden" id="endDateInput" value="{{ request('end_date') }}">
     </div>
 </div>
 
@@ -80,15 +90,19 @@
                                placeholder="Nama tujuan/penerima" required>
                         @error('tujuan')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
+                </div>
+                <div class="form-row-3">
                     <div class="form-group">
-                        <label class="form-label">Tanggal Surat <span style="color:#dc2626">*</span></label>
+                        <label class="form-label">Tgl Surat <span style="color:#dc2626">*</span></label>
                         <input type="date" class="form-control @error('tanggal_surat') is-invalid @enderror"
                                name="tanggal_surat" value="{{ old('tanggal_surat') }}" required>
                         @error('tanggal_surat')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
-                </div>
-
-                <div class="form-row-2">
+                    <div class="form-group">
+                        <label class="form-label">Tgl Kirim</label>
+                        <input type="date" class="form-control @error('tanggal_kirim') is-invalid @enderror"
+                               name="tanggal_kirim" value="{{ old('tanggal_kirim') }}">
+                    </div>
                     <div class="form-group">
                         <label class="form-label">Prioritas <span style="color:#dc2626">*</span></label>
                         <select class="form-control @error('prioritas') is-invalid @enderror" name="prioritas" required>
@@ -97,6 +111,7 @@
                             <option value="Rendah">Rendah</option>
                         </select>
                     </div>
+                </div>
                     <div class="form-group">
                         <label class="form-label">Upload File (PDF) <span style="color:#dc2626">*</span></label>
                         <input type="file" class="form-control @error('file') is-invalid @enderror" name="file" required>
@@ -111,6 +126,50 @@
                     <button type="button" class="btn-cancel-modal" id="cancelCreateModal">Batal</button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+{{-- ====== Modal Filter Tanggal ====== --}}
+<div class="modal-container-custom" id="dateFilterModal" style="z-index: 1060;">
+    <div class="modal-content-custom" style="max-width: 450px; position: relative;">
+        <div class="modal-header-custom" style="border: none; padding-bottom: 0; display: flex; justify-content: center; align-items: center;">
+            <h4 style="font-size: 1.25rem; font-weight: 800; color: #1e293b; margin: 0;">Filter Tanggal</h4>
+            <button type="button" class="btn-close-custom" id="closeDateFilter" style="position: absolute; right: 16px; top: 16px; background: #f1f5f9; border-radius: 8px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border: none; transition: all 0.2s;">
+                <i data-lucide="x" style="width: 18px; height: 18px; color: #64748b;"></i>
+            </button>
+        </div>
+
+        <div class="modal-body-custom" style="padding: 30px;">
+            <div style="background: #f8fafc; border-radius: 20px; padding: 24px; margin-bottom: 24px; display: flex; align-items: center; gap: 20px; border: 1px solid #f1f5f9;">
+                <div style="width: 56px; height: 56px; background: #00c853; color: white; border-radius: 16px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 16px rgba(0, 200, 83, 0.2);">
+                    <i data-lucide="file-text" style="width: 28px; height: 28px;"></i>
+                </div>
+                <div>
+                    <div id="modalDateRangeText" style="font-size: 16px; font-weight: 800; color: #1e293b; margin-bottom: 4px;">Semua Tanggal</div>
+                    <div style="font-size: 13px; color: #94a3b8; font-weight: 500;">Pilih rentang waktu dokumen</div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" style="font-size: 12px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">Dari Tanggal</label>
+                    <input type="date" id="modalStartDate" class="form-control" style="height: 48px; border-radius: 12px; font-weight: 600;">
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" style="font-size: 12px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">Sampai Tanggal</label>
+                    <input type="date" id="modalEndDate" class="form-control" style="height: 48px; border-radius: 12px; font-weight: 600;">
+                </div>
+            </div>
+
+            <div class="mt-4" style="display: flex; flex-direction: column; gap: 12px;">
+                <button type="button" id="applyDateFilter" class="btn btn-primary" style="width: 100%; height: 52px; border-radius: 16px; font-weight: 800; font-size: 15px; background: #e50000; border: none; box-shadow: 0 8px 20px rgba(229, 0, 0, 0.25);">
+                    Lanjut
+                </button>
+                <button type="button" id="resetDateFilter" style="width: 100%; background: none; border: none; color: #64748b; font-weight: 700; font-size: 14px; padding: 10px; cursor: pointer;">
+                    Hapus Filter Tanggal
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -140,9 +199,16 @@
                 <div class="detail-item">
                     <div class="detail-label-modern">
                         <i data-lucide="calendar" style="color: #22c55e;"></i>
-                        Tanggal
+                        Tgl Surat
                     </div>
-                    <div class="detail-value-modern" id="detailTanggal"></div>
+                    <div class="detail-value-modern" id="detailTanggalSurat"></div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label-modern">
+                        <i data-lucide="send" style="color: #3b82f6;"></i>
+                        Tgl Kirim
+                    </div>
+                    <div class="detail-value-modern" id="detailTanggalKirim"></div>
                 </div>
             </div>
 
@@ -167,13 +233,19 @@
                     <div class="detail-label-modern">Prioritas</div>
                     <div class="detail-value-modern" id="detailPrioritas"></div>
                 </div>
-                <div class="detail-item">
-                    <div class="detail-label-modern">Status</div>
-                    <div id="detailStatus"></div>
-                </div>
             </div>
 
-            <div class="modal-footer-btns" style="justify-content: flex-end;">
+            <div class="modal-footer-btns" style="justify-content: flex-end; gap: 12px;">
+                <a id="btnLihatFile" href="#" target="_blank" class="btn-save-modal" 
+                   style="background: #3b82f6; text-decoration: none; display: flex; align-items: center; gap: 8px; justify-content: center; flex: none; min-width: 140px; padding: 10px 20px;">
+                    <i data-lucide="external-link" style="width: 16px; height: 16px;"></i>
+                    Lihat
+                </a>
+                <a id="btnDownloadFile" href="#" class="btn-save-modal" 
+                   style="background: #10b981; text-decoration: none; display: flex; align-items: center; gap: 8px; justify-content: center; flex: none; min-width: 140px; padding: 10px 20px;">
+                    <i data-lucide="download" style="width: 16px; height: 16px;"></i>
+                    Download
+                </a>
                 <button type="button" class="btn-cancel-modal" id="cancelDetailModal" style="flex: none; min-width: 100px; padding: 10px 24px;">Tutup</button>
             </div>
         </div>
@@ -213,13 +285,16 @@
                         <label class="form-label">Tujuan <span style="color:#dc2626">*</span></label>
                         <input type="text" class="form-control" name="tujuan" id="editTujuanInput" required>
                     </div>
+                </div>
+                <div class="form-row-3">
                     <div class="form-group">
-                        <label class="form-label">Tanggal Surat <span style="color:#dc2626">*</span></label>
+                        <label class="form-label">Tgl Surat <span style="color:#dc2626">*</span></label>
                         <input type="date" class="form-control" name="tanggal_surat" id="editTanggalSurat" required>
                     </div>
-                </div>
-
-                <div class="form-row-2">
+                    <div class="form-group">
+                        <label class="form-label">Tgl Kirim</label>
+                        <input type="date" class="form-control" name="tanggal_kirim" id="editTanggalKirimInput">
+                    </div>
                     <div class="form-group">
                         <label class="form-label">Prioritas <span style="color:#dc2626">*</span></label>
                         <select class="form-control" name="prioritas" id="editPrioritasSelect">
@@ -228,6 +303,7 @@
                             <option value="Rendah">Rendah</option>
                         </select>
                     </div>
+                </div>
                     <div class="form-group">
                         <label class="form-label">Ganti File (PDF) <small class="text-muted">(Opsional)</small></label>
                         <input type="file" class="form-control" name="file">
@@ -244,10 +320,76 @@
 </div>
 
 <style>
+    .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+    }
+    .toolbar-search {
+        flex: 1;
+        min-width: 250px;
+    }
+    .toolbar-actions-wrapper {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+    .date-filter-btn {
+        background: #fff; 
+        border: 1.5px solid #e2e8f0; 
+        border-radius: 12px; 
+        height: 44px; 
+        padding: 0 16px; 
+        color: #64748b; 
+        font-weight: 700; 
+        display: flex; 
+        align-items: center; 
+        gap: 8px; 
+        transition: all 0.2s;
+        white-space: nowrap;
+    }
+    .filter-tabs {
+        display: flex;
+        overflow-x: auto;
+        padding-bottom: 4px;
+        -webkit-overflow-scrolling: touch;
+    }
+    .filter-tabs::-webkit-scrollbar {
+        display: none;
+    }
+    
+    @media (max-width: 768px) {
+        .toolbar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .toolbar-actions-wrapper {
+            justify-content: space-between;
+        }
+        .date-filter-btn {
+            flex: 1;
+            justify-content: center;
+        }
+        .modal-content-custom {
+            width: 95% !important;
+            margin: 10px auto;
+            padding: 15px !important;
+        }
+        .modal-body-custom {
+            padding: 15px !important;
+        }
+    }
+
     .detail-row-modern {
         display: grid;
-        grid-template-columns: 1.2fr 0.8fr;
+        grid-template-columns: 1fr 1fr;
         gap: 16px;
+    }
+    .form-row-3 {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 12px;
     }
     .detail-label-modern {
         font-size: 13px;
@@ -342,10 +484,25 @@
                 document.getElementById('detailNomor').innerText    = this.dataset.nomor;
                 document.getElementById('detailPerihal').innerText  = this.dataset.perihal;
                 document.getElementById('detailTujuan').innerText   = this.dataset.tujuan;
-                document.getElementById('detailTanggal').innerText  = this.dataset.tanggal;
+                document.getElementById('detailTanggalSurat').innerText = this.dataset.tanggalSurat;
+                document.getElementById('detailTanggalKirim').innerText = this.dataset.tanggalKirim;
                 document.getElementById('detailPrioritas').innerText = this.dataset.prioritas;
-                const statusEl = document.getElementById('detailStatus');
-                statusEl.innerHTML = `<span class="status-badge ${this.dataset.statusClass}">${this.dataset.status}</span>`;
+                
+                const fileBtn = document.getElementById('btnLihatFile');
+                const dlBtn = document.getElementById('btnDownloadFile');
+                if (fileBtn) {
+                    if (this.dataset.filePath) {
+                        const encodedPath = this.dataset.filePath.replace(/\//g, '|');
+                        fileBtn.href = `/view-dokumen/${encodedPath}`;
+                        if(dlBtn) dlBtn.href = `/download-dokumen/${encodedPath}`;
+                        fileBtn.style.display = 'flex';
+                        if(dlBtn) dlBtn.style.display = 'flex';
+                    } else {
+                        fileBtn.style.display = 'none';
+                        if(dlBtn) dlBtn.style.display = 'none';
+                    }
+                }
+
                 toggleDetailModal();
             });
         });
@@ -357,6 +514,7 @@
                 document.getElementById('editPerihalInput').value   = this.dataset.perihal;
                 document.getElementById('editTujuanInput').value    = this.dataset.tujuan;
                 document.getElementById('editTanggalSurat').value   = this.dataset.tanggal;
+                document.getElementById('editTanggalKirimInput').value = this.dataset.tanggalKirim;
                 document.getElementById('editPrioritasSelect').value = this.dataset.prioritas;
                 editForm.action = this.dataset.url;
                 toggleEditModal();
@@ -368,16 +526,113 @@
 
     @if($errors->any()) toggleCreateModal(); @endif
 
+    // Date Filter Logic
+    const dateFilterModal = document.getElementById('dateFilterModal');
+    const openDateFilterBtn = document.getElementById('openDateFilter');
+    const closeDateFilterBtn = document.getElementById('closeDateFilter');
+    const applyDateFilterBtn = document.getElementById('applyDateFilter');
+    const resetDateFilterBtn = document.getElementById('resetDateFilter');
+    const startDateInput = document.getElementById('startDateInput');
+    const endDateInput = document.getElementById('endDateInput');
+    const modalStartDate = document.getElementById('modalStartDate');
+    const modalEndDate = document.getElementById('modalEndDate');
+    const dateRangeText = document.getElementById('dateRangeText');
+    const modalDateRangeText = document.getElementById('modalDateRangeText');
+
+    const updateDateRangeText = () => {
+        if (startDateInput.value && endDateInput.value) {
+            const start = new Date(startDateInput.value).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+            const end = new Date(endDateInput.value).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+            const text = `${start} - ${end}`;
+            dateRangeText.innerText = text;
+            modalDateRangeText.innerText = text;
+            openDateFilterBtn.style.borderColor = '#16a34a';
+            openDateFilterBtn.style.color = '#16a34a';
+            openDateFilterBtn.style.background = '#f0fdf4';
+        } else {
+            dateRangeText.innerText = 'Filter Tanggal';
+            modalDateRangeText.innerText = 'Semua Tanggal';
+            openDateFilterBtn.style.borderColor = '#e2e8f0';
+            openDateFilterBtn.style.color = '#64748b';
+            openDateFilterBtn.style.background = '#fff';
+        }
+    };
+
+    updateDateRangeText();
+
+    openDateFilterBtn.addEventListener('click', () => {
+        modalStartDate.value = startDateInput.value;
+        modalEndDate.value = endDateInput.value;
+        dateFilterModal.classList.add('show');
+        backdrop.classList.add('show');
+    });
+
+    closeDateFilterBtn.addEventListener('click', () => {
+        dateFilterModal.classList.remove('show');
+        backdrop.classList.remove('show');
+    });
+
+    applyDateFilterBtn.addEventListener('click', () => {
+        startDateInput.value = modalStartDate.value;
+        endDateInput.value = modalEndDate.value;
+        updateDateRangeText();
+        dateFilterModal.classList.remove('show');
+        backdrop.classList.remove('show');
+        performUpdate();
+    });
+
+    resetDateFilterBtn.addEventListener('click', () => {
+        startDateInput.value = '';
+        endDateInput.value = '';
+        modalStartDate.value = '';
+        modalEndDate.value = '';
+        updateDateRangeText();
+        dateFilterModal.classList.remove('show');
+        backdrop.classList.remove('show');
+        performUpdate();
+    });
+
     // AJAX Search
     const searchInput   = document.getElementById('searchInput');
     const listContainer = document.getElementById('listContainer');
     let typingTimer;
-    let currentStatus = 'Semua';
+
+    const updatePrintLink = (url) => {
+        const printBtn = document.getElementById('btnPrintLaporan');
+        if (!printBtn) return;
+
+        const printUrl = new URL("{{ route('surat-keluar.print') }}", window.location.origin);
+
+        if (searchInput.value) printUrl.searchParams.set('search', searchInput.value);
+        if (startDateInput.value) printUrl.searchParams.set('start_date', startDateInput.value);
+        if (endDateInput.value) printUrl.searchParams.set('end_date', endDateInput.value);
+        
+        if (currentSortBy) {
+            printUrl.searchParams.set('sort_by', currentSortBy);
+            printUrl.searchParams.set('sort_order', currentSortOrder);
+        }
+
+        printBtn.href = printUrl.toString();
+    };
+
+    let currentSortBy = new URLSearchParams(window.location.search).get('sort_by') || 'created_at';
+    let currentSortOrder = new URLSearchParams(window.location.search).get('sort_order') || 'desc';
 
     const performUpdate = () => {
         const url = new URL(window.location.href);
         url.searchParams.set('search', searchInput.value);
-        url.searchParams.set('status', currentStatus);
+        if (startDateInput.value) url.searchParams.set('start_date', startDateInput.value);
+        else url.searchParams.delete('start_date');
+        if (endDateInput.value) url.searchParams.set('end_date', endDateInput.value);
+        else url.searchParams.delete('end_date');
+
+        if (currentSortBy) {
+            url.searchParams.set('sort_by', currentSortBy);
+            url.searchParams.set('sort_order', currentSortOrder);
+        }
+
+        updatePrintLink(url);
+
         fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
             .then(r => r.json())
             .then(data => {
@@ -390,14 +645,6 @@
             });
     };
 
-    document.querySelectorAll('.filter-tab').forEach(tab => {
-        tab.addEventListener('click', function() {
-            document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
-            this.classList.add('active');
-            currentStatus = this.dataset.status;
-            performUpdate();
-        });
-    });
 
     if(searchInput) {
         searchInput.addEventListener('input', () => {
@@ -448,6 +695,25 @@
 
     bindDeleteConfirm();
     bindSendConfirm();
+    updatePrintLink(new URL(window.location.href));
+
+    if (listContainer) {
+        listContainer.addEventListener('click', function(e) {
+            const th = e.target.closest('.sortable-col');
+            if (th) {
+                const sortField = th.dataset.sort;
+                
+                if (currentSortBy === sortField) {
+                    currentSortOrder = currentSortOrder === 'desc' ? 'asc' : 'desc';
+                } else {
+                    currentSortBy = sortField;
+                    currentSortOrder = 'desc';
+                }
+                
+                performUpdate();
+            }
+        });
+    }
 
     window.addEventListener('DOMContentLoaded', () => {
         if (new URLSearchParams(window.location.search).get('create') === 'true') {

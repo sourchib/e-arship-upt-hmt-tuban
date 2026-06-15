@@ -73,7 +73,7 @@
                 </div>
 
                 <div class="mb-4">
-                    <label for="file" class="form-label fw-bold text-slate-700">Ganti File (PDF) <span class="text-muted small font-normal">(Kosongkan jika tidak ingin ganti)</span></label>
+                    <label for="file" class="form-label fw-bold text-slate-700">Ganti File <span class="text-muted small font-normal">(Kosongkan jika tidak ingin ganti)</span></label>
                     <input type="file" class="form-control rounded-xl py-3 px-4 bg-slate-50 border-slate-100 @error('file') is-invalid @enderror" id="file" name="file">
                     <div class="mt-2 text-xs text-slate-400">
                         <i data-lucide="file-text" class="w-3 h-3 inline-block mr-1"></i> File saat ini: <a href="{{ asset('storage/' . $suratKeluar->file_path) }}" target="_blank" class="text-primary hover:underline">Lihat Dokumen</a>

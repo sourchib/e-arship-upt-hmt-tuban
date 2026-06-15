@@ -18,7 +18,9 @@ class DashboardController extends Controller
     {
         $hideDirahasiakan = !Auth::check() || Auth::user()->role !== 'Admin';
 
-        $categories = Kategori::orderBy('nama')->pluck('nama');
+        $docCategories = Dokumen::visible()->distinct()->pluck('kategori')->filter()->toArray();
+        $dbCategories = Kategori::orderBy('nama', 'asc')->pluck('nama')->toArray();
+        $categories = array_values(array_unique(array_merge(['Semua'], $docCategories, $dbCategories)));
         $stats = [
             'surat_masuk' => SuratMasuk::count(),
             'surat_keluar' => SuratKeluar::count(),
@@ -94,11 +96,85 @@ class DashboardController extends Controller
                 });
         }
 
+        // Folder Navigation (File Manager Style)
+        $parentId = $request->get('parent_id');
+        $currentFolder = $parentId ? \App\Models\Folder::find($parentId) : null;
+        
+        // Breadcrumbs for Dashboard
+        $breadcrumbs = [];
+        $temp = $currentFolder;
+        while ($temp) {
+            array_unshift($breadcrumbs, ['id' => $temp->id, 'nama' => $temp->nama]);
+            $temp = $temp->parent;
+        }
+
         $query = Dokumen::visible();
-        if ($request->filled('kategori')) {
+
+        // Date Filter Logic
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('tanggal', [$request->start_date, $request->end_date]);
+        }
+
+        if ($request->filled('kategori') && $request->kategori !== 'Semua') {
             $query->where('kategori', $request->kategori);
         }
-        $docsTerbaru = $query->latest()->paginate(5)->withQueryString();
+
+        // Apply folder filter
+        if ($request->filled('search') || ($request->filled('start_date') && $request->filled('end_date'))) {
+            // Global search or Global date filtering: allow finding documents across all folders
+        } else {
+            // Regular view or category filtering: constrain to current folder
+            $query->where('folder_id', $parentId);
+            
+            // If at root level (Utama) and no filters are active, hide all documents
+            if (!$parentId && (!$request->filled('kategori') || $request->kategori === 'Semua')) {
+                $query->where('id', 0); 
+            }
+        }
+
+        // Sorting (Keep same Switch as DokumenController or current)
+        switch ($request->get('sort')) {
+            case 'kode_asc':
+                $query->orderBy('kode', 'asc');
+                break;
+            case 'kode_desc':
+                $query->orderBy('kode', 'desc');
+                break;
+            case 'name_asc':
+                $query->orderBy('nama', 'asc');
+                break;
+            case 'name_desc':
+                $query->orderBy('nama', 'desc');
+                break;
+            case 'latest':
+            default:
+                $query->orderBy('tanggal', 'desc');
+                break;
+        }
+
+        $docsTerbaru = $query->paginate(5)->withQueryString();
+
+        // Get subfolders for dashboard grid (Hide if filtering by specific category)
+        $allFolders = collect();
+        if (!$request->filled('kategori') || $request->kategori === 'Semua') {
+            $folderQuery = \App\Models\Folder::where('parent_id', $parentId)
+                ->withCount(['dokumen' => function($q) {
+                    $q->visible();
+                }]);
+            
+            // Apply name sorting to folders if requested
+            if ($request->get('sort') === 'name_asc') {
+                $folderQuery->orderBy('nama', 'asc');
+            } elseif ($request->get('sort') === 'name_desc') {
+                $folderQuery->orderBy('nama', 'desc');
+            } else {
+                $folderQuery->orderBy('nama', 'asc'); // Default
+            }
+
+            $allFolders = $folderQuery->get();
+        }
+        
+        $totalDokumen = Dokumen::visible()->count(); // Need for "Utama" card count
 
         // Mock trends if real data is zero, for visual impact as per design
         $trends = [
@@ -148,12 +224,19 @@ class DashboardController extends Controller
         if ($request->ajax()) {
             return response()->json([
                 'stats' => $stats,
-                'docs_html' => view('dashboard._table', compact('docsTerbaru'))->render(),
+                'docs_html' => view('dashboard._table', compact('docsTerbaru', 'allFolders'))->render(),
                 'activities_html' => view('dashboard._activities', compact('recentActivities'))->render(),
+                'folders' => $allFolders,
+                'breadcrumbs' => $breadcrumbs,
+                'parentId' => $parentId,
+                'totalDokumen' => $totalDokumen,
+                'categories' => $categories,
+                'start_date' => $request->start_date,
+                'end_date' => $request->end_date
             ]);
         }
 
-        return view('dashboard', compact('stats', 'trends', 'recentActivities', 'docsTerbaru', 'searchResults', 'categories'));
+        return view('dashboard', compact('stats', 'trends', 'recentActivities', 'docsTerbaru', 'searchResults', 'categories', 'allFolders', 'breadcrumbs', 'currentFolder', 'parentId', 'totalDokumen'));
     }
 
     public function suggestions(Request $request)
